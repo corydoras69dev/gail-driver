@@ -5,8 +5,8 @@ if VERSION != v"0.6.4"
 end
 
 gail_root = ENV["GAIL_DRIVER_GITHUB"]
-exit()
-usingPkg.clone(gail_root * "/Vec.jl")
+
+Pkg.clone(gail_root * "/Vec.jl")
 Pkg.build("Vec.jl")
 Pkg.clone("https://github.com/JuliaIO/VideoIO.jl")
 Pkg.clone("https://github.com/JuliaGraphics/Cairo.jl")
