@@ -45,3 +45,5 @@ AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY", "<insert aws key>")
 AWS_ACCESS_SECRET = os.environ.get("AWS_ACCESS_SECRET", "<insert aws secret>")
 
 auto2D_path = "~/gail/gail-driver/julia/envs"
+expert_traj_path = "/home/shusakusawato/.julia/v0.6/NGSIM.jl/data"
+model_path = "/home/shusakusawato/.julia/v0.6/AutomotiveDrivingModels.jl"
