@@ -68,6 +68,8 @@ MUJOCO_KEY_PATH = osp.expanduser("~/.mujoco")
 
 ENV = {}
 
+auto2D_path = "~/gail/gail-driver/julia/envs"
+
 if osp.exists(osp.join(osp.dirname(__file__), "config_personal.py")):
     from .config_personal import *
 else:

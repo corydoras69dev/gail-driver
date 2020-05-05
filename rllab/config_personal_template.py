@@ -43,3 +43,5 @@ DOCKER_CODE_DIR = "/root/code/rllab"
 AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY", "<insert aws key>")
 
 AWS_ACCESS_SECRET = os.environ.get("AWS_ACCESS_SECRET", "<insert aws secret>")
+
+auto2D_path = "~/gail/gail-driver/julia/envs"
