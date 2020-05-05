@@ -4,6 +4,7 @@ if VERSION != v"0.6.4"
   return
 end
 
+
 gail_root = ENV["GAIL_DRIVER_GITHUB"]
 
 Pkg.clone(gail_root * "/Vec.jl")
