@@ -68,7 +68,7 @@ MUJOCO_KEY_PATH = osp.expanduser("~/.mujoco")
 
 ENV = {}
 
-auto2D_path = "~/gail/gail-driver/julia/envs"
+auto2D_path = "/julia/envs"
 expert_trajs_path = "/home/shusakusawato/.julia/v0.6/NGSIM/data"
 model_path = "/home/shusakusawato/.julia/v0.6/AutomotiveDrivingModels"
 
