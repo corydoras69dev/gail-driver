@@ -45,5 +45,5 @@ AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY", "<insert aws key>")
 AWS_ACCESS_SECRET = os.environ.get("AWS_ACCESS_SECRET", "<insert aws secret>")
 
 auto2D_path = "./julia/envs/Auto2D.jl"
-expert_trajs_path = "/home/shusakusawato/.julia/v0.6/NGSIM/data"
-model_path = "/home/shusakusawato/.julia/v0.6/AutomotiveDrivingModels"
+expert_trajs_path = "./data"
+model_path = "./rllab/envs/box2d/models"
