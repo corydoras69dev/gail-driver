@@ -35,7 +35,7 @@ function GaussianMLPDriver{A <: DriveAction}(::Type{A}, net::ForwardNet, extract
     pass = calc_forwardpass(net, [input], [output])
     input_vec = net[input].tensor
     output = net[output].tensor
-    mvnormal = MvNormal(Array(Float64, 2), Σ)
+    mvnormal = MvNormal(Array{Float64}(2), Σ)
     GaussianMLPDriver{A, eltype(input_vec), eltype(output), typeof(extractor), typeof(mvnormal)}(net, rec, pass, input_vec, output, extractor, mvnormal, context)
 end
 
@@ -154,12 +154,12 @@ function SimParams(trajdatas::Dict{Int, Trajdata}, segments::Vector{TrajdataSegm
     context = IntegratedContinuous(NGSIM_TIMESTEP,1),
     )
 
-    simstates = Array(SimState, nsimstates)
+    simstates = Array{SimState}(nsimstates)
     for i in 1 : length(simstates)
         simstates[i] = SimState(context, prime_history+1)
     end
 
-    features = Array(Float64, length(extractor))
+    features = Array{Float64}(length(extractor))
 
     safety_policy = LatLonSeparableDriver(
         context,
@@ -640,9 +640,9 @@ end
 function Base.step(simparams::SimParams, U::Matrix{Float64})
 
     batch_size = length(simparams.states)
-    feature_mat = Array(Float64, batch_size, obssize(simparams))
-    rewards = Array(Float64, batch_size)
-    dones = Array(Float64, batch_size)
+    feature_mat = Array{Float64}(batch_size, obssize(simparams))
+    rewards = Array{Float64}(batch_size)
+    dones = Array{Float64}(batch_size)
 
     step_counter = simparams.step_counter
     for batch_index in 1 : batch_size

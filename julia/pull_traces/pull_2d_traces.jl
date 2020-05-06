@@ -68,10 +68,10 @@ for trajdata_path in TRAJDATA_PATHS
     scene = Scene()
     rec = SceneRecord(2, ΔT)
     n_states = sum(i->length(i.frame_lo:i.frame_hi)-1, segments)
-    features = Array(Float64, N_FEATURES)
-    featureset = Array(Float64, length(features), n_states)
-    targetset = Array(Float64, 2, n_states)
-    interval_starts = Array(Int, length(segments))
+    features = Array{Float64}(N_FEATURES)
+    featureset = Array{Float64}(length(features), n_states)
+    targetset = Array{Float64}(2, n_states)
+    interval_starts = Array{Int}(length(segments))
 
     i = 0
     for (segind, seg) in enumerate(segments)
