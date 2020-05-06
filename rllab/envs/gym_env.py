@@ -66,6 +66,7 @@ class GymEnv(Env, Serializable):
                 log_dir = os.path.join(logger.get_snapshot_dir(), "gym_log")
         Serializable.quick_init(self, locals())
 
+        println("env_name=", env_name)
         env = gym.envs.make(env_name)
         self.env = env
         self.env_id = env.spec.id
