@@ -24,8 +24,8 @@ function LidarSensor(nbeams::Int;
         nbeams = 0
     end
 
-    ranges = Array(Float64, nbeams)
-    range_rates = Array(Float64, nbeams)
+    ranges = Array{Float64}(nbeams)
+    range_rates = Array{Float64}(nbeams)
     LidarSensor(angles, ranges, range_rates, max_range, ConvexPolygon(4))
 end
 nbeams(lidar::LidarSensor) = length(lidar.angles)
@@ -96,7 +96,7 @@ function RoadlineLidarSensor(nbeams::Int;
         angles = Float64[]
         nbeams = 0
     end
-    ranges = Array(Float64, max_depth, nbeams)
+    ranges = Array{Float64}(max_depth, nbeams)
     RoadlineLidarSensor(angles, ranges, max_range, ConvexPolygon(4))
 end
 function _update_lidar!(lidar::RoadlineLidarSensor, ray::VecSE2, beam_index::Int, p_lo::VecE2, p_hi::VecE2)
