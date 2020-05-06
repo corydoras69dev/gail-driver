@@ -84,7 +84,7 @@ function load_gru_driver(
     W, b = _pull_W_b(filepath, joinpath(basepath, layers[1]))
 
     net = ForwardNet{Float32}()
-    push!(net, Variable(:input, Array(Float32, size(W, 2))))
+    push!(net, Variable(:input, Array{Float32}(size(W, 2))))
 
     # hidden layers
     for layer in layers
@@ -144,7 +144,7 @@ function load_gru_driver(
             logstdevs = vec(h5read(filepath, joinpath(basepath, "output_std_param/param:0")))::Vector{Float32}
         end
     end
-    Σ = convert(Vector{Float64}, exp(logstdevs))
+    Σ = convert(Vector{Float64}, exp.(logstdevs))
     Σ = Σ.^2
 
     # extactor
