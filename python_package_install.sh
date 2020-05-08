@@ -1,3 +1,4 @@
+python -m pip install PyHamcrest
 python -m pip install argparse
 python -m pip install msgpack
 python -m pip install julia==0.4.0
