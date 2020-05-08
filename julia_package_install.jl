@@ -31,3 +31,6 @@ using NGSIM
 using AutoViz
 using Records
 using ForwardNets
+Pkg.add("HDF5")
+Pkg.build("HDF5")
+using HDF5
