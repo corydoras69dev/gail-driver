@@ -1,4 +1,4 @@
-Gaussian Mixture Regressor Driver
+﻿Gaussian Mixture Regressor Driver
 rec: 1 0.100
 context: 0.100 1
 Gaussian Mixture Regressor:

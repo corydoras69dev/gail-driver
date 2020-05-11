@@ -1,4 +1,4 @@
-include("lidar_sensors.jl")
+﻿include("lidar_sensors.jl")
 
 type MultiFeatureExtractor <: AbstractFeatureExtractor
     extract_core::Bool # [8] if true, extract lane offset, lane relative heading, speed, vehicle width, vehicle length, marker dist left+right, lane curvature

@@ -1,4 +1,4 @@
-export restart, step_forward, get_state
+﻿export restart, step_forward, get_state
 
 function restart(roadway::Roadway, render::Bool)
     # Create scene

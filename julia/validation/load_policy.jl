@@ -1,4 +1,4 @@
-using ForwardNets
+﻿using ForwardNets
 using Auto2D
 
 type Tim2DExtractor <: AbstractFeatureExtractor
