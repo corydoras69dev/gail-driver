@@ -132,8 +132,8 @@ class StatefulPool(object):
             last_value = 0
             while True:
                 time.sleep(0.1)
-                with open('debug.log', 'a') as debug:
-                    print('rllab/sampler/with lock:\n', file=debug)
+                debug = open('debug.log', 'a')
+                debug.write('rllab/sampler/with lock:\n')
                 with lock:
                     if counter.value >= threshold:
                         if show_prog_bar:
@@ -149,14 +149,14 @@ class StatefulPool(object):
             if show_prog_bar:
                 pbar = ProgBarCounter(threshold)
             while count < threshold:
-                with open('debug.log', 'a') as debug:
-                    print('rllab/sampler/collect_ones()\n', file=debug)
-                    result, inc = collect_once(self.G, *args)
-                    print('rllab/sampler/append()\n', file=debug)
-                    results.append(result)
-                    count += inc
-                    if show_prog_bar:
-                        pbar.inc(inc)
+                debug = open('debug.log', 'a')
+                debug.write('rllab/sampler/collect_ones()\n')
+                result, inc = collect_once(self.G, *args)
+                debug.write('rllab/sampler/append()\n')
+                results.append(result)
+                count += inc
+                if show_prog_bar:
+                    pbar.inc(inc)
             if show_prog_bar:
                 pbar.stop()
             return results
