@@ -1,1 +1,1 @@
-ROOT_FILEPATH="~/gail/gail-driver"
+ROOT_FILEPATH="/home/[username]/gail/gail-driver"
