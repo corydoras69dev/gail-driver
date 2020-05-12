@@ -104,20 +104,28 @@ class NormalizedEnv(ProxyEnv, Serializable):
     def step(self, action):
         if isinstance(self._wrapped_env.action_space, Box):
             # rescale the action
+            debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self.self._wrapped_env.action_space.bounds\n'); debug.close()
             lb, ub = self._wrapped_env.action_space.bounds
             scaled_action = lb + (action + 1.) * 0.5 * (ub - lb)
             scaled_action = np.clip(scaled_action, lb, ub)
         else:
             scaled_action = action
+        debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._wrapped_env.step()\n'); debug.close()
         wrapped_step = self._wrapped_env.step(scaled_action)
         next_obs, reward, done, info = wrapped_step
         if self._normalize_obs:
+            debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._apply_normalize_obs()()\n'); debug.close()
             next_obs = self._apply_normalize_obs(next_obs)
         if self._noise_indices is not None:
+            debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._apply_noise_obs()()\n'); debug.close()
             next_obs = self._apply_noise_obs(next_obs)
         if self._normalize_reward:
+            debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._apply_normalize_reward()()\n'); debug.close()
             reward = self._apply_normalize_reward(reward)
-        return Step(next_obs, reward * self._scale_reward, done, **info)
+        debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/Step()()\n'); debug.close()
+        s = Step(next_obs, reward * self._scale_reward, done, **info)
+        debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/return\n'); debug.close()
+        return s
 
     def __str__(self):
         return "Normalized: %s" % self._wrapped_env
