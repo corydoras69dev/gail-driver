@@ -69,7 +69,7 @@ class JuliaEnv(object):
         # features for next state
         # reward for (s,a,s')
         # done for whether in terminal state
-        debug = open('debug.log', 'a'); debug.write('{} : {} /'.format(self.simparams, actions); debug.close()
+        debug = open('debug.log', 'a'); debug.write('{} : {} /'.format(self.simparams, actions)); debug.close()
         obs, reward, done = self.j.step(self.simparams, actions)
         return obs, reward, done, info
 
