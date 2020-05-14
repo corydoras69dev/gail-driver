@@ -94,9 +94,9 @@ def _worker_set_env_params(G, params, scope=None):
 
 
 def _worker_collect_one_path(G, max_path_length, scope=None):
-    debug = open('debug.log', 'a'); debug.write('rllab/sampler/parallel_sampler.py/_get_scoped_G()\n'); debug.close()
+    #debug = open('debug.log', 'a'); debug.write('rllab/sampler/parallel_sampler.py/_get_scoped_G()\n'); debug.close()
     G = _get_scoped_G(G, scope)
-    debug = open('debug.log', 'a'); debug.write('rllab/sampler/parallel_sampler.py/rollout()\n'); debug.close()
+    #debug = open('debug.log', 'a'); debug.write('rllab/sampler/parallel_sampler.py/rollout()\n'); debug.close()
     path = rollout(G.env, G.policy, max_path_length)
     return path, len(path["rewards"])
 

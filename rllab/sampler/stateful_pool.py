@@ -132,8 +132,7 @@ class StatefulPool(object):
             last_value = 0
             while True:
                 time.sleep(0.1)
-                debug = open('debug.log', 'a')
-                debug.write('rllab/sampler/with lock:\n')
+                debug = open('debug.log', 'a'); debug.write('rllab/sampler/with lock:\n'); debug.close()
                 with lock:
                     if counter.value >= threshold:
                         if show_prog_bar:
