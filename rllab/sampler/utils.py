@@ -36,7 +36,6 @@ def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1):
     if animated:
         env.render(close=True)
         # env.render()
-        debug = open('debug.log', 'a'); debug.write('rllab/sampler/utils.py/rollout.exit()()\n'); debug.close()
     return dict(
         observations=tensor_utils.stack_tensor_list(observations),
         actions=tensor_utils.stack_tensor_list(actions),

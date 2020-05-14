@@ -104,7 +104,6 @@ class NormalizedEnv(ProxyEnv, Serializable):
     def step(self, action):
         if isinstance(self._wrapped_env.action_space, Box):
             # rescale the action
-            debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self.self._wrapped_env.action_space.bounds\n'); debug.close()
             lb, ub = self._wrapped_env.action_space.bounds
             scaled_action = lb + (action + 1.) * 0.5 * (ub - lb)
             scaled_action = np.clip(scaled_action, lb, ub)
@@ -126,7 +125,6 @@ class NormalizedEnv(ProxyEnv, Serializable):
             reward = self._apply_normalize_reward(reward)
         debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/Step()()\n'); debug.close()
         s = Step(next_obs, reward * self._scale_reward, done, **info)
-        debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/return\n'); debug.close()
         return s
 
     def __str__(self):
