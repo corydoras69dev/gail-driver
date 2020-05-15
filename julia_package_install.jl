@@ -7,6 +7,9 @@ end
 
 gail_root = ENV["GAIL_DRIVER_GITHUB"]
 
+Pkg.add("HDF5")
+Pkg.build("HDF5")
+using HDF5
 Pkg.clone(gail_root * "/Vec.jl")
 Pkg.build("Vec.jl")
 Pkg.clone("https://github.com/JuliaIO/VideoIO.jl")
@@ -31,6 +34,3 @@ using NGSIM
 using AutoViz
 using Records
 using ForwardNets
-Pkg.add("HDF5")
-Pkg.build("HDF5")
-using HDF5
