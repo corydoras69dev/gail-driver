@@ -26,6 +26,8 @@ julia_env_dict["Auto2D"] = auto2D_path
 
 
 class JuliaEnv(object):
+    _name_dump = None
+
     def __init__(self,
                  env_name,  # name of the environment to load
                  batch_size,
@@ -35,6 +37,8 @@ class JuliaEnv(object):
                  ):
 
         # Load in functions
+        self._name_dump = 'julia.Julia({}:{})'.format(env_name, julia_env_dict)
+        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + julia_env_dict[env_name] + "\")")
         self.j.using(env_name)
@@ -69,8 +73,9 @@ class JuliaEnv(object):
         # features for next state
         # reward for (s,a,s')
         # done for whether in terminal state
-        debug = open('debug.log', 'a'); debug.write('{} : {} /'.format(self.simparams, actions)); debug.close()
+        debug = open('debug.log', 'a'); debug.write('self.j.step({}:{}:{})'.format(self._name_dump, self.simparams, actions)); debug.close()
         obs, reward, done = self.j.step(self.simparams, actions)
+        debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
         return obs, reward, done, info
 
     @property
@@ -92,9 +97,13 @@ class JuliaEnv(object):
 
 
 class JuliaLQGEnv():
+    _name_dump = None
+
     def __init__(self):
 
         # Load in functions
+        self._name_dump = 'julia(JuliaLQGEnv.LQG_path={})'.format(LQG_path)
+        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + LQG_path + "\")")
         self.j.using("juliaLQG")
@@ -138,10 +147,13 @@ class JuliaLQGEnv():
 
 
 class JuliaDriveEnv():
+    _name_dump = None
     def __init__(self):
         self.dt = 0.1
 
         # Load in functions
+        self._name_dump = 'julia(JuliaDriveEnv.auto1D_path={})'.format(auto1D_path)
+        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + auto1D_path + "\")")
         self.j.using("Auto1D")
@@ -170,8 +182,10 @@ class JuliaDriveEnv():
         done = False
 
         action = np.clip(action, self.action_space.low, self.action_space.high)
+        debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{}:{}:{}:{}:{})'.format(self._name_dump, self.scene, self.roadway, self.model1, self.model2, action[0])); debug.close()
         self.d, self.r, self.s, done = self.j.step_forward(
             self.scene, self.roadway, self.model1, self.model2, action[0])
+        debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
         self.tstep += 1
 
         if self.tstep == 1000:
@@ -208,6 +222,7 @@ class JuliaDriveEnv():
 
 
 class JuliaDriveEnv2D():
+    _name_dump = None
     def __init__(self, n_features, trajdata_indeces,
                  train_seg_index=0, frame_num=0, save_history=False):
 
@@ -220,6 +235,8 @@ class JuliaDriveEnv2D():
         self.frame_num = frame_num
 
         # Load in functions
+        self._name_dump = 'julia(JuliaDriveEnv2D.auto2D_path={})'.format(auto2D_path)
+        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + auto2D_path + "\")")
         self.j.using("Auto2D")
@@ -294,7 +311,9 @@ class JuliaDriveEnv2D():
 
         action = np.squeeze(action)
 
+        debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{}:{})'.format(self._name_dump, self.simparams, action)); debug.close()
         self.j.step_forward(self.simparams, action)
+        debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
         self.features = self.j.get_state(self.features, self.simparams)
         reward, done = self.j.get_reward(self.simparams)
 
@@ -327,6 +346,8 @@ class JuliaDriveEnv2D():
 
 
 class JuliaDriveEnv2DBatch():
+    _name_dump = None
+
     def __init__(self,
                  n_features,  # number of features
                  batch_size,  # number of simultaneous sims
@@ -341,6 +362,8 @@ class JuliaDriveEnv2DBatch():
         self.n_features = n_features
 
         # Load in functions
+        self._name_dump = 'julia(JuliaDriveEnv2DBatch.auto2D_path={})'.format(auto2D_path)
+        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + auto2D_path + "\")")
         self.j.using("Auto2D")
@@ -390,7 +413,9 @@ class JuliaDriveEnv2DBatch():
     def step(self, actions):
         info = {}
 
+        debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{}:{})'.format(self._name_dump, self.simparams, action)); debug.close()
         self.j.step_forward(self.simparams, actions)
+        debug = open('debug.log', 'a'); debug.write('..done\n'.format(self._name_dump, self.simparams, action)); debug.close()
         self.features = self.j.get_state(self.features, self.simparams)
         reward, done = self.j.get_reward(self.simparams)
 

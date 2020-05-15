@@ -37,10 +37,14 @@ class DriveEnv(object):
 
 
 class DriveEnv_1D(DriveEnv):
+    _name_dump = None
+
     def __init__(self, reward_fn=None, mu=0., std=1.0):
         super(DriveEnv_1D, self).__init__(reward_fn, mu, std)
 
         # Load in trajectory data from NGSIM
+        self._name_dump = 'julia(AutomotiveDrivingModels/NGSIM)'
+        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = j = julia.Julia()
         j.using("NGSIM")
         j.using("AutomotiveDrivingModels")
