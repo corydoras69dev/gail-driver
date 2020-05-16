@@ -13,12 +13,11 @@ class SeedMng(Singleton):
 
     def __init__(self):
 
-    def set(self,input):
+
+
+    def set(self, input):
         self._root_seed = input
-        self._system_seed = 0
-        self._tf_graph_seed = 0
-        self._tf_system_seed = 0
-        self._np_seed = 0
+
 
     def set_iteration(self, n_iter):
         self._system_seed = self._root_seed + n_iter * 110
