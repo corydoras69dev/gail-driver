@@ -21,7 +21,7 @@ from tf_rllab.policies.gaussian_gru_policy import GaussianGRUPolicy
 
 from tf_rllab.core.network import MLP, RewardMLP, WassersteinMLP, BaselineMLP
 from tf_rllab.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
-
+import rllab.misc.ext
 import tensorflow as tf
 import numpy as np
 import os
@@ -131,6 +131,7 @@ np.random.seed(seed=sm.get_np_seed())
 random.seed(sm.get_system_seed())
 tf.set_random_seed(sm.get_tf_system_seed())
 from rllab.config_personal import expert_trajs_path, model_path
+rllab.misc.ext.set_seed(sm.get_system_seed())
 
 if args.nonlinearity == 'tanh':
     nonlinearity = tf.nn.tanh
