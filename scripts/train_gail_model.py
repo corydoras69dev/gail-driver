@@ -131,7 +131,6 @@ np.random.seed(seed=sm.get_np_seed())
 random.seed(sm.get_system_seed())
 tf.set_random_seed(sm.get_tf_system_seed())
 from rllab.config_personal import expert_trajs_path, model_path
-rllab.misc.ext.set_seed(sm.get_system_seed())
 
 if args.nonlinearity == 'tanh':
     nonlinearity = tf.nn.tanh

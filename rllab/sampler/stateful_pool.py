@@ -158,7 +158,6 @@ class StatefulPool(object):
                 random.seed(sm.get_system_seed(0))
                 np.random.seed(seed=sm.get_np_seed(0))
                 tf.set_random_seed(sm.get_tf_system_seed(0))
-                rllab.misc.ext.set_seed(sm.get_system_seed(0))
                 debug = open('debug.log', 'a'); debug.write('rllab/sampler/stateful_pool.py/collect_ones()\n'); debug.close()
                 result, inc = collect_once(self.G, *args)
                 debug = open('debug.log', 'a'); debug.write('rllab/sampler/stateful_pool.py/append()\n'); debug.close()
