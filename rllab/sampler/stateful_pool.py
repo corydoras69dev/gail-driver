@@ -9,6 +9,7 @@ import traceback
 import sys
 import seedmng.mng
 import numpy as np
+import random
 
 class ProgBarCounter(object):
     def __init__(self, total_count):
