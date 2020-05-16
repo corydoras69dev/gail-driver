@@ -11,7 +11,7 @@ class SeedMng(Singleton):
     _tf_system_seed = 0
     _np_seed = 0
 
-    def __init__(self):
+    def __init__(self)
 
 
 
