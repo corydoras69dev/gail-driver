@@ -7,7 +7,7 @@ import pyprind
 import time
 import traceback
 import sys
-import seed.mng
+import seedmng.mng
 import numpy as np
 
 class ProgBarCounter(object):
