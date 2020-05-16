@@ -125,7 +125,7 @@ parser.add_argument('--ckpt_itr', type=int, default=-1)
 
 args = parser.parse_args()
 sm = seedmng.mng.SeedMng()
-sm.set(456)
+sm.set_root(456)
 sm.set_iteration(9999)
 np.random.seed(seed=sm.get_np_seed())
 random.seed(sm.get_system_seed())
