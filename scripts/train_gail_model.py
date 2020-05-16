@@ -26,6 +26,7 @@ import tensorflow as tf
 import numpy as np
 import os
 import seedmng.mng
+import random
 import os.path as osp
 from rllab import config
 
@@ -123,7 +124,10 @@ parser.add_argument('--ckpt_name', type=str, default='')
 parser.add_argument('--ckpt_itr', type=int, default=-1)
 
 args = parser.parse_args()
-seedmng.mng.SeedMng(0)
+seedmng.mng.SeedMng(456)
+seedmng.mng.SeedMng.set_iteration(9999)
+np.random.seed(seed=seedmng.mng.SeedMng.get_np_seed())
+random.seed(seedmng.mng.SeedMng.get_system_seed())
 from rllab.config_personal import expert_trajs_path, model_path
 
 if args.nonlinearity == 'tanh':
