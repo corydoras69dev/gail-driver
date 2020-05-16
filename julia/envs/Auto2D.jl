@@ -617,7 +617,7 @@ end
 isdone(simparams::SimParams) = simparams.step_counter ≥ simparams.nsteps
 
 function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
-
+    debug = open("debug.log", "a"); println(debug, "Base.step(s=", simparams, " u=", u, "batch_index=", batch_index, ")");  close(debug)
     r = reward(simparams, u, batch_index)
     tick(simparams, u, batch_index)
     features = observe(simparams, batch_index)
@@ -635,10 +635,11 @@ function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
     done = done || (d_ml < -1.0 || d_mr < -1.0)
     done = done || (simstate.scene[veh_index].state.v < 0.0)
 
+    debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
     (features, r, done)
 end
 function Base.step(simparams::SimParams, U::Matrix{Float64})
-
+    debug = open("debug.log", "a"); println(debug, "Base.step(s=", simparams, " U=", U, ")");  close(debug)
     batch_size = length(simparams.states)
     feature_mat = Array{Float64}(batch_size, obssize(simparams))
     rewards = Array{Float64}(batch_size)
@@ -654,6 +655,7 @@ function Base.step(simparams::SimParams, U::Matrix{Float64})
     end
     simparams.step_counter = step_counter + 1
 
+    debug = open("debug.log", "a"); println(debug, " feat_mat=", feature_mat, " rewards=", rewards, " dones=", dones, ">"); close(debug)
     (feature_mat, rewards, dones)
 end
 
