@@ -7,7 +7,8 @@ import pyprind
 import time
 import traceback
 import sys
-
+import seed.mng
+import numpy as np
 
 class ProgBarCounter(object):
     def __init__(self, total_count):
@@ -145,9 +146,12 @@ class StatefulPool(object):
         else:
             count = 0
             results = []
+            seedmng.mng.SeedMng.set_iteration(count)
             if show_prog_bar:
                 pbar = ProgBarCounter(threshold)
             while count < threshold:
+                seedmng.mng.SeedMng.set_iteration(count)
+                np.random.seed(seed=seedmng.mng.SeedMng.get_np_seed(0))
                 debug = open('debug.log', 'a'); debug.write('rllab/sampler/stateful_pool.py/collect_ones()\n'); debug.close()
                 result, inc = collect_once(self.G, *args)
                 debug = open('debug.log', 'a'); debug.write('rllab/sampler/stateful_pool.py/append()\n'); debug.close()
