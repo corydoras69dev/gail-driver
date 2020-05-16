@@ -5,7 +5,7 @@ import math
 import numpy as np
 import os
 import random
-import seedmng.mng
+
 # Class to load and preprocess data
 
 
@@ -25,7 +25,6 @@ class DataLoader():
 
         print 'shifting/scaling data...'
         self._shift_scale(extract_temporal)
-        np.random.seed(seed=seedmng.mng.SeedMng.set_np_seed(0))
 
     def _trim_data(self, full_s, full_a, intervals):
         # Python indexing; find bounds on data given seq_length
