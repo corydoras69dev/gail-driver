@@ -4,7 +4,7 @@ import math
 import numpy as np
 import random
 from gym.spaces import Box
-
+import seedmng.mng
 import os
 
 import time
@@ -42,8 +42,9 @@ class JuliaEnv(object):
         self.j = julia.Julia()
         self.j.eval("include(\"" + julia_env_dict[env_name] + "\")")
         self.j.using(env_name)
-        # seed
-        self.simparams = self.j.gen_simparams(batch_size, param_dict, 456) 
+        sm = seedmng.mng.SeedMng()
+        seed = sm.get_system_seed(0)
+        self.simparams = self.j.gen_simparams(batch_size, param_dict, seed) 
 
         if GX:
             _, self.ax = plt.subplots(1, 1)
