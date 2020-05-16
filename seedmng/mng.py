@@ -9,6 +9,7 @@ class SeedMng(Singleton):
     _system_seed = 0
     _tf_graph_seed = 0
     _tf_system_seed = 0
+    _np_seed = 0
 
     def __init__(self, input):
         self._root_seed = input
