@@ -123,7 +123,7 @@ parser.add_argument('--ckpt_name', type=str, default='')
 parser.add_argument('--ckpt_itr', type=int, default=-1)
 
 args = parser.parse_args()
-sm.mng.SeedMng(0)
+#sm.mng.SeedMng(0)
 from rllab.config_personal import expert_trajs_path, model_path
 
 if args.nonlinearity == 'tanh':
