@@ -153,7 +153,7 @@ class StatefulPool(object):
                 pbar = ProgBarCounter(threshold)
             while count < threshold:
                 sm.set_iteration(count)
-                ramdom.seed(sm.get_system_seed(0))
+                random.seed(sm.get_system_seed(0))
                 np.random.seed(seed=sm.get_np_seed(0))
                 debug = open('debug.log', 'a'); debug.write('rllab/sampler/stateful_pool.py/collect_ones()\n'); debug.close()
                 result, inc = collect_once(self.G, *args)
