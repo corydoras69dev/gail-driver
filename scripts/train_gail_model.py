@@ -25,7 +25,7 @@ from tf_rllab.optimizers.conjugate_gradient_optimizer import ConjugateGradientOp
 import tensorflow as tf
 import numpy as np
 import os
-from seedmng.mng.SeedMng import SeedMng
+#from seedmng.mng.SeedMng import SeedMng
 import os.path as osp
 from rllab import config
 
