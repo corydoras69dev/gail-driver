@@ -19,10 +19,10 @@ class SeedMng(Singleton):
         self._root_seed = input
 
     def set_iteration(self, n_iter):
-        self._system_seed = self._root_seed + n_iter * 110
-        self._tf_graph_seed = self._root_seed + n_iter * 130
-        self._tf_system_seed = self._root_seed + n_iter * 170
-        self._np_seed = self._root_seed + n_iter * 190
+        self._system_seed = self._root_seed + n_iter * 110 + 123
+        self._tf_graph_seed = self._root_seed + n_iter * 130 + 456
+        self._tf_system_seed = self._root_seed + n_iter * 170 + 789
+        self._np_seed = self._root_seed + n_iter * 190 + 369
 
     def get_system_seed(self, id = 0):
         return self._system_seed + id
