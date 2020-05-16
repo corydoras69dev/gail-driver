@@ -4,7 +4,7 @@ using AutomotiveDrivingModels
 using AutoViz
 using NGSIM
 import Reel
-
+using Random
 export gen_simparams, reset, tick, reward, observe, step, isdone, action_space_bounds, observation_space_bounds, render
 export SimParams, reel_drive
 
@@ -204,7 +204,7 @@ function gen_simparams_from_trajdatas(trajdata_filepaths::Vector, roadway_filepa
               use_debug_reward, use_playback_reactive, playback_reactive_threshold_brake,
               nsimstates, prime_history, nsteps, ego_action_type, extractor)
 end
-function gen_simparams(batch_size::Int, args::Dict)
+function gen_simparams(batch_size::Int, args::Dict, seed::Int)
 
     col_weight = get(args, "col_weight", -2.0)
     off_weight = get(args, "off_weight", -0.75)

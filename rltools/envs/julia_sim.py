@@ -42,8 +42,8 @@ class JuliaEnv(object):
         self.j = julia.Julia()
         self.j.eval("include(\"" + julia_env_dict[env_name] + "\")")
         self.j.using(env_name)
-
-        self.simparams = self.j.gen_simparams(batch_size, param_dict)
+        # seed
+        self.simparams = self.j.gen_simparams(batch_size, param_dict, 456) 
 
         if GX:
             _, self.ax = plt.subplots(1, 1)
