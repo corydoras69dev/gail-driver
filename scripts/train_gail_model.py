@@ -118,6 +118,7 @@ parser.add_argument('--freeze_upper', type=float, default=1.0)
 parser.add_argument('--freeze_lower', type=float, default=0.5)
 parser.add_argument('--policy_ent_reg', type=float, default=0.0)
 parser.add_argument('--env_r_weight', type=float, default=0.0)
+parser.add_argument('--seed', type=int, default=456)
 
 # Load ckpt?
 parser.add_argument('--ckpt_name', type=str, default='')
@@ -125,7 +126,7 @@ parser.add_argument('--ckpt_itr', type=int, default=-1)
 
 args = parser.parse_args()
 sm = seedmng.mng.SeedMng()
-sm.set_root(456)
+sm.set_root(args.seed)
 sm.set_iteration(9999)
 np.random.seed(seed=sm.get_np_seed())
 random.seed(sm.get_system_seed())
