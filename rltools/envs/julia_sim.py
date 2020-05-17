@@ -6,7 +6,7 @@ import random
 from gym.spaces import Box
 import seedmng.mng
 import os
-
+import h5py
 import time
 
 #from path_to_Auto2D import LQG_path, auto1D_path, auto2D_path, pulltraces_path, passive_aggressive_path
@@ -75,7 +75,21 @@ class JuliaEnv(object):
         # reward for (s,a,s')
         # done for whether in terminal state
         debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/self.j.step({}:{}:{})'.format(self._name_dump, self.simparams, actions)); debug.close()
-        obs, reward, done = self.j.step(self.simparams, actions)
+        #obs, reward, done = self.j.step(self.simparams, actions)
+        fw = h5py.File("jlread.h5", "w")
+        fw.create_dataset('actions', data=actions)
+        fw.close()
+        self.j.step(self.simparams)
+        fr = h5py.File("jlwrite.h5", "r")
+        obs = fr['features'].value
+        reward = fr['r'].value
+        done_tmp = fr['done'].value
+        done = False
+        if done_tmp == 0 :
+           done = False
+        else :
+           done = True
+        fr.close()
         debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
         return obs, reward, done, info
 

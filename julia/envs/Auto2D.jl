@@ -6,7 +6,7 @@ using PDMats
 using NGSIM
 using ForwardNets
 import Reel
-
+using HDF5
 export gen_simparams, reset, tick, reward, observe, step, isdone, action_space_bounds, observation_space_bounds, render
 export SimParams, reel_drive, GaussianMLPDriver, load_gru_driver
 
@@ -637,6 +637,23 @@ function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
 
     debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
     (features, r, done)
+end
+function Base.step(simparams::SimParams)
+    fi = h5open("jlread.h5", "r")
+    u = read(fi, "actions")
+    close(fi)
+    features, r, done = step(simparams, u)
+    fw = h5open("jlwrite.h5", "w")
+    write(fw, "features", features)
+    write(fw, "r", r)
+    if done == true
+        write(fw, "done", 1)
+    elseif done == false
+        write(fw, "done", 0)
+    else
+        write(fw, "done", done)
+    end
+    close(fw)
 end
 function Base.step(simparams::SimParams, U::Matrix{Float64})
     debug = open("debug.log", "a"); println(debug, "Base.step(s=", simparams, " U=", U, ")");  close(debug)
