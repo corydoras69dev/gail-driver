@@ -338,14 +338,13 @@ end
 
 function AutomotiveDrivingModels.observe!{A,F,G,E,P}(
                                             model::GaussianMLPDriver{A,F,G,E,P}, 
-                                            simparams::SimParams, 
                                             scene::Scene, 
                                             roadway::Roadway, 
                                             egoid::Int)
 
     update!(model.rec, scene)
     vehicle_index = get_index_of_first_vehicle_with_id(scene, egoid)
-    o = pull_features!(simparams.extractor, simparams.features, model.rec, roadway, vehicle_index)
+    o = pull_features!(static_simparams.extractor, static_simparams.features, model.rec, roadway, vehicle_index)
     model.net[:hidden_0].input = (o - model.extractor.feature_means)./model.extractor.feature_std
     forward!(model.pass)
     copy!(model.mvnormal.μ, model.output[1:2])
