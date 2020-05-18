@@ -45,6 +45,7 @@ class JuliaEnv(object):
         sm = seedmng.mng.SeedMng()
         seed = sm.get_system_seed(0)
         self.simparams = self.j.gen_simparams(batch_size, param_dict, seed) 
+        self.j.set_simparams(self.simparams)
 
         if GX:
             _, self.ax = plt.subplots(1, 1)
@@ -79,7 +80,7 @@ class JuliaEnv(object):
         fw = h5py.File("jlread.h5", "w")
         fw.create_dataset('actions', data=actions)
         fw.close()
-        self.j.step(self.simparams)
+        self.j.step()
         fr = h5py.File("jlwrite.h5", "r")
         obs = fr['features'].value
         reward = fr['r'].value
@@ -272,10 +273,13 @@ class JuliaDriveEnv2D():
             # weights[5])
             self.simparams = self.j.gen_simparams_from_trajdatas(
                 map(append_path, trajdatas), map(append_path, roadways))
+            self.j.set_simparams(self.simparams)
 
         else:
             #self.simparams = self.j.gen_simparams(trajdata_indeces, weights[0], weights[1], weights[2], weights[3], weights[4], weights[5])
             self.simparams = self.j.gen_simparams(trajdata_indeces)
+            self.j.set_simparams(self.simparams)
+           
 
         self.features = self.j.alloc_features()
 
@@ -385,6 +389,7 @@ class JuliaDriveEnv2DBatch():
 
         self.simparams = self.j.gen_simparams(
             trajdata_indeces, weights[0], weights[1], weights[2], weights[3], weights[4], weights[5], weights[6], batch_size)
+        self.j.set_simparams(self.simparams)
         self.features = self.j.alloc_features(batch_size)
 
         if GX:

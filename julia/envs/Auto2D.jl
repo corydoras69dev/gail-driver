@@ -7,7 +7,7 @@ using NGSIM
 using ForwardNets
 import Reel
 using HDF5
-export gen_simparams, reset, tick, reward, observe, step, isdone, action_space_bounds, observation_space_bounds, render
+export gen_simparams, reset, tick, reward, observe, set_simparams, step, isdone, action_space_bounds, observation_space_bounds, render
 export SimParams, reel_drive, GaussianMLPDriver, load_gru_driver
 
 ##################################
@@ -638,11 +638,12 @@ function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
     debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
     (features, r, done)
 end
-function Base.step(simparams::SimParams)
+
+function Base.step()
     fi = h5open("jlread.h5", "r")
     u = read(fi, "actions")
     close(fi)
-    features, r, done = step(simparams, u)
+    features, r, done = step(static_simparams, u)
     fw = h5open("jlwrite.h5", "w")
     write(fw, "features", features)
     write(fw, "r", r)
@@ -655,6 +656,11 @@ function Base.step(simparams::SimParams)
     end
     close(fw)
 end
+
+function set_simparams(simparams::SimParams)
+    global static_simparams = simparams
+end
+
 function Base.step(simparams::SimParams, U::Matrix{Float64})
     debug = open("debug.log", "a"); println(debug, "Base.step(s=", simparams, " U=", U, ")");  close(debug)
     batch_size = length(simparams.states)
@@ -745,3 +751,4 @@ function reel_drive(
 end
 
 end # module
+
