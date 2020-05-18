@@ -85,7 +85,7 @@ class JuliaEnv(object):
         #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
         return obs, reward, done, info
 
-    def step(self, actions):
+    def step_file_if(self, actions):
         info = {}
         # features for next state
         # reward for (s,a,s')
@@ -105,7 +105,7 @@ class JuliaEnv(object):
         else :
            done = True
         fr.close()
-        debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
         return obs, reward, done, info
 
     @property
