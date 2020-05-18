@@ -109,21 +109,21 @@ class NormalizedEnv(ProxyEnv, Serializable):
             scaled_action = np.clip(scaled_action, lb, ub)
         else:
             scaled_action = action
-        debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._wrapped_env.step()\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._wrapped_env.step()\n'); debug.close()
         #pdb.set_trace()
         wrapped_step = self._wrapped_env.step(scaled_action)
-        debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/= wrapped_step\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/= wrapped_step\n'); debug.close()
         next_obs, reward, done, info = wrapped_step
         if self._normalize_obs:
-            debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._apply_normalize_obs()()\n'); debug.close()
+            #debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._apply_normalize_obs()()\n'); debug.close()
             next_obs = self._apply_normalize_obs(next_obs)
         if self._noise_indices is not None:
-            debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._apply_noise_obs()()\n'); debug.close()
+            #debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._apply_noise_obs()()\n'); debug.close()
             next_obs = self._apply_noise_obs(next_obs)
         if self._normalize_reward:
-            debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._apply_normalize_reward()()\n'); debug.close()
+            #debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._apply_normalize_reward()()\n'); debug.close()
             reward = self._apply_normalize_reward(reward)
-        debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/Step()()\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/Step()()\n'); debug.close()
         s = Step(next_obs, reward * self._scale_reward, done, **info)
         return s
 

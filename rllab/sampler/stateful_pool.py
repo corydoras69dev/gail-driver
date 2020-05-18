@@ -136,7 +136,7 @@ class StatefulPool(object):
             last_value = 0
             while True:
                 time.sleep(0.1)
-                debug = open('debug.log', 'a'); debug.write('rllab/sampler/with lock:\n'); debug.close()
+                #debug = open('debug.log', 'a'); debug.write('rllab/sampler/with lock:\n'); debug.close()
                 with lock:
                     if counter.value >= threshold:
                         if show_prog_bar:
@@ -158,9 +158,9 @@ class StatefulPool(object):
                 random.seed(sm.get_system_seed(0))
                 np.random.seed(seed=sm.get_np_seed(0))
                 tf.set_random_seed(sm.get_tf_system_seed(0))
-                debug = open('debug.log', 'a'); debug.write('rllab/sampler/stateful_pool.py/collect_ones()\n'); debug.close()
+                #debug = open('debug.log', 'a'); debug.write('rllab/sampler/stateful_pool.py/collect_ones()\n'); debug.close()
                 result, inc = collect_once(self.G, *args)
-                debug = open('debug.log', 'a'); debug.write('rllab/sampler/stateful_pool.py/append()\n'); debug.close()
+                #debug = open('debug.log', 'a'); debug.write('rllab/sampler/stateful_pool.py/append()\n'); debug.close()
                 results.append(result)
                 count += inc
                 if show_prog_bar:

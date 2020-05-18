@@ -15,11 +15,11 @@ def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1):
     if animated:
         env.render()
     while path_length < max_path_length:
-        debug = open('debug.log', 'a'); debug.write('rllab/sampler/utils.py/agent.get_action(o)\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rllab/sampler/utils.py/agent.get_action(o)\n'); debug.close()
         a, agent_info = agent.get_action(o)
-        debug = open('debug.log', 'a'); debug.write('rllab/sampler/utils.py/env.step(a)\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rllab/sampler/utils.py/env.step(a)\n'); debug.close()
         next_o, r, d, env_info = env.step(a)
-        debug = open('debug.log', 'a'); debug.write('rllab/sampler/utils.py/observations.append()\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rllab/sampler/utils.py/observations.append()\n'); debug.close()
         observations.append(env.observation_space.flatten(o))
         rewards.append(r)
         actions.append(env.action_space.flatten(a))

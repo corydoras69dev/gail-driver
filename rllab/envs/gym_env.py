@@ -115,11 +115,11 @@ class GymEnv(Env, Serializable):
         return self.env.reset()
 
     def step(self, action):
-        debug = open('debug.log', 'a'); debug.write('rllab/envs/gym_env.py/self.env.step(action)\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rllab/envs/gym_env.py/self.env.step(action)\n'); debug.close()
         next_obs, reward, done, info = self.env.step(action)
-        debug = open('debug.log', 'a'); debug.write('rllab/envs/gym_env.py/Step(next_obs)\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rllab/envs/gym_env.py/Step(next_obs)\n'); debug.close()
         S = Step(next_obs, reward, done, **info)
-        debug = open('debug.log', 'a'); debug.write('rllab/envs/gym_env.py/Step...done\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rllab/envs/gym_env.py/Step...done\n'); debug.close()
         return S
 
     def render(self):

@@ -44,7 +44,7 @@ class DriveEnv_1D(DriveEnv):
 
         # Load in trajectory data from NGSIM
         self._name_dump = 'julia(AutomotiveDrivingModels/NGSIM)'
-        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = j = julia.Julia()
         j.using("NGSIM")
         j.using("AutomotiveDrivingModels")

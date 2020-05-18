@@ -104,8 +104,9 @@ class JuliaEnv(object):
         return obs, reward, done, info
 
     def step(self, actions):
-        obs, reward, done = step_direct_if(self, actions)
-        #obs, reward, done = step_file_if(self, actions)
+        info = {}
+        obs, reward, done = self.step_direct_if(actions)
+        #obs, reward, done = self.step_file_if(actions)
         return obs, reward, done, info
 
     @property
