@@ -70,11 +70,6 @@ class JuliaEnv(object):
         # self.j.reel_drive(filename+".gif", actions)
         return
 
-    def step(self, actions):
-        obs, reward, done = step_direct_if(self, actions)
-        #obs, reward, done = step_file_if(self, actions)
-        return obs, reward, done, info
-
     def step_direct_if(self, actions):
         info = {}
         # features for next state
@@ -106,6 +101,11 @@ class JuliaEnv(object):
            done = True
         fr.close()
         #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
+        return obs, reward, done, info
+
+    def step(self, actions):
+        obs, reward, done = step_direct_if(self, actions)
+        #obs, reward, done = step_file_if(self, actions)
         return obs, reward, done, info
 
     @property
