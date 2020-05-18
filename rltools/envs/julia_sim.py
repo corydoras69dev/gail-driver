@@ -38,7 +38,7 @@ class JuliaEnv(object):
 
         # Load in functions
         self._name_dump = 'julia.Julia({}:{})'.format(env_name, julia_env_dict)
-        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + julia_env_dict[env_name] + "\")")
         self.j.using(env_name)
@@ -55,9 +55,9 @@ class JuliaEnv(object):
         if GX:
             self.ax.cla()
 
-        self.j.reset(self.simparams)
+        self.j.reset()
         # [batch_size x n_features]
-        observation = self.j.observe(self.simparams)
+        observation = self.j.observe()
 
         return observation
 
@@ -67,16 +67,30 @@ class JuliaEnv(object):
     def save_gif(self, actions, filename):
         # TODO - have a way to record states over time to do rendering
         # actions is a matrix whose columns are the actions
-        # self.j.reel_drive(filename+".gif", actions, self.simparams)
+        # self.j.reel_drive(filename+".gif", actions)
         return
+
+    def step(self, actions):
+        obs, reward, done = step_direct_if(self, actions)
+        #obs, reward, done = step_file_if(self, actions)
+        return obs, reward, done, info
+
+    def step_direct_if(self, actions):
+        info = {}
+        # features for next state
+        # reward for (s,a,s')
+        # done for whether in terminal state
+        #debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/self.j.step({}:{})'.format(self._name_dump, actions)); debug.close()
+        obs, reward, done = self.j.step(actions)
+        #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
+        return obs, reward, done, info
 
     def step(self, actions):
         info = {}
         # features for next state
         # reward for (s,a,s')
         # done for whether in terminal state
-        debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/self.j.step({}:{}:{})'.format(self._name_dump, self.simparams, actions)); debug.close()
-        #obs, reward, done = self.j.step(self.simparams, actions)
+        #debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/self.j.step({}:{})'.format(self._name_dump, actions)); debug.close()
         fw = h5py.File("jlread.h5", "w")
         fw.create_dataset('actions', data=actions)
         fw.close()
@@ -96,12 +110,12 @@ class JuliaEnv(object):
 
     @property
     def action_space(self):
-        lo, hi = self.j.action_space_bounds(self.simparams)
+        lo, hi = self.j.action_space_bounds()
         return Box(np.array(lo), np.array(hi))
 
     @property
     def observation_space(self):
-        lo, hi = self.j.observation_space_bounds(self.simparams)
+        lo, hi = self.j.observation_space_bounds()
         return Box(np.array(lo), np.array(hi))
 
     @property
@@ -119,7 +133,7 @@ class JuliaLQGEnv():
 
         # Load in functions
         self._name_dump = 'julia(JuliaLQGEnv.LQG_path={})'.format(LQG_path)
-        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + LQG_path + "\")")
         self.j.using("juliaLQG")
@@ -169,7 +183,7 @@ class JuliaDriveEnv():
 
         # Load in functions
         self._name_dump = 'julia(JuliaDriveEnv.auto1D_path={})'.format(auto1D_path)
-        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + auto1D_path + "\")")
         self.j.using("Auto1D")
@@ -198,10 +212,10 @@ class JuliaDriveEnv():
         done = False
 
         action = np.clip(action, self.action_space.low, self.action_space.high)
-        debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{}:{}:{}:{}:{})'.format(self._name_dump, self.scene, self.roadway, self.model1, self.model2, action[0])); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{}:{}:{}:{}:{})'.format(self._name_dump, self.scene, self.roadway, self.model1, self.model2, action[0])); debug.close()
         self.d, self.r, self.s, done = self.j.step_forward(
             self.scene, self.roadway, self.model1, self.model2, action[0])
-        debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
         self.tstep += 1
 
         if self.tstep == 1000:
@@ -252,7 +266,7 @@ class JuliaDriveEnv2D():
 
         # Load in functions
         self._name_dump = 'julia(JuliaDriveEnv2D.auto2D_path={})'.format(auto2D_path)
-        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + auto2D_path + "\")")
         self.j.using("Auto2D")
@@ -295,10 +309,10 @@ class JuliaDriveEnv2D():
         # Initialize vehicles and scene, get state
         if self.train_seg_index != 0:
             self.j.restart_specific(
-                self.simparams, self.train_seg_index, self.frame_num)
+                self.train_seg_index, self.frame_num)
         else:
-            self.j.restart(self.simparams)
-        self.features = self.j.get_state(self.features, self.simparams)
+            self.j.restart()
+        self.features = self.j.get_state(self.features)
 
         return self.features
 
@@ -308,9 +322,9 @@ class JuliaDriveEnv2D():
 
         self.ax.cla()
 
-        img = self.j.render(self.simparams, np.zeros(
+        img = self.j.render(np.zeros(
             (500, 500)).astype('uint32'))
-        #img=self.j.retrieve_frame_data(500, 500, self.simparams)
+        #img=self.j.retrieve_frame_data(500, 500)
         self.ax.imshow(img, cmap=plt.get_cmap('bwr'))
         #self.ax.imshow(img, cmap=plt.get_cmap('seismic'))
 
@@ -323,18 +337,18 @@ class JuliaDriveEnv2D():
     def save_gif(self, actions, filename):
         # TODO - have a way to record states over time to do rendering
         # actions is a matrix whose columns are the actions
-        self.j.reel_drive(filename + ".gif", actions, self.simparams)
+        self.j.reel_drive(filename + ".gif", actions)
         return
 
     def step(self, action):
 
         action = np.squeeze(action)
 
-        debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{}:{})'.format(self._name_dump, self.simparams, action)); debug.close()
-        self.j.step_forward(self.simparams, action)
-        debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
-        self.features = self.j.get_state(self.features, self.simparams)
-        reward, done = self.j.get_reward(self.simparams)
+        #debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{})'.format(self._name_dump, action)); debug.close()
+        self.j.step_forward(action)
+        #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
+        self.features = self.j.get_state(self.features)
+        reward, done = self.j.get_reward()
 
         self.tstep += 1
 
@@ -382,7 +396,7 @@ class JuliaDriveEnv2DBatch():
 
         # Load in functions
         self._name_dump = 'julia(JuliaDriveEnv2DBatch.auto2D_path={})'.format(auto2D_path)
-        debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('{}\n'.format(self._name_dump)); debug.close()
         self.j = julia.Julia()
         self.j.eval("include(\"" + auto2D_path + "\")")
         self.j.using("Auto2D")
@@ -402,8 +416,8 @@ class JuliaDriveEnv2DBatch():
             self.ax.cla()
 
         # Initialize vehicles and scene, get state
-        self.j.restart(self.simparams)
-        self.features = self.j.observe(self.features, self.simparams)
+        self.j.restart()
+        self.features = self.j.observe(self.features)
 
         return self.features
 
@@ -413,8 +427,8 @@ class JuliaDriveEnv2DBatch():
 
         # self.ax.cla()
 
-        # img = self.j.render(self.simparams, np.zeros((500,500)).astype('uint32'))
-        # #img=self.j.retrieve_frame_data(500, 500, self.simparams)
+        # img = self.j.render(np.zeros((500,500)).astype('uint32'))
+        # #img=self.j.retrieve_frame_data(500, 500)
         # self.ax.imshow(img, cmap=plt.get_cmap('bwr'))
         # #self.ax.imshow(img, cmap=plt.get_cmap('seismic'))
 
@@ -427,17 +441,17 @@ class JuliaDriveEnv2DBatch():
     def save_gif(self, actions, filename):
         # TODO - have a way to record states over time to do rendering
         # actions is a matrix whose columns are the actions
-        # self.j.reel_drive(filename+".gif", actions, self.simparams)
+        # self.j.reel_drive(filename+".gif", actions)
         return
 
     def step(self, actions):
         info = {}
 
-        debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{}:{})'.format(self._name_dump, self.simparams, action)); debug.close()
-        self.j.step_forward(self.simparams, actions)
-        debug = open('debug.log', 'a'); debug.write('..done\n'.format(self._name_dump, self.simparams, action)); debug.close()
-        self.features = self.j.get_state(self.features, self.simparams)
-        reward, done = self.j.get_reward(self.simparams)
+        #debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{})'.format(self._name_dump, action)); debug.close()
+        self.j.step_forward(actions)
+        #debug = open('debug.log', 'a'); debug.write('..done\n'.format(self._name_dump, action)); debug.close()
+        self.features = self.j.get_state(self.features)
+        reward, done = self.j.get_reward()
 
         self.tstep += 1
 

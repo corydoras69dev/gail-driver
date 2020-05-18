@@ -359,15 +359,15 @@ Distributions.logpdf{A,F,G,E,P}(model::GaussianMLPDriver{A,F,G,E,P}, a::A) = log
 
 Base.show(io::IO, simparams::SimParams) = print(io, "SimParams")
 
-function restart!(simstate::SimState, simparams::SimParams)
+function restart!(simstate::SimState)
 
     # pick a random segment
     local train_seg_index
     for i in 1 : 100
-        train_seg_index = rand(1:length(simparams.segments))
-        seg = simparams.segments[train_seg_index]
+        train_seg_index = rand(1:length(static_simparams.segments))
+        seg = static_simparams.segments[train_seg_index]
         candidate_frame_lo = seg.frame_lo
-        candidate_frame_hi = seg.frame_hi - simparams.nsteps - simparams.prime_history
+        candidate_frame_hi = seg.frame_hi - static_simparams.nsteps - static_simparams.prime_history
         if candidate_frame_hi > candidate_frame_lo
         break
     end
@@ -376,21 +376,21 @@ function restart!(simstate::SimState, simparams::SimParams)
         end
     end
 
-    seg = simparams.segments[train_seg_index]
+    seg = static_simparams.segments[train_seg_index]
     simstate.egoid = seg.egoid
     simstate.trajdata_index = seg.trajdata_index
 
     # pull the trajdata
-    trajdata = simparams.trajdatas[simstate.trajdata_index]
+    trajdata = static_simparams.trajdatas[simstate.trajdata_index]
 
     # pick a random sub-trajectory
     candidate_frame_lo = seg.frame_lo
-    candidate_frame_hi = seg.frame_hi - simparams.nsteps - simparams.prime_history
+    candidate_frame_hi = seg.frame_hi - static_simparams.nsteps - static_simparams.prime_history
     simstate.frame = rand(candidate_frame_lo:candidate_frame_hi)
 
     # clear rec and make first observations
     empty!(simstate.rec)
-    for i in 1 : simparams.prime_history + 1
+    for i in 1 : static_simparams.prime_history + 1
         get!(simstate.scene, trajdata, simstate.frame)
         update!(simstate.rec, simstate.scene)
         simstate.frame += 1
@@ -401,26 +401,26 @@ function restart!(simstate::SimState, simparams::SimParams)
     # empty playback reactive
     empty!(simstate.playback_reactive_active_vehicle_ids)
 
-    # simparams.extractor.road_lidar_culling = simparams.roadway_cullers[simstate.trajdata_index]
+    # static_simparams.extractor.road_lidar_culling = static_simparams.roadway_cullers[simstate.trajdata_index]
 
     simstate
 end
 
-function Base.reset(simparams::SimParams)
-    for state in simparams.simstates
-        restart!(state, simparams)
+function Base.reset()
+    for state in static_simparams.simstates
+        restart!(state)
     end
-    simparams.step_counter = 0
+    static_simparams.step_counter = 0
 
-    simparams
+    static_simparams
 end
 
-function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vector{Float64})
+function step_forward!(simstate::SimState, action_ego::Vector{Float64})
 
-    trajdata = simparams.trajdatas[simstate.trajdata_index]
+    trajdata = static_simparams.trajdatas[simstate.trajdata_index]
     veh_ego = get_vehicle(simstate.scene, simstate.egoid)
 
-    safety_policy = simparams.safety_model
+    safety_policy = static_simparams.safety_model
 
     act_dim = length(action_ego)
     if act_dim == 3
@@ -428,29 +428,29 @@ function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vec
             #set_desired_speed!(safety_policy, simstate.playback_reactive_speeds[simstate.egoid])
             AutomotiveDrivingModels.observe!(safety_policy,simstate.scene,trajdata.roadway,simstate.egoid)
             action_ego = rand(safety_policy)::LatLonAccel # is this only returning acceleration?
-            #action_ego = convert(simparams.ego_action_type, action_ego)
+            #action_ego = convert(static_simparams.ego_action_type, action_ego)
 
         else
             action_ego = action_ego[1:end-1]
-            action_ego = convert(simparams.ego_action_type, action_ego)
+            action_ego = convert(static_simparams.ego_action_type, action_ego)
 
         end
     else
-        action_ego = convert(simparams.ego_action_type, action_ego)
+        action_ego = convert(static_simparams.ego_action_type, action_ego)
     end
 
     # propagate the ego vehicle
-    trajdata = simparams.trajdatas[simstate.trajdata_index]
+    trajdata = static_simparams.trajdatas[simstate.trajdata_index]
     veh_ego = get_vehicle(simstate.scene, simstate.egoid)
-    #action_ego = convert(simparams.ego_action_type, action_ego)
+    #action_ego = convert(static_simparams.ego_action_type, action_ego)
 
-    ego_state = propagate(veh_ego, action_ego, simparams.context, trajdata.roadway)
+    ego_state = propagate(veh_ego, action_ego, static_simparams.context, trajdata.roadway)
 
     simstate.frame += 1
-    if simparams.model_all
-        model = simparams.driver_model
+    if static_simparams.model_all
+        model = static_simparams.driver_model
 
-        empty!(simparams.playback_reactive_scene_buffer)
+        empty!(static_simparams.playback_reactive_scene_buffer)
 
         tdframe = trajdata.frames[simstate.frame]
         for i in tdframe.lo : tdframe.hi
@@ -467,16 +467,16 @@ function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vec
                         end
                     end
                     
-                    AutomotiveDrivingModels.observe!(model, simparams, simstate.scene, trajdata.roadway, s.id)
+                    AutomotiveDrivingModels.observe!(model, static_simparams, simstate.scene, trajdata.roadway, s.id)
                     action = rand(model)::AccelTurnrate
                     a = clamp(action.a, -5.0, 3.0)
                     ω = clamp(action.ω, -0.01, 0.01)
 
                     # Propagate scene
                     veh = simstate.scene[veh_index]
-                    veh_state = propagate(veh, AccelTurnrate(a, ω), simparams.context, trajdata.roadway)
+                    veh_state = propagate(veh, AccelTurnrate(a, ω), static_simparams.context, trajdata.roadway)
                     veh2 = Vehicle(veh_state, veh.def)
-                    push!(simparams.playback_reactive_scene_buffer, veh2)
+                    push!(static_simparams.playback_reactive_scene_buffer, veh2)
 
                     if Symbol("gru") in fieldnames(model.net)
                         simstate.hidden_dict[s.id] = model.net[:gru].h
@@ -485,16 +485,16 @@ function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vec
             end
         end
 
-        # move simparams.playback_reactive_scene_buffer over to simparams.scene
+        # move static_simparams.playback_reactive_scene_buffer over to static_simparams.scene
         # and place new ego pos
         ego_def = veh_ego.def
-        copy!(simstate.scene, simparams.playback_reactive_scene_buffer)
+        copy!(simstate.scene, static_simparams.playback_reactive_scene_buffer)
         push!(simstate.scene, Vehicle(ego_state, ego_def))
-    elseif simparams.use_playback_reactive
+    elseif static_simparams.use_playback_reactive
 
-        model = simparams.playback_reactive_model
+        model = static_simparams.playback_reactive_model
 
-        empty!(simparams.playback_reactive_scene_buffer)
+        empty!(static_simparams.playback_reactive_scene_buffer)
 
         tdframe = trajdata.frames[simstate.frame]
         for i in tdframe.lo : tdframe.hi
@@ -515,7 +515,7 @@ function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vec
                     action = rand(model)::LatLonAccel
 
                     if s.id in simstate.playback_reactive_active_vehicle_ids ||
-                       (action.a_lon < simparams.playback_reactive_threshold_brake && 
+                       (action.a_lon < static_simparams.playback_reactive_threshold_brake && 
                         simstate.scene[veh_index].state.posF.s < simstate.scene[ego_index].state.posF.s)
 
                         # use IDM
@@ -526,24 +526,24 @@ function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vec
                         if veh.state.v < 0.0
                             action = LatLonAccel(action.a_lat, max(action.a_lon, 0.0))
                         end
-                        veh_state = propagate(veh, action, simparams.context, trajdata.roadway)
+                        veh_state = propagate(veh, action, static_simparams.context, trajdata.roadway)
                         veh2 = Vehicle(veh_state, veh.def)
-                        push!(simparams.playback_reactive_scene_buffer, veh2)
+                        push!(static_simparams.playback_reactive_scene_buffer, veh2)
                     end
                 end
 
                 if use_playback
                     # if it is a new car not in previous frame or it doesn't need IDM
                     veh = Vehicle(s.state, get_vehicledef(trajdata, s.id))
-                    push!(simparams.playback_reactive_scene_buffer, veh)
+                    push!(static_simparams.playback_reactive_scene_buffer, veh)
                 end
             end
         end
 
-        # move simparams.playback_reactive_scene_buffer over to simparams.scene
+        # move static_simparams.playback_reactive_scene_buffer over to static_simparams.scene
         # and place new ego pos
         ego_def = veh_ego.def
-        copy!(simstate.scene, simparams.playback_reactive_scene_buffer)
+        copy!(simstate.scene, static_simparams.playback_reactive_scene_buffer)
         push!(simstate.scene, Vehicle(ego_state, ego_def))
     else
         # pull new frame from trajdata
@@ -561,26 +561,26 @@ function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vec
 end
 
 
-function tick(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
-    step_forward!(simparams.simstates[batch_index], simparams, u)
-    simparams
+function tick(u::Vector{Float64}, batch_index::Int=1)
+    step_forward!(static_simparams.simstates[batch_index], u)
+    static_simparams
 end
-function step_forward(simparams::SimParams, U::Matrix{Float64})
+function step_forward(U::Matrix{Float64})
     # note: actions are batch_size × action_size
-    for (i,s) in enumerate(simparams.simstates)
-        step_forward!(s, simparams, U[i,:])
+    for (i,s) in enumerate(static_simparams.simstates)
+        step_forward!(s, U[i,:])
     end
-    simparams
+    static_simparams
 end
 
-function reward(simstate::SimState, simparams::SimParams)
+function reward(simstate::SimState)
 
     veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
     veh_ego = simstate.scene[veh_index]
 
     reward = 0.0
-    if !simparams.use_debug_reward
-        trajdata = simparams.trajdatas[simstate.trajdata_index]
+    if !static_simparams.use_debug_reward
+        trajdata = static_simparams.trajdatas[simstate.trajdata_index]
         acc_ego = convert(Float64, get(ACC, simstate.rec, trajdata.roadway, veh_index))
         jrk_ego = convert(Float64, get(JERK, simstate.rec, trajdata.roadway, veh_index))
         ome_ego = convert(Float64, get(ANGULARRATEG, simstate.rec, trajdata.roadway, veh_index))
@@ -589,13 +589,13 @@ function reward(simstate::SimState, simparams::SimParams)
         d_ml = convert(Float64, get(MARKERDIST_LEFT, simstate.rec, trajdata.roadway, veh_index))
         d_mr = convert(Float64, get(MARKERDIST_RIGHT, simstate.rec, trajdata.roadway, veh_index))
 
-        reward += simparams.col_weight * get_first_collision(simstate.scene, veh_index).is_colliding
-        reward += simparams.off_weight * (d_ml < -1.0 || d_mr < -1.0)
-        reward += simparams.rev_weight * (veh_ego.state.v < 0.0)
-        reward += simparams.jrk_weight * jrk_ego*jrk_ego
-        reward += simparams.acc_weight * acc_ego*acc_ego
-        reward += simparams.cen_weight * cen_ego*cen_ego
-        reward += simparams.ome_weight * ome_ego*ome_ego
+        reward += static_simparams.col_weight * get_first_collision(simstate.scene, veh_index).is_colliding
+        reward += static_simparams.off_weight * (d_ml < -1.0 || d_mr < -1.0)
+        reward += static_simparams.rev_weight * (veh_ego.state.v < 0.0)
+        reward += static_simparams.jrk_weight * jrk_ego*jrk_ego
+        reward += static_simparams.acc_weight * acc_ego*acc_ego
+        reward += static_simparams.cen_weight * cen_ego*cen_ego
+        reward += static_simparams.ome_weight * ome_ego*ome_ego
     else
         reward -= (veh_ego.state.v^2)
         reward -= ((veh_ego.state.posG.θ - π/2)^2)
@@ -603,31 +603,31 @@ function reward(simstate::SimState, simparams::SimParams)
 
     reward
 end
-function reward(simparams::SimParams, u::Vector{Float64}, batch_index::Int = 1)
-    reward(simparams.simstates[batch_index], simparams)
+function reward(u::Vector{Float64}, batch_index::Int = 1)
+    reward(static_simparams.simstates[batch_index])
 end
 
-function observe(simparams::SimParams, batch_index::Int=1)
-    simstate = simparams.simstates[batch_index]
-    trajdata = simparams.trajdatas[simstate.trajdata_index]
+function observe(batch_index::Int=1)
+    simstate = static_simparams.simstates[batch_index]
+    trajdata = static_simparams.trajdatas[simstate.trajdata_index]
     veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
-    pull_features!(simparams.extractor, simparams.features, simstate.rec, trajdata.roadway, veh_index)
+    pull_features!(static_simparams.extractor, static_simparams.features, simstate.rec, trajdata.roadway, veh_index)
 end
 
-isdone(simparams::SimParams) = simparams.step_counter ≥ simparams.nsteps
+isdone() = static_simparams.step_counter ≥ static_simparams.nsteps
 
-function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
-    debug = open("debug.log", "a"); println(debug, "Base.step(s=", simparams, " u=", u, "batch_index=", batch_index, ")");  close(debug)
-    r = reward(simparams, u, batch_index)
-    tick(simparams, u, batch_index)
-    features = observe(simparams, batch_index)
-    simparams.step_counter += 1
-    # done = isdone(simparams)
-    simstate = simparams.simstates[batch_index]
+function Base.step(u::Vector{Float64}, batch_index::Int=1)
+    #debug = open("debug.log", "a"); println(debug, "Base.step(" u=", u, "batch_index=", batch_index, ")");  close(debug)
+    r = reward(u, batch_index)
+    tick(u, batch_index)
+    features = observe(batch_index)
+    static_simparams.step_counter += 1
+    # done = isdone()
+    simstate = static_simparams.simstates[batch_index]
 
     # End if collision or reverse or off-road
     veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
-    trajdata = simparams.trajdatas[simstate.trajdata_index]
+    trajdata = static_simparams.trajdatas[simstate.trajdata_index]
     d_ml = convert(Float64, get(MARKERDIST_LEFT, simstate.rec, trajdata.roadway, veh_index))
     d_mr = convert(Float64, get(MARKERDIST_RIGHT, simstate.rec, trajdata.roadway, veh_index))
     done = false
@@ -635,7 +635,7 @@ function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
     done = done || (d_ml < -1.0 || d_mr < -1.0)
     done = done || (simstate.scene[veh_index].state.v < 0.0)
 
-    debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
+    #debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
     (features, r, done)
 end
 
@@ -643,7 +643,7 @@ function Base.step()
     fi = h5open("jlread.h5", "r")
     u = read(fi, "actions")
     close(fi)
-    features, r, done = step(static_simparams, u)
+    features, r, done = step(u)
     fw = h5open("jlwrite.h5", "w")
     write(fw, "features", features)
     write(fw, "r", r)
@@ -661,37 +661,37 @@ function set_simparams(simparams::SimParams)
     global static_simparams = simparams
 end
 
-function Base.step(simparams::SimParams, U::Matrix{Float64})
-    debug = open("debug.log", "a"); println(debug, "Base.step(s=", simparams, " U=", U, ")");  close(debug)
-    batch_size = length(simparams.states)
-    feature_mat = Array{Float64}(batch_size, obssize(simparams))
+function Base.step(U::Matrix{Float64})
+    #debug = open("debug.log", "a"); println(debug, "Base.step(" U=", U, ")");  close(debug)
+    batch_size = length(static_simparams.states)
+    feature_mat = Array{Float64}(batch_size, obssize(static_simparams))
     rewards = Array{Float64}(batch_size)
     dones = Array{Float64}(batch_size)
 
-    step_counter = simparams.step_counter
+    step_counter = static_simparams.step_counter
     for batch_index in 1 : batch_size
-        simparams.step_counter = step_counter
-        features, reward, done = step(simparams, U[batch_index, :], batch_index)
+        static_simparams.step_counter = step_counter
+        features, reward, done = step(U[batch_index, :], batch_index)
         feature_mat[batch_index, :] = features
         rewards[batch_index] = reward
         dones[batch_index] = done
     end
-    simparams.step_counter = step_counter + 1
+    static_simparams.step_counter = step_counter + 1
 
-    debug = open("debug.log", "a"); println(debug, " feat_mat=", feature_mat, " rewards=", rewards, " dones=", dones, ">"); close(debug)
+    #debug = open("debug.log", "a"); println(debug, " feat_mat=", feature_mat, " rewards=", rewards, " dones=", dones, ">"); close(debug)
     (feature_mat, rewards, dones)
 end
 
-action_space_bounds(simparams::SimParams) = ([-5.0, -1.0], [3.0, 1.0])
-observation_space_bounds(simparams::SimParams) = (fill(-Inf, length(simparams.extractor)), fill(Inf, length(simparams.extractor)))
+action_space_bounds() = ([-5.0, -1.0], [3.0, 1.0])
+observation_space_bounds() = (fill(-Inf, length(static_simparams.extractor)), fill(Inf, length(static_simparams.extractor)))
 
 ##################################
 # Visualization
 
-function AutoViz.render(simparams::SimParams, batch_index::Int=1)
+function AutoViz.render(batch_index::Int=1)
 
-    simstate = simparams.simstates[batch_index]
-    trajdata = simparams.trajdatas[simstate.trajdata_index]
+    simstate = static_simparams.simstates[batch_index]
+    trajdata = static_simparams.trajdatas[simstate.trajdata_index]
 
     carcolors = Dict{Int,Colorant}()
     carcolors[simstate.egoid] = COLOR_CAR_EGO
@@ -704,10 +704,10 @@ function AutoViz.render(simparams::SimParams, batch_index::Int=1)
           cam=CarFollowCamera(simstate.egoid, 5.0), car_colors=carcolors)
 end
 
-function AutoViz.render(simparams::SimParams, image::Matrix{UInt32}, batch_index::Int=1)
+function AutoViz.render(image::Matrix{UInt32}, batch_index::Int=1)
 
-    simstate = simparams.simstates[batch_index]
-    trajdata = simparams.trajdatas[simstate.trajdata_index]
+    simstate = static_simparams.simstates[batch_index]
+    trajdata = static_simparams.trajdatas[simstate.trajdata_index]
 
     c = CairoImageSurface(image, Cairo.FORMAT_ARGB32, flipxy=false)
     ctx = CairoContext(c)
@@ -730,21 +730,20 @@ end
 function reel_drive(
     gif_filename::AbstractString,
     actions::Matrix{Float64}, # columns are actions
-    simparams::SimParams
     )
 
     frames = Reel.Frames(MIME("image/png"), fps=framerate)
 
     action = [NaN,NaN]
-    push!(frames, render(simparams))
+    push!(frames, render())
     for frame_index in 1:size(actions,2)
 
         action[1] = actions[frame_index,1]
         action[2] = actions[frame_index,2]
 
-        step_forward(simparams, action)
+        step_forward(action)
 
-        push!(frames, render(simparams))
+        push!(frames, render())
     end
 
     Reel.write(gif_filename, frames) # Write to a gif file
