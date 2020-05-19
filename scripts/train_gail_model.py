@@ -29,6 +29,7 @@ import seedmng.mng
 import random
 import os.path as osp
 from rllab import config
+import pdb
 
 parser = argparse.ArgumentParser()
 # Logger Params
@@ -125,13 +126,14 @@ parser.add_argument('--ckpt_name', type=str, default='')
 parser.add_argument('--ckpt_itr', type=int, default=-1)
 
 args = parser.parse_args()
+from rllab.config_personal import expert_trajs_path, model_path
+
 sm = seedmng.mng.SeedMng()
 sm.set_root(args.seed)
 sm.set_iteration(9999)
 np.random.seed(seed=sm.get_np_seed())
 random.seed(sm.get_system_seed())
 tf.set_random_seed(sm.get_tf_system_seed())
-from rllab.config_personal import expert_trajs_path, model_path
 
 if args.nonlinearity == 'tanh':
     nonlinearity = tf.nn.tanh
@@ -348,13 +350,13 @@ if len(args.ckpt_name) > 0:
 
 # use date and time to create new logging directory for each run
 date = calendar.datetime.date.today().strftime('%y-%m-%d')
-if date not in os.listdir(model_path):
-    os.mkdir(model_path + '/' + date)
+if date not in os.listdir(config.LOG_DIR):
+    os.mkdir(config.LOG_DIR + '/' + date)
 
 c = 0
 exp_name = args.exp_name + '-' + str(c)
 
-while exp_name in os.listdir(model_path + '/' + date + '/'):
+while exp_name in os.listdir(config.LOG_DIR + '/' + date + '/'):
     c += 1
     exp_name = args.exp_name + '-' + str(c)
 
