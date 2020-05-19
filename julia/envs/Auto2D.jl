@@ -639,6 +639,7 @@ function Base.step(u::Vector{Float64}, batch_index::Int=1)
     done = done || (simstate.scene[veh_index].state.v < 0.0)
 
     #debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
+    sleep(0.001)
     (features, r, done)
 end
 

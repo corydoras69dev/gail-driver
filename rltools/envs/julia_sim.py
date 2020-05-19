@@ -75,7 +75,6 @@ class JuliaEnv(object):
         # done for whether in terminal state
         #debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/self.j.step({}:{})'.format(self._name_dump, actions)); debug.close()
         obs, reward, done = self.j.step(actions)
-        self.j.sleep(0.001)
         time.sleep(0.002)
         #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
         return obs, reward, done, info
