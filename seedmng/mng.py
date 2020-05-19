@@ -18,9 +18,9 @@ class SeedMng(Singleton):
 
     def set_root(self, input):
         self._root_seed = input
-        for i in range(0, 1000)
-            seed = i * 210 + 999 + id
-            _julia_seed.append(seed)
+        for i in range(0, 1000):
+            seed = int(i) * int(210) + int(999)
+            self._julia_seed.append(seed)
 
     def set_iteration(self, n_iter):
         self._system_seed = self._root_seed + n_iter * 110 + 123
