@@ -8,7 +8,7 @@ using ForwardNets
 import Reel
 using HDF5
 export gen_simparams, reset, tick, reward, observe, set_simparams, step, isdone, action_space_bounds, observation_space_bounds, render
-export SimParams, reel_drive, GaussianMLPDriver, load_gru_driver
+export SimParams, reel_drive, GaussianMLPDriver, load_gru_driver, set_random_seed
 
 ##################################
 # Gaussian MLP Driver
@@ -261,8 +261,8 @@ function gen_simparams_from_trajdatas(trajdata_filepaths::Vector, roadway_filepa
               use_debug_reward, use_playback_reactive, model_all, playback_reactive_threshold_brake,
               nsimstates, prime_history, nsteps, ego_action_type, extractor)
 end
-function gen_simparams(batch_size::Int, args::Dict, seed::Int)
-    Base.Random.srand(seed)
+function gen_simparams(batch_size::Int, args::Dict)
+
     col_weight = get(args, "col_weight", -2.0)
     off_weight = get(args, "off_weight", -0.75)
     rev_weight = get(args, "rev_weight", -0.50)
@@ -325,6 +325,10 @@ function gen_simparams(batch_size::Int, args::Dict, seed::Int)
             use_debug_reward, use_playback_reactive, model_all, playback_reactive_threshold_brake,
             batch_size, prime_history, nsteps, ego_action_type, extractor)
     end
+end
+
+function set_random_seed(seed::Int)
+    Base.Random.srand(seed)
 end
 
 ###########################################

@@ -5,7 +5,12 @@ import rllab.plotter as plotter
 from tf_rllab.policies.base import Policy
 import tensorflow as tf
 from tf_rllab.samplers.batch_sampler import BatchSampler
-
+import seedmng.mng
+from rltools.envs.julia_sim import JuliaEnvWrapper, JuliaEnv
+import random
+import numpy as np
+import pdb
+import julia
 
 class BatchPolopt(RLAlgorithm):
     """
@@ -100,6 +105,9 @@ class BatchPolopt(RLAlgorithm):
         return self.sampler.process_samples(itr, paths)
 
     def train(self):
+        sm = seedmng.mng.SeedMng()
+        j = julia.Julia()
+        j.using("Base.Random.srand")
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
             if self.load_params_args is not None:
@@ -107,6 +115,11 @@ class BatchPolopt(RLAlgorithm):
             self.start_worker()
             start_time = time.time()
             for itr in range(self.start_itr, self.n_itr):
+                sm.set_iteration(itr)
+                random.seed(sm.get_system_seed(0))
+                np.random.seed(seed=sm.get_np_seed(0))
+                tf.set_random_seed(sm.get_tf_system_seed(0))
+                j.srand(sm.get_system_seed(0))
                 self.policy.save_params(itr)
                 itr_start_time = time.time()
                 if itr >= self.temporal_noise_thresh:
@@ -114,6 +127,7 @@ class BatchPolopt(RLAlgorithm):
 
                 with logger.prefix('itr #%d | ' % itr):
                     logger.log("Obtaining samples...")
+                    #pdb.set_trace()
                     paths = self.obtain_samples(itr)
                     logger.log("Processing samples...")
                     samples_data = self.process_samples(itr, paths)

@@ -42,9 +42,7 @@ class JuliaEnv(object):
         self.j = julia.Julia()
         self.j.eval("include(\"" + julia_env_dict[env_name] + "\")")
         self.j.using(env_name)
-        sm = seedmng.mng.SeedMng()
-        seed = sm.get_system_seed(0)
-        self.simparams = self.j.gen_simparams(batch_size, param_dict, seed) 
+        self.simparams = self.j.gen_simparams(batch_size, param_dict) 
         self.j.set_simparams(self.simparams)
 
         if GX:
