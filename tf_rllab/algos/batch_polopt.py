@@ -120,6 +120,8 @@ class BatchPolopt(RLAlgorithm):
                 np.random.seed(seed=sm.get_np_seed(0))
                 tf.set_random_seed(sm.get_tf_system_seed(0))
                 j.srand(sm.get_system_seed(0))
+                j.sleep(1)
+                time.sleep(2)
                 self.policy.save_params(itr)
                 itr_start_time = time.time()
                 if itr >= self.temporal_noise_thresh:
