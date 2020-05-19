@@ -11,12 +11,16 @@ class SeedMng(Singleton):
     _tf_system_seed = 0
     _np_seed = 0
     _dummy = 0
+    _julia_seed = []
 
     def __init__(self):
         _dummy = 0
 
     def set_root(self, input):
         self._root_seed = input
+        for i in range(0, 1000)
+            seed = i * 210 + 999 + id
+            _julia_seed.append(seed)
 
     def set_iteration(self, n_iter):
         self._system_seed = self._root_seed + n_iter * 110 + 123
@@ -35,3 +39,7 @@ class SeedMng(Singleton):
 
     def get_np_seed(self, id = 0):
         return self._np_seed + id
+        
+    def get_julia_seed(self, id = 0):
+        return self._julia_seed
+        
