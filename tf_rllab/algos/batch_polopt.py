@@ -108,6 +108,8 @@ class BatchPolopt(RLAlgorithm):
         sm = seedmng.mng.SeedMng()
         j = julia.Julia()
         j.using("Base.Random.srand")
+        j.sleep(4)
+        time.sleep(8)
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
             if self.load_params_args is not None:
