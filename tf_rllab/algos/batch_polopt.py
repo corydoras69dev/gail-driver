@@ -112,7 +112,7 @@ class BatchPolopt(RLAlgorithm):
         j.using("Base.Random.srand")
         time.sleep(8)
         #pdb.set_trace()
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(max_to_keep=None)
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
 
