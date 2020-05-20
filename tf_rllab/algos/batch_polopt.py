@@ -11,6 +11,8 @@ import random
 import numpy as np
 import pdb
 import julia
+import joblib
+from rllab import config
 
 class BatchPolopt(RLAlgorithm):
     """
@@ -109,19 +111,31 @@ class BatchPolopt(RLAlgorithm):
         j = julia.Julia()
         j.using("Base.Random.srand")
         time.sleep(8)
+        #pdb.set_trace()
+        saver = tf.train.Saver()
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
+
             if self.load_params_args is not None:
                 self.policy.load_params(*self.load_params_args)
             self.start_worker()
             start_time = time.time()
+
+            if self.start_itr is not 0:
+                #pdb.set_trace()
+                tf_filename = config.LOG_DIR + "/tf_" + str(self.start_itr) +".ckpt"
+                saver.restore(sess, tf_filename)
+
             for itr in range(self.start_itr, self.n_itr):
+
                 sm.set_iteration(itr)
                 random.seed(sm.get_system_seed(0))
                 np.random.seed(seed=sm.get_np_seed(0))
                 tf.set_random_seed(sm.get_tf_system_seed(0))
                 j.srand(sm.get_system_seed(0))
                 time.sleep(2)
+
+                #pdb.set_trace()
                 self.policy.save_params(itr)
                 itr_start_time = time.time()
                 if itr >= self.temporal_noise_thresh:
@@ -140,6 +154,7 @@ class BatchPolopt(RLAlgorithm):
                     logger.log("Optimizing policy...")
                     self.optimize_policy(itr, samples_data)
                     logger.log("Saving snapshot...")
+                    # pdb.set_trace()
                     params = self.get_itr_snapshot(
                         itr, samples_data)  # , **kwargs)
                     if self.store_paths:
@@ -150,6 +165,7 @@ class BatchPolopt(RLAlgorithm):
                     logger.record_tabular(
                         'ItrTime', time.time() - itr_start_time)
                     logger.dump_tabular(with_prefix=False)
+                    saver.save(sess, logger.get_snapshot_dir() + "/tf_" + str(itr + 1) + ".ckpt")
                     if self.plot:
                         self.update_plot()
                         if self.pause_for_plot:

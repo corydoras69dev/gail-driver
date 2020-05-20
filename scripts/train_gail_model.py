@@ -30,6 +30,7 @@ import random
 import os.path as osp
 from rllab import config
 import pdb
+import joblib
 
 parser = argparse.ArgumentParser()
 # Logger Params
@@ -99,6 +100,7 @@ parser.add_argument('--trpo_batch_size', type=int, default=40 * 100)
 parser.add_argument('--discount', type=float, default=0.95)
 parser.add_argument('--gae_lambda', type=float, default=0.99)
 parser.add_argument('--n_iter', type=int, default=500)  # trpo iterations
+parser.add_argument('--start_iter', type=int, default=0) # start iteration
 parser.add_argument('--max_kl', type=float, default=0.01)
 parser.add_argument('--vf_max_kl', type=float, default=0.01)
 parser.add_argument('--vf_cg_damping', type=float, default=0.01)
@@ -321,6 +323,7 @@ algo = GAIL(
 	batch_size= args.trpo_batch_size,
 	gail_batch_size=args.gail_batch_size,
 	max_path_length=args.max_traj_len,
+	start_itr=args.start_iter,
 	n_itr=args.n_iter,
 	discount=args.discount,
 	step_size=args.trpo_step_size,
