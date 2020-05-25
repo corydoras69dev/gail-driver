@@ -12,6 +12,8 @@ class SeedMng(Singleton):
     _np_seed = 0
     _dummy = 0
     _julia_seed = []
+    _start_iteration = 0
+    _policy_type = ""
 
     def __init__(self):
         _dummy = 0
@@ -21,6 +23,9 @@ class SeedMng(Singleton):
         for i in range(0, 1000):
             seed = int(i) * int(210) + int(999)
             self._julia_seed.append(seed)
+
+    def set_start_iteration(self, iteration):
+        self._start_iteration = iteration
 
     def set_iteration(self, n_iter):
         self._system_seed = self._root_seed + n_iter * 110 + 123
@@ -39,7 +44,15 @@ class SeedMng(Singleton):
 
     def get_np_seed(self, id = 0):
         return self._np_seed + id
-        
+
     def get_julia_seed(self, id = 0):
         return self._julia_seed
-        
+
+    def get_start_iteration(self):
+        return self._start_iteration
+
+    def set_policy_type(self, type):
+        self._policy_type = type
+
+    def get_policy_type(self):
+        return self._policy_type

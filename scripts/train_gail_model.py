@@ -29,7 +29,7 @@ import seedmng.mng
 import random
 import os.path as osp
 from rllab import config
-import pdb
+import ipdb
 import joblib
 
 parser = argparse.ArgumentParser()
@@ -136,6 +136,8 @@ sm.set_iteration(9999)
 np.random.seed(seed=sm.get_np_seed())
 random.seed(sm.get_system_seed())
 tf.set_random_seed(sm.get_tf_system_seed())
+sm.set_start_iteration(args.start_iter)
+sm.set_policy_type(args.policy_type)
 
 if args.nonlinearity == 'tanh':
     nonlinearity = tf.nn.tanh
@@ -191,6 +193,12 @@ if not args.extract_carlidar:
 if not args.extract_roadlidar:
     env_dict['roadlidar_nbeams'] = 0
 
+t_iter = args.start_iter
+
+if t_iter < 0:
+    t_iter = 0
+
+
 JuliaEnvWrapper.set_initials(args.env_name, 1, env_dict)
 gym.envs.register(
     id=env_id,
@@ -210,12 +218,17 @@ initial_obs_std = expert_data_stacked['exobs_Bstacked_Do'].std(axis=0)
 initial_obs_std[initial_obs_std < args.norm_tol] = 1.0
 initial_obs_var = np.square(initial_obs_std)
 
+#ipdb.set_trace()
+#if args.start_iter > 0:
+#    g_env = joblib.load(config.LOG_DIR + "/env_" + str(args.start_iter) + ".pkl")
+#else:
 # create normalize environments
 g_env = normalize(GymEnv(env_id),
                   initial_obs_mean=initial_obs_mean,
                   initial_obs_var=initial_obs_var,
                   normalize_obs=True,
                   running_obs=False)
+
 env = TfEnv(g_env)
 
 # normalize observations
@@ -253,6 +266,7 @@ else:
     temporal_indices = None
 
 # create policy
+#ipdb.set_trace()
 if args.policy_type == 'mlp':
     policy = GaussianMLPPolicy('mlp_policy', env.spec, hidden_sizes=p_hspec,
                                std_hidden_nonlinearity=nonlinearity, hidden_nonlinearity=nonlinearity

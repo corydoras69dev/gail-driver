@@ -4,7 +4,7 @@ from rllab.core.serializable import Serializable
 from rllab.misc.tensor_utils import flatten_tensors, unflatten_tensors
 import tensorflow as tf
 import numpy as np
-
+import ipdb
 import h5py
 import os
 
@@ -125,6 +125,7 @@ class Model(Parameterized):
     _log_dir = './models'
 
     def load_params(self, filename, itr, skip_params):
+        #ipdb.set_trace()
         print 'loading policy params...'
         if not hasattr(self, 'load_dir'):
             log_dir = Model._load_dir
@@ -153,8 +154,25 @@ class Model(Parameterized):
         sess.run(assignments)
         print 'done.'
 
+    def restore_params(self, filename):
+        print 'loading policy params...'
+#        assignments = []
+#        with h5py.File(filename, 'r') as hf:
+#            for param in self.get_params():
+#                if path in hf:
+#                    assignments.append(
+#                        param.assign(hf[path][...])
+#                    )
+#
+        sess = tf.get_default_session()
+        saver = tf.train.Saver()
+        saver.restore(sess, filename)
+#        sess.run(assignments)
+        print 'done.'
+
     def save_params(self, itr, overwrite=False):
         print 'saving model...'
+        #ipdb.set_trace()
         if not hasattr(self, 'log_dir'):
             log_dir = Model._log_dir
         else:
@@ -174,6 +192,19 @@ class Model(Parameterized):
 
             for v, val in zip(vs, vals):
                 dset[v.name] = val
+        print 'done.'
+        pass
+
+    def write_params(self, filename):
+        print 'saving model...'
+        sess = tf.get_default_session()
+        saver = tf.train.Saver(max_to_keep=None)
+        saver.save(sess, filename)
+#        with h5py.File(filename, "w") as hf:
+#            vs = self.get_params()
+#            vals = sess.run(vs)
+#            for v, val in zip(vs, vals):
+#                hf.create_dataset(v.name, data=val)
         print 'done.'
 
     def save_extra_data(self, names, data):

@@ -5,6 +5,8 @@ PROJECT_PATH = osp.abspath(osp.join(osp.dirname(__file__), '..'))
 
 LOG_DIR = PROJECT_PATH + "/data/models"
 
+LOAD_DIR = PROJECT_PATH + "/data/models"
+
 USE_TF = False
 
 DOCKER_IMAGE = "DOCKER_IMAGE"

@@ -56,18 +56,18 @@ function load_gru_driver(
             bc_policy::Bool=false,
             action_type::DataType=AccelTurnrate)
 
-    if iteration == -1 # load most recent
-        fid = h5open(filepath)
-        for val in keys(read(fid))
-            i = parse(Int, match(r"\d+", val).match)
-            iteration = max(iteration, i)
-        end
-    end
+#    if iteration == -1 # load most recent
+#        fid = h5open(filepath)
+#        for val in keys(read(fid))
+#            i = parse(Int, match(r"\d+", val).match)
+#            iteration = max(iteration, i)
+#        end
+#    end
 
     if gru_layer
-        basepath = @sprintf("iter%05d/mlp_policy", iteration)
-        layers = sort(collect(keys(h5read(filepath, basepath))))
-        layers = layers[1:end-1]
+         basepath = @sprintf("iter%05d/mlp_policy", iteration)
+         layers = sort(collect(keys(h5read(filepath, basepath))))
+         layers = layers[1:end-1]
     else
         if bc_policy
             basepath = @sprintf("iter%05d/mlp_policy", iteration)

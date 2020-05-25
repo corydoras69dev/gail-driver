@@ -5,7 +5,7 @@ from rllab.misc import special
 from rllab.misc import tensor_utils
 from rllab.algos import util
 import rllab.misc.logger as logger
-
+import ipdb
 
 class Sampler(object):
     def start_worker(self):
@@ -49,6 +49,7 @@ class BaseSampler(Sampler):
         baselines = []
         returns = []
         env_returns = []
+        #ipdb.set_trace()
 
         if hasattr(self.algo.baseline, "predict_n"):
             all_path_baselines = self.algo.baseline.predict_n(paths)
@@ -72,9 +73,12 @@ class BaseSampler(Sampler):
                     path["env_rewards"], self.algo.discount)
                 env_returns.append(path["env_returns"])
 
+        #ipdb.set_trace()
+        concat_baselines = np.concatenate(baselines)
+        concat_returns = np.concatenate(returns)
         ev = special.explained_variance_1d(
-            np.concatenate(baselines),
-            np.concatenate(returns)
+            concat_baselines,
+            concat_returns
         )
 
         if not self.algo.policy.recurrent:
@@ -224,6 +228,8 @@ class BaseSampler(Sampler):
         logger.record_tabular('StdReturn', np.std(undiscounted_returns))
         logger.record_tabular('MaxReturn', np.max(undiscounted_returns))
         logger.record_tabular('MinReturn', np.min(undiscounted_returns))
+        logger.record_tabular('ConcatReturns', concat_returns)
+        logger.record_tabular('ConcatBaselines', concat_baselines)
 
         if undiscounted_env_returns != []:
             logger.record_tabular(

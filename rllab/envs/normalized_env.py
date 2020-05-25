@@ -6,7 +6,7 @@ from rllab.envs.proxy_env import ProxyEnv
 from rllab.spaces.box import Box
 from rllab.misc.overrides import overrides
 from rllab.envs.base import Step
-import pdb
+import ipdb
 
 class NormalizedEnv(ProxyEnv, Serializable):
     def __init__(
@@ -110,7 +110,7 @@ class NormalizedEnv(ProxyEnv, Serializable):
         else:
             scaled_action = action
         #debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/self._wrapped_env.step()\n'); debug.close()
-        #pdb.set_trace()
+        #ipdb.set_trace()
         wrapped_step = self._wrapped_env.step(scaled_action)
         #debug = open('debug.log', 'a'); debug.write('rllab/envs/normalized_env.py/= wrapped_step\n'); debug.close()
         next_obs, reward, done, info = wrapped_step

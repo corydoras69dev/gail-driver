@@ -8,6 +8,7 @@ import seedmng.mng
 import os
 import h5py
 import time
+import ipdb
 
 #from path_to_Auto2D import LQG_path, auto1D_path, auto2D_path, pulltraces_path, passive_aggressive_path
 from rllab.config_personal import auto2D_path
@@ -42,20 +43,24 @@ class JuliaEnv(object):
         self.j = julia.Julia()
         self.j.eval("include(\"" + julia_env_dict[env_name] + "\")")
         self.j.using(env_name)
-        self.simparams = self.j.gen_simparams(batch_size, param_dict) 
-        self.j.set_simparams(self.simparams)
+        #ipdb.set_trace()
+        sm = seedmng.mng.SeedMng()
+        iteration = sm.get_start_iteration()
+        type_gru = (sm.get_policy_type() == "gru")
+        self.simparams = self.j.gen_simparams(batch_size, param_dict, iteration, type_gru) 
 
         if GX:
             _, self.ax = plt.subplots(1, 1)
 
     def reset(self, render=False):
+        #ipdb.set_trace()
 
         if GX:
             self.ax.cla()
 
-        self.j.reset()
+        self.j.reset(self.simparams)
         # [batch_size x n_features]
-        observation = self.j.observe()
+        observation = self.j.observe(self.simparams)
 
         return observation
 
@@ -74,7 +79,7 @@ class JuliaEnv(object):
         # reward for (s,a,s')
         # done for whether in terminal state
         #debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/self.j.step({}:{})'.format(self._name_dump, actions)); debug.close()
-        obs, reward, done = self.j.step(actions)
+        obs, reward, done = self.j.step(self.simparams, actions)
         time.sleep(0.002)
         #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
         return obs, reward, done, info
@@ -88,7 +93,7 @@ class JuliaEnv(object):
         fw = h5py.File("jlread.h5", "w")
         fw.create_dataset('actions', data=actions)
         fw.close()
-        self.j.step()
+        self.j.step(self.simparams)
         fr = h5py.File("jlwrite.h5", "r")
         obs = fr['features'].value
         reward = fr['r'].value
@@ -103,18 +108,21 @@ class JuliaEnv(object):
         return obs, reward, done, info
 
     def step(self, actions):
+        #ipdb.set_trace()
         obs, reward, done, info = self.step_direct_if(actions)
         #obs, reward, done, info = self.step_file_if(actions)
         return obs, reward, done, info
 
     @property
     def action_space(self):
-        lo, hi = self.j.action_space_bounds()
+        #ipdb.set_trace()
+        lo, hi = self.j.action_space_bounds(self.simparams)
         return Box(np.array(lo), np.array(hi))
 
     @property
     def observation_space(self):
-        lo, hi = self.j.observation_space_bounds()
+        #ipdb.set_trace()
+        lo, hi = self.j.observation_space_bounds(self.simparams)
         return Box(np.array(lo), np.array(hi))
 
     @property
@@ -122,6 +130,7 @@ class JuliaEnv(object):
         """
         If your step function returns multiple rewards for different agents
         """
+        #ipdb.set_trace()
         return 'global'
 
 
@@ -272,6 +281,7 @@ class JuliaDriveEnv2D():
 
         #self.j.set_TRAJDATAS(tj_ix= tj_ix)
         #self.simparams = self.j.gen_simparams([1])
+        ipdb.set_trace()
         if trajdata_indeces == []:
             print "USING PASSIVE/AGGRESSIVE"
 
@@ -284,14 +294,14 @@ class JuliaDriveEnv2D():
             # self.simparams= self.j.gen_simparams_from_trajdatas(map(append_path,trajdatas),map(append_path,roadways),
             # weights[0], weights[1], weights[2], weights[3], weights[4],
             # weights[5])
+            ipdb.set_trace()
             self.simparams = self.j.gen_simparams_from_trajdatas(
-                map(append_path, trajdatas), map(append_path, roadways))
-            self.j.set_simparams(self.simparams)
+                map(append_path, trajdatas), map(append_path, roadways), type_gru)
 
         else:
             #self.simparams = self.j.gen_simparams(trajdata_indeces, weights[0], weights[1], weights[2], weights[3], weights[4], weights[5])
-            self.simparams = self.j.gen_simparams(trajdata_indeces)
-            self.j.set_simparams(self.simparams)
+            ipdb.set_trace()
+            self.simparams = self.j.gen_simparams(trajdata_indeces, type_gru)
            
 
         self.features = self.j.alloc_features()
@@ -308,10 +318,10 @@ class JuliaDriveEnv2D():
         # Initialize vehicles and scene, get state
         if self.train_seg_index != 0:
             self.j.restart_specific(
-                self.train_seg_index, self.frame_num)
+                self.simparams, self.train_seg_index, self.frame_num)
         else:
-            self.j.restart()
-        self.features = self.j.get_state(self.features)
+            self.j.restart(self.simparams)
+        self.features = self.j.get_state(self.features, self.simparams)
 
         return self.features
 
@@ -321,9 +331,9 @@ class JuliaDriveEnv2D():
 
         self.ax.cla()
 
-        img = self.j.render(np.zeros(
+        img = self.j.render(self.simparams, np.zeros(
             (500, 500)).astype('uint32'))
-        #img=self.j.retrieve_frame_data(500, 500)
+        #img=self.j.retrieve_frame_data(500, 500, self.simparams)
         self.ax.imshow(img, cmap=plt.get_cmap('bwr'))
         #self.ax.imshow(img, cmap=plt.get_cmap('seismic'))
 
@@ -336,7 +346,7 @@ class JuliaDriveEnv2D():
     def save_gif(self, actions, filename):
         # TODO - have a way to record states over time to do rendering
         # actions is a matrix whose columns are the actions
-        self.j.reel_drive(filename + ".gif", actions)
+        self.j.reel_drive(filename + ".gif", actions, self.simparams)
         return
 
     def step(self, action):
@@ -344,10 +354,10 @@ class JuliaDriveEnv2D():
         action = np.squeeze(action)
 
         #debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{})'.format(self._name_dump, action)); debug.close()
-        self.j.step_forward(action)
+        self.j.step_forward(self.simparams, action)
         #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
-        self.features = self.j.get_state(self.features)
-        reward, done = self.j.get_reward()
+        self.features = self.j.get_state(self.features, self.simparams)
+        reward, done = self.j.get_reward(self.simparams)
 
         self.tstep += 1
 
@@ -400,9 +410,9 @@ class JuliaDriveEnv2DBatch():
         self.j.eval("include(\"" + auto2D_path + "\")")
         self.j.using("Auto2D")
 
+        ipdb.set_trace()
         self.simparams = self.j.gen_simparams(
             trajdata_indeces, weights[0], weights[1], weights[2], weights[3], weights[4], weights[5], weights[6], batch_size)
-        self.j.set_simparams(self.simparams)
         self.features = self.j.alloc_features(batch_size)
 
         if GX:
@@ -416,7 +426,7 @@ class JuliaDriveEnv2DBatch():
 
         # Initialize vehicles and scene, get state
         self.j.restart()
-        self.features = self.j.observe(self.features)
+        self.features = self.j.observe(self.features, self.simparams)
 
         return self.features
 
@@ -426,8 +436,8 @@ class JuliaDriveEnv2DBatch():
 
         # self.ax.cla()
 
-        # img = self.j.render(np.zeros((500,500)).astype('uint32'))
-        # #img=self.j.retrieve_frame_data(500, 500)
+        # img = self.j.render(self.simparams, np.zeros((500,500)).astype('uint32'))
+        # #img=self.j.retrieve_frame_data(500, 500, self.simparams)
         # self.ax.imshow(img, cmap=plt.get_cmap('bwr'))
         # #self.ax.imshow(img, cmap=plt.get_cmap('seismic'))
 
@@ -440,17 +450,17 @@ class JuliaDriveEnv2DBatch():
     def save_gif(self, actions, filename):
         # TODO - have a way to record states over time to do rendering
         # actions is a matrix whose columns are the actions
-        # self.j.reel_drive(filename+".gif", actions)
+        # self.j.reel_drive(filename+".gif", actions, self.simparams)
         return
 
     def step(self, actions):
         info = {}
 
         #debug = open('debug.log', 'a'); debug.write('self.j.step_forward({}:{})'.format(self._name_dump, action)); debug.close()
-        self.j.step_forward(actions)
+        self.j.step_forward(self.simparams, actions)
         #debug = open('debug.log', 'a'); debug.write('..done\n'.format(self._name_dump, action)); debug.close()
-        self.features = self.j.get_state(self.features)
-        reward, done = self.j.get_reward()
+        self.features = self.j.get_state(self.features, self.simparams)
+        reward, done = self.j.get_reward(self.simparams)
 
         self.tstep += 1
 
@@ -487,7 +497,8 @@ class JuliaEnvWrapper(JuliaEnv):
     def __init__(self):
         super(JuliaEnvWrapper, self).__init__(JuliaEnvWrapper._env_name,
                                               JuliaEnvWrapper._batch_size,
-                                              JuliaEnvWrapper._param_dict)
+                                              JuliaEnvWrapper._param_dict,
+                                              )
 
     @classmethod
     def set_initials(cls, env_name, batch_size, param_dict):

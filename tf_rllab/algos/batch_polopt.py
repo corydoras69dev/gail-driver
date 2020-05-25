@@ -9,10 +9,12 @@ import seedmng.mng
 from rltools.envs.julia_sim import JuliaEnvWrapper, JuliaEnv
 import random
 import numpy as np
-import pdb
+import ipdb
 import julia
 import joblib
 from rllab import config
+import h5py
+import pickle
 
 class BatchPolopt(RLAlgorithm):
     """
@@ -111,7 +113,7 @@ class BatchPolopt(RLAlgorithm):
         j = julia.Julia()
         j.using("Base.Random.srand")
         time.sleep(8)
-        #pdb.set_trace()
+        #ipdb.set_trace()
         saver = tf.train.Saver(max_to_keep=None)
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
@@ -122,10 +124,16 @@ class BatchPolopt(RLAlgorithm):
             start_time = time.time()
 
             if self.start_itr is not 0:
-                #pdb.set_trace()
-                tf_filename = config.LOG_DIR + "/tf_" + str(self.start_itr) +".ckpt"
+                #ipdb.set_trace()
+                tf_filename = config.LOAD_DIR + "/tf_" + str(self.start_itr) +".ckpt"
                 saver.restore(sess, tf_filename)
+                self.policy.restore_params(config.LOAD_DIR + "/policy0_" + str(self.start_itr) +".ckpt")
+                self.sampler.algo.policy.restore_params(config.LOAD_DIR + "/policy1_" + str(self.start_itr) +".ckpt")
+                f = h5py.File(config.LOAD_DIR + "/base_" + str(self.start_itr) +".h5", "r")
+                baseline = f['baseline'].value
+                f.close()
 
+            simparams = []
             for itr in range(self.start_itr, self.n_itr):
 
                 sm.set_iteration(itr)
@@ -134,8 +142,14 @@ class BatchPolopt(RLAlgorithm):
                 tf.set_random_seed(sm.get_tf_system_seed(0))
                 j.srand(sm.get_system_seed(0))
                 time.sleep(2)
-
-                #pdb.set_trace()
+                
+                simparams.append(self.env.wrapped_env.wrapped_env.env.simparams)
+                #simparams = self.env.wrapped_env.wrapped_env.env.simparams
+                #joblib.dump(simparams, logger.get_snapshot_dir() + "/sim_" + str(itr) + ".pkl", compress=3)
+                #simparams = joblib.load(logger.get_snapshot_dir() + "/sim_" + str(itr) + ".pkl")
+                #self.env.wrapped_env.wrapped_env.env.simparams = simparams
+                
+                #ipdb.set_trace()
                 self.policy.save_params(itr)
                 itr_start_time = time.time()
                 if itr >= self.temporal_noise_thresh:
@@ -143,8 +157,18 @@ class BatchPolopt(RLAlgorithm):
 
                 with logger.prefix('itr #%d | ' % itr):
                     logger.log("Obtaining samples...")
-                    #pdb.set_trace()
+                    #ipdb.set_trace()
                     paths = self.obtain_samples(itr)
+                    if itr > 0 and itr == sm.get_start_iteration():
+                        f = open(config.LOAD_DIR + "/paths_" + str(self.start_itr) +".pkl", "r")
+                        paths = pickle.load(f)
+                        f.close()
+                    elif itr > sm.get_start_iteration():
+                        f = open(logger.get_snapshot_dir() + "/paths_" + str(itr) + ".pkl", "w")
+                        pickle.dump(paths, f)
+                        f.close()
+
+                    #ipdb.set_trace()
                     logger.log("Processing samples...")
                     samples_data = self.process_samples(itr, paths)
                     logger.log("Logging diagnostics...")
@@ -154,18 +178,27 @@ class BatchPolopt(RLAlgorithm):
                     logger.log("Optimizing policy...")
                     self.optimize_policy(itr, samples_data)
                     logger.log("Saving snapshot...")
-                    # pdb.set_trace()
-                    params = self.get_itr_snapshot(
-                        itr, samples_data)  # , **kwargs)
+                    #ipdb.set_trace()
+                    params = self.get_itr_snapshot(itr, samples_data)  # , **kwargs)
                     if self.store_paths:
                         params["paths"] = samples_data["paths"]
                     logger.save_itr_params(itr, params)
                     logger.log("Saved")
                     logger.record_tabular('Time', time.time() - start_time)
-                    logger.record_tabular(
-                        'ItrTime', time.time() - itr_start_time)
+                    logger.record_tabular('ItrTime', time.time() - itr_start_time)
                     logger.dump_tabular(with_prefix=False)
                     saver.save(sess, logger.get_snapshot_dir() + "/tf_" + str(itr + 1) + ".ckpt")
+                    #ipdb.set_trace()
+                    self.policy.write_params(logger.get_snapshot_dir() + "/policy0_" + str(itr + 1) + ".ckpt")
+                    self.sampler.algo.policy.write_params(logger.get_snapshot_dir() + "/policy1_" + str(itr + 1) + ".ckpt")
+                    f = h5py.File(logger.get_snapshot_dir() + "/base_" + str(itr + 1) + ".h5", "w")
+                    f.create_dataset('baseline', data=self.baseline.get_param_values())
+                    f.close()
+                    f = open(logger.get_snapshot_dir() + "/env_" + str(itr + 1) + ".pkl", "w")
+                    joblib.dump(self.env, f, compress=3)
+                    f.close()
+                    #self.reward.write_params("/home/shusaku.sawato/gail/gail-driver10/test_reward.ckpt")
+
                     if self.plot:
                         self.update_plot()
                         if self.pause_for_plot:
