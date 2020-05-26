@@ -133,16 +133,6 @@ class BatchPolopt(RLAlgorithm):
                 j.srand(sm.get_system_seed(0))
                 time.sleep(2)
                 
-                if self.start_itr is not 0:
-                    #ipdb.set_trace()
-                    tf_filename = config.LOAD_DIR + "/tf_" + str(self.start_itr) +".ckpt"
-                    saver.restore(sess, tf_filename)
-                    self.policy.restore_params(config.LOAD_DIR + "/policy0_" + str(self.start_itr) +".ckpt")
-                    self.sampler.algo.policy.restore_params(config.LOAD_DIR + "/policy1_" + str(self.start_itr) +".ckpt")
-                    #f = h5py.File(config.LOAD_DIR + "/base_" + str(self.start_itr) +".h5", "r")
-                    #baseline = f['baseline'].value
-                    #f.close()
-
                 #simparams.append(self.env.wrapped_env.wrapped_env.env.simparams)
                 #simparams = self.env.wrapped_env.wrapped_env.env.simparams
                 #joblib.dump(simparams, logger.get_snapshot_dir() + "/sim_" + str(itr) + ".pkl", compress=3)
@@ -157,31 +147,27 @@ class BatchPolopt(RLAlgorithm):
                     self.env._noise_indicies = None
 
                 with logger.prefix('itr #%d | ' % itr):
+
+                    if 0 < self.start_itr and itr < self.start_itr + 3:
+                        #ipdb.set_trace()
+                        tf_filename = config.LOAD_DIR + "/tf_" + str(itr) +".ckpt"
+                        saver.restore(sess, tf_filename)
+                        self.policy.restore_params(config.LOAD_DIR + "/policy0_" + str(itr) +".ckpt")
+                        self.sampler.algo.policy.restore_params(config.LOAD_DIR + "/policy1_" + str(itr) +".ckpt")
+
                     logger.log("Obtaining samples...")
                     #ipdb.set_trace()
                     paths = self.obtain_samples(itr)
-                    #if itr > 0 and itr == self.start_itr:
-                    #    f = open(config.LOAD_DIR + "/paths_" + str(self.start_itr) +".pkl", "r")
-                    #    paths = pickle.load(f)
-                    #    f.close()
-                    #elif itr > sm.get_start_iteration():
-                    #    f = open(logger.get_snapshot_dir() + "/paths_" + str(itr) + ".pkl", "w")
-                    #    pickle.dump(paths, f)
-                    #    f.close()
-
                     #ipdb.set_trace()
                     logger.log("Processing samples...")
                     samples_data = self.process_samples(itr, paths)
                     logger.log("Logging diagnostics...")
-
-                    if itr > 0 and itr == self.start_itr:
-                        f = open(config.LOAD_DIR + "/smpls_" + str(self.start_itr) +".pkl", "r")
-                        samples_data = pickle.load(f)
-                        f.close()
-                    elif itr > sm.get_start_iteration():
-                        f = open(logger.get_snapshot_dir() + "/smpls_" + str(itr) + ".pkl", "w")
-                        pickle.dump(samples_data, f)
-                        f.close()
+                    if 0 < self.start_itr and itr < self.start_itr + 3:
+                        with open(config.LOAD_DIR + "/smpls_" + str(self.start_itr) +".pkl", "r") as f:
+                            samples_data = pickle.load(f)
+                    else:
+                        with open(logger.get_snapshot_dir() + "/smpls_" + str(itr) + ".pkl", "w") as f:
+                            pickle.dump(samples_data, f)
 
                     # env, policy, baseline have individual log_diagnos methods
                     # for overriding
@@ -202,12 +188,6 @@ class BatchPolopt(RLAlgorithm):
                     #ipdb.set_trace()
                     self.policy.write_params(logger.get_snapshot_dir() + "/policy0_" + str(itr + 1) + ".ckpt")
                     self.sampler.algo.policy.write_params(logger.get_snapshot_dir() + "/policy1_" + str(itr + 1) + ".ckpt")
-                    #f = h5py.File(logger.get_snapshot_dir() + "/base_" + str(itr + 1) + ".h5", "w")
-                    #f.create_dataset('baseline', data=self.baseline.get_param_values())
-                    #f.close()
-                    #f = open(logger.get_snapshot_dir() + "/env_" + str(itr + 1) + ".pkl", "w")
-                    #joblib.dump(self.env, f, compress=3)
-                    #f.close()
 
                     if self.plot:
                         self.update_plot()
