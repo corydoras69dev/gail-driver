@@ -153,7 +153,7 @@ class BatchPolopt(RLAlgorithm):
                         tf_filename = config.LOAD_DIR + "/tf_" + str(itr) +".ckpt"
                         saver.restore(sess, tf_filename)
                         self.policy.restore_params(config.LOAD_DIR + "/policy0_" + str(itr) +".ckpt")
-                        self.sampler.algo.policy.restore_params(config.LOAD_DIR + "/policy1_" + str(itr) +".ckpt")
+                        #self.sampler.algo.policy.restore_params(config.LOAD_DIR + "/policy1_" + str(itr) +".ckpt")
 
                     logger.log("Obtaining samples...")
                     #ipdb.set_trace()
@@ -187,7 +187,7 @@ class BatchPolopt(RLAlgorithm):
                     saver.save(sess, logger.get_snapshot_dir() + "/tf_" + str(itr + 1) + ".ckpt")
                     #ipdb.set_trace()
                     self.policy.write_params(logger.get_snapshot_dir() + "/policy0_" + str(itr + 1) + ".ckpt")
-                    self.sampler.algo.policy.write_params(logger.get_snapshot_dir() + "/policy1_" + str(itr + 1) + ".ckpt")
+                    #self.sampler.algo.policy.write_params(logger.get_snapshot_dir() + "/policy1_" + str(itr + 1) + ".ckpt")
 
                     if self.plot:
                         self.update_plot()
