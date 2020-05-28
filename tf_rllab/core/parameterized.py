@@ -192,6 +192,23 @@ class Model(Parameterized):
 
             for v, val in zip(vs, vals):
                 dset[v.name] = val
+
+        filename = log_dir + "/" + self.save_name + '-' + str(itr) + '.h5'
+        sess = tf.get_default_session()
+
+        key = self._prefix(itr)
+        with h5py.File(filename, 'w') as hf:
+            if key in hf:
+                dset = hf[key]
+            else:
+                dset = hf.create_group(key)
+
+            vs = self.get_params()
+            vals = sess.run(vs)
+
+            for v, val in zip(vs, vals):
+                dset[v.name] = val
+
         print 'done.'
         pass
 

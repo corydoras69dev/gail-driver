@@ -54,6 +54,7 @@ class JuliaEnv(object):
 
     def reset(self, render=False):
         #ipdb.set_trace()
+        debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/JuliaEnv.reset({})'.format(render)); debug.close()
 
         if GX:
             self.ax.cla()
@@ -78,7 +79,7 @@ class JuliaEnv(object):
         # features for next state
         # reward for (s,a,s')
         # done for whether in terminal state
-        #debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/self.j.step({}:{})'.format(self._name_dump, actions)); debug.close()
+        #debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/JuliaEnv.step({}:{})'.format(self._name_dump, actions)); debug.close()
         obs, reward, done = self.j.step(self.simparams, actions)
         time.sleep(0.002)
         #debug = open('debug.log', 'a'); debug.write('..done\n'); debug.close()
@@ -89,7 +90,6 @@ class JuliaEnv(object):
         # features for next state
         # reward for (s,a,s')
         # done for whether in terminal state
-        #debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/self.j.step({}:{})'.format(self._name_dump, actions)); debug.close()
         fw = h5py.File("jlread.h5", "w")
         fw.create_dataset('actions', data=actions)
         fw.close()
@@ -109,6 +109,7 @@ class JuliaEnv(object):
 
     def step(self, actions):
         #ipdb.set_trace()
+        debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/JuliaEnv.step({})'.format(actions)); debug.close()
         obs, reward, done, info = self.step_direct_if(actions)
         #obs, reward, done, info = self.step_file_if(actions)
         return obs, reward, done, info
@@ -116,12 +117,14 @@ class JuliaEnv(object):
     @property
     def action_space(self):
         #ipdb.set_trace()
+        debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/JuliaEnv.action_space()'); debug.close()
         lo, hi = self.j.action_space_bounds(self.simparams)
         return Box(np.array(lo), np.array(hi))
 
     @property
     def observation_space(self):
         #ipdb.set_trace()
+        debug = open('debug.log', 'a'); debug.write('rltools/envs/julia_sim.py/JuliaEnv.observation_space()'); debug.close()
         lo, hi = self.j.observation_space_bounds(self.simparams)
         return Box(np.array(lo), np.array(hi))
 
