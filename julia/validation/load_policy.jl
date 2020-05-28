@@ -148,7 +148,11 @@ function load_gru_driver(
     Σ = Σ.^2
 
     # extactor
-    extractor = Tim2DExtractor(joinpath(ROOT_FILEPATH, "julia", "validation", "models", "gail_gru.h5"))
+    if gru_layer
+        extractor = Tim2DExtractor(joinpath(ROOT_FILEPATH, "julia", "validation", "models", "gail_gru.h5"))
+    else
+        extractor = Tim2DExtractor(joinpath(ROOT_FILEPATH, "julia", "validation", "models", "gail_mlp.h5"))
+    end
 
     Auto2D.GaussianMLPDriver(action_type, net, extractor, IntegratedContinuous(0.1,1),
                         input = :input, output = :output, Σ = Σ)
