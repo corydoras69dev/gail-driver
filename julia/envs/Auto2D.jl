@@ -31,6 +31,7 @@ function GaussianMLPDriver{A <: DriveAction}(::Type{A}, net::ForwardNet, extract
     Σ::Union{Real, Vector{Float64}, Matrix{Float64},  Distributions.AbstractPDMat} = 0.1,
     rec::SceneRecord = SceneRecord(2, context.Δt),
     )
+    debug = open("debug.log", "a"); println(debug, "GaussianMLPDriver()");  close(debug)
 
     pass = calc_forwardpass(net, [input], [output])
     input_vec = net[input].tensor
@@ -46,6 +47,7 @@ include("../pull_traces/multifeatureset.jl")
 include("../validation/RootDir.jl")
 
 function get_train_segments(trajdatas::Dict{Int, Trajdata}, nsteps::Int)
+    debug = open("debug.log", "a"); println(debug, "get_train_segments()");  close(debug)
 
     assignment = load_assignment()
     evaldata = load_evaldata()
@@ -156,6 +158,7 @@ function SimParams(trajdatas::Dict{Int, Trajdata}, segments::Vector{TrajdataSegm
     type_gru::Bool,
     context = IntegratedContinuous(NGSIM_TIMESTEP,1),
     )
+    debug = open("debug.log", "a"); println(debug, "SimParams()");  close(debug)
 
     simstates = Array{SimState}(nsimstates)
     for i in 1 : length(simstates)
@@ -216,6 +219,7 @@ function gen_simparams(trajdata_indeces::Vector,
     iteration::Int,
     type_gru::Bool
     )
+    debug = open("debug.log", "a"); println(debug, "gen_simparams()");  close(debug)
 
     println("loading trajdatas: ", trajdata_indeces); tic()
     trajdatas = Dict{Int, Trajdata}()
@@ -252,6 +256,7 @@ function gen_simparams_from_trajdatas(trajdata_filepaths::Vector, roadway_filepa
     iteration::Int,
     type_gru::Bool,
     )
+    debug = open("debug.log", "a"); println(debug, "gen_simparams_from_trajdatas()");  close(debug)
 
     println("loading trajdatas"); tic()
     roadways = Dict{String, Roadway}()
@@ -277,6 +282,7 @@ function gen_simparams_from_trajdatas(trajdata_filepaths::Vector, roadway_filepa
               nsimstates, prime_history, nsteps, ego_action_type, extractor, iteration, type_gru)
 end
 function gen_simparams(batch_size::Int, args::Dict, iteration::Int, type_gru::Bool)
+    debug = open("debug.log", "a"); println(debug, "gen_simparams()");  close(debug)
 
     col_weight = get(args, "col_weight", -2.0)
     off_weight = get(args, "off_weight", -0.75)
@@ -351,6 +357,7 @@ AutomotiveDrivingModels.get_name(::GaussianMLPDriver) = "GaussianMLPDriver"
 AutomotiveDrivingModels.action_context(model::GaussianMLPDriver) = model.context
 
 function AutomotiveDrivingModels.reset_hidden_state!(model::GaussianMLPDriver)
+    debug = open("debug.log", "a"); println(debug, "reset_hidden_state!()");  close(debug)
     empty!(model.rec)
     model
 end
@@ -361,6 +368,7 @@ function AutomotiveDrivingModels.observe!{A,F,G,E,P}(
                                             scene::Scene, 
                                             roadway::Roadway, 
                                             egoid::Int)
+    debug = open("debug.log", "a"); println(debug, "AutomotiveDrivingModels.observe!()");  close(debug)
 
     update!(model.rec, scene)
     vehicle_index = get_index_of_first_vehicle_with_id(scene, egoid)
@@ -379,6 +387,7 @@ Distributions.logpdf{A,F,G,E,P}(model::GaussianMLPDriver{A,F,G,E,P}, a::A) = log
 Base.show(io::IO, simparams::SimParams) = print(io, "SimParams")
 
 function restart!(simstate::SimState, simparams::SimParams)
+    debug = open("debug.log", "a"); println(debug, "restart!()");  close(debug)
 
     # pick a random segment
     local train_seg_index
@@ -426,6 +435,7 @@ function restart!(simstate::SimState, simparams::SimParams)
 end
 
 function Base.reset(simparams::SimParams)
+    debug = open("debug.log", "a"); println(debug, "Base.reset()");  close(debug)
     for state in simparams.simstates
         restart!(state, simparams)
     end
@@ -435,6 +445,7 @@ function Base.reset(simparams::SimParams)
 end
 
 function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vector{Float64})
+    debug = open("debug.log", "a"); println(debug, "step_forward!()");  close(debug)
 
     trajdata = simparams.trajdatas[simstate.trajdata_index]
     veh_ego = get_vehicle(simstate.scene, simstate.egoid)
@@ -581,10 +592,12 @@ end
 
 
 function tick(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
+    debug = open("debug.log", "a"); println(debug, "tick()");  close(debug)
     step_forward!(simparams.simstates[batch_index], simparams, u)
     simparams
 end
 function step_forward(simparams::SimParams, U::Matrix{Float64})
+    debug = open("debug.log", "a"); println(debug, "step_forward()");  close(debug)
     # note: actions are batch_size × action_size
     for (i,s) in enumerate(simparams.simstates)
         step_forward!(s, simparams, U[i,:])
@@ -593,6 +606,7 @@ function step_forward(simparams::SimParams, U::Matrix{Float64})
 end
 
 function reward(simstate::SimState, simparams::SimParams)
+    debug = open("debug.log", "a"); println(debug, "reward()");  close(debug)
 
     veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
     veh_ego = simstate.scene[veh_index]
@@ -627,6 +641,7 @@ function reward(simparams::SimParams, u::Vector{Float64}, batch_index::Int = 1)
 end
 
 function observe(simparams::SimParams, batch_index::Int=1)
+    debug = open("debug.log", "a"); println(debug, "observe()");  close(debug)
     simstate = simparams.simstates[batch_index]
     trajdata = simparams.trajdatas[simstate.trajdata_index]
     veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
@@ -636,7 +651,7 @@ end
 isdone(simparams::SimParams) = simparams.step_counter ≥ simparams.nsteps
 
 function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
-    #debug = open("debug.log", "a"); println(debug, "Base.step(" u=", u, "batch_index=", batch_index, ")");  close(debug)
+    debug = open("debug.log", "a"); println(debug, "Base.step(" u=", u, "batch_index=", batch_index, ")");  close(debug)
     r = reward(simparams, u, batch_index)
     tick(simparams, u, batch_index)
     features = observe(simparams, batch_index)
@@ -678,7 +693,7 @@ function Base.step(simparams::SimParams)
 end
 
 function Base.step(simparams::SimParams, U::Matrix{Float64})
-    #debug = open("debug.log", "a"); println(debug, "Base.step(" U=", U, ")");  close(debug)
+    debug = open("debug.log", "a"); println(debug, "Base.step(U=", U, ")");  close(debug)
     batch_size = length(simparams.states)
     feature_mat = Array{Float64}(batch_size, obssize(simparams))
     rewards = Array{Float64}(batch_size)
@@ -705,6 +720,7 @@ observation_space_bounds(simparams::SimParams) = (fill(-Inf, length(simparams.ex
 # Visualization
 
 function AutoViz.render(simparams::SimParams, batch_index::Int=1)
+    debug = open("debug.log", "a"); println(debug, "AutoViz.render()");  close(debug)
 
     simstate = simparams.simstates[batch_index]
     trajdata = simparams.trajdatas[simstate.trajdata_index]
@@ -721,6 +737,7 @@ function AutoViz.render(simparams::SimParams, batch_index::Int=1)
 end
 
 function AutoViz.render(simparams::SimParams, image::Matrix{UInt32}, batch_index::Int=1)
+    debug = open("debug.log", "a"); println(debug, "AutoViz.render()");  close(debug)
 
     simstate = simparams.simstates[batch_index]
     trajdata = simparams.trajdatas[simstate.trajdata_index]
@@ -748,6 +765,7 @@ function reel_drive(
     actions::Matrix{Float64}, # columns are actions
     simparams::SimParams
     )
+    debug = open("debug.log", "a"); println(debug, "reel_drive()");  close(debug)
 
     frames = Reel.Frames(MIME("image/png"), fps=framerate)
 
