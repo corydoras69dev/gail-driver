@@ -650,32 +650,32 @@ end
 
 isdone(simparams::SimParams) = simparams.step_counter ≥ simparams.nsteps
 
-function Base.step_metric(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
-    #debug = open("debug.log", "a"); println(debug, "Base.step_metric(" u=", u, "batch_index=", batch_index, ")");  close(debug)
-    r = reward(simparams, u, batch_index)
-    tick(simparams, u, batch_index)
-    features = observe(simparams, batch_index)
-    simparams.step_counter += 1
-    # done = isdone()
-    simstate = simparams.simstates[batch_index]
+#function Base.step_metric(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
+#    #debug = open("debug.log", "a"); println(debug, "Base.step_metric(" u=", u, "batch_index=", batch_index, ")");  close(debug)
+#    r = reward(simparams, u, batch_index)
+#    tick(simparams, u, batch_index)
+#    features = observe(simparams, batch_index)
+#    simparams.step_counter += 1
+#    # done = isdone()
+#    simstate = simparams.simstates[batch_index]
 
-    # End if collision or reverse or off-road
-    veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
-    trajdata = simparams.trajdatas[simstate.trajdata_index]
-    d_ml = convert(Float64, get(MARKERDIST_LEFT, simstate.rec, trajdata.roadway, veh_index))
-    d_mr = convert(Float64, get(MARKERDIST_RIGHT, simstate.rec, trajdata.roadway, veh_index))
-    collide = get_first_collision(simstate.scene, veh_index).is_colliding
-    offroad = (d_ml < -1.0 || d_mr < -1.0)
-    offroad = pffroad || (simstate.scene[veh_index].state.v < 0.0)
+#    # End if collision or reverse or off-road
+#    veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
+#    trajdata = simparams.trajdatas[simstate.trajdata_index]
+#    d_ml = convert(Float64, get(MARKERDIST_LEFT, simstate.rec, trajdata.roadway, veh_index))
+#    d_mr = convert(Float64, get(MARKERDIST_RIGHT, simstate.rec, trajdata.roadway, veh_index))
+#    collide = get_first_collision(simstate.scene, veh_index).is_colliding
+#    offroad = (d_ml < -1.0 || d_mr < -1.0)
+#    offroad = pffroad || (simstate.scene[veh_index].state.v < 0.0)
 
-    acc_ego = convert(Float64, get(ACC, simstate.rec, trajdata.roadway, veh_index))
-    jrk_ego = convert(Float64, get(JERK, simstate.rec, trajdata.roadway, veh_index))
-    ome_ego = convert(Float64, get(ANGULARRATEG, simstate.rec, trajdata.roadway, veh_index))
+#    acc_ego = convert(Float64, get(ACC, simstate.rec, trajdata.roadway, veh_index))
+#    jrk_ego = convert(Float64, get(JERK, simstate.rec, trajdata.roadway, veh_index))
+#    ome_ego = convert(Float64, get(ANGULARRATEG, simstate.rec, trajdata.roadway, veh_index))
 
-    #debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
-    sleep(0.001)
-    (features, r, collide || offroad)
-end
+#    #debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
+#    sleep(0.001)
+#    (features, r, collide || offroad)
+#end
 
 function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
     #debug = open("debug.log", "a"); println(debug, "Base.step(" u=", u, "batch_index=", batch_index, ")");  close(debug)
