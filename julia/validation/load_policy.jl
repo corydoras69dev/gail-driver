@@ -15,6 +15,7 @@ end
 Base.length(::Tim2DExtractor) = N_FEATURES
 _standardize(v::Real, μ::Real, σ::Real) = (v - μ)/σ
 function AutomotiveDrivingModels.pull_features!{F<:AbstractFloat}(ext::Tim2DExtractor, features::Vector{F}, rec::SceneRecord, roadway::Roadway, vehicle_index::Int)
+    #debug = open("debug.log", "a"); println(debug, "AutomotiveDrivingModels.pull_features!{F<:AbstractFloat}(ext::Tim2DExtractor, features::Vector{F}, rec::SceneRecord, roadway::Roadway, vehicle_index::Int)");  close(debug)
     pull_features!(features, rec, roadway, vehicle_index)
 
     # standardize
@@ -55,6 +56,7 @@ function load_gru_driver(
             gru_layer::Bool=true,
             bc_policy::Bool=false,
             action_type::DataType=AccelTurnrate)
+    #debug = open("debug.log", "a"); println(debug, "load_gru_driver(filepath::AbstractString = POLICY_FILEPATH, ...)");  close(debug)
 
 #    if iteration == -1 # load most recent
 #        fid = h5open(filepath)

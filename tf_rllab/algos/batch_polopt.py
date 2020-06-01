@@ -162,8 +162,8 @@ class BatchPolopt(RLAlgorithm):
                     logger.log("Processing samples...")
                     samples_data = self.process_samples(itr, paths)
                     logger.log("Logging diagnostics...")
-                    if 0 < self.start_itr and itr < self.start_itr + 3:
-                        with open(config.LOAD_DIR + "/smpls_" + str(self.start_itr) +".pkl", "r") as f:
+                    if 0 < self.start_itr and itr < self.start_itr + 2:
+                        with open(config.LOAD_DIR + "/smpls_" + str(itr) +".pkl", "r") as f:
                             samples_data = pickle.load(f)
                     else:
                         with open(logger.get_snapshot_dir() + "/smpls_" + str(itr) + ".pkl", "w") as f:

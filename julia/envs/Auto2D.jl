@@ -7,7 +7,7 @@ using NGSIM
 using ForwardNets
 import Reel
 using HDF5
-export gen_simparams, reset, tick, reward, observe, step, isdone, action_space_bounds, observation_space_bounds, render
+export gen_simparams, reset, tick, reward, observe, step, step_metric, isdone, action_space_bounds, observation_space_bounds, render
 export SimParams, reel_drive, GaussianMLPDriver, load_gru_driver, set_random_seed
 
 ##################################
@@ -187,7 +187,7 @@ function SimParams(trajdatas::Dict{Int, Trajdata}, segments::Vector{TrajdataSegm
             filepath = joinpath(ROOT_FILEPATH, "julia", "validation", "models", "gail_mlp.h5")  ## MLP!!
         end
     else
-        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail.h5")
+        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail-" + str(iteration) + ".h5")
     end
 #    iteration = 413
     driver_model = load_gru_driver(filepath, iteration; gru_layer=type_gru)  ## MLP!!
@@ -641,7 +641,7 @@ function reward(simparams::SimParams, u::Vector{Float64}, batch_index::Int = 1)
 end
 
 function observe(simparams::SimParams, batch_index::Int=1)
-    #debug = open("debug.log", "a"); println(debug, "observe()");  close(debug)
+    debug = open("debug.log", "a"); println(debug, "observe()");  close(debug)
     simstate = simparams.simstates[batch_index]
     trajdata = simparams.trajdatas[simstate.trajdata_index]
     veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
@@ -649,6 +649,33 @@ function observe(simparams::SimParams, batch_index::Int=1)
 end
 
 isdone(simparams::SimParams) = simparams.step_counter ≥ simparams.nsteps
+
+function Base.step_metric(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
+    #debug = open("debug.log", "a"); println(debug, "Base.step(" u=", u, "batch_index=", batch_index, ")");  close(debug)
+    r = reward(simparams, u, batch_index)
+    tick(simparams, u, batch_index)
+    features = observe(simparams, batch_index)
+    simparams.step_counter += 1
+    # done = isdone()
+    simstate = simparams.simstates[batch_index]
+
+    # End if collision or reverse or off-road
+    veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
+    trajdata = simparams.trajdatas[simstate.trajdata_index]
+    d_ml = convert(Float64, get(MARKERDIST_LEFT, simstate.rec, trajdata.roadway, veh_index))
+    d_mr = convert(Float64, get(MARKERDIST_RIGHT, simstate.rec, trajdata.roadway, veh_index))
+    collide = get_first_collision(simstate.scene, veh_index).is_colliding
+    offroad = (d_ml < -1.0 || d_mr < -1.0)
+    offroad = pffroad || (simstate.scene[veh_index].state.v < 0.0)
+
+    acc_ego = convert(Float64, get(ACC, simstate.rec, trajdata.roadway, veh_index))
+    jrk_ego = convert(Float64, get(JERK, simstate.rec, trajdata.roadway, veh_index))
+    ome_ego = convert(Float64, get(ANGULARRATEG, simstate.rec, trajdata.roadway, veh_index))
+
+    #debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
+    sleep(0.001)
+    (features, r, collide || offroad)
+end
 
 function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
     #debug = open("debug.log", "a"); println(debug, "Base.step(" u=", u, "batch_index=", batch_index, ")");  close(debug)
