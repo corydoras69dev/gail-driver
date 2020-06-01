@@ -7,7 +7,7 @@ using NGSIM
 using ForwardNets
 import Reel
 using HDF5
-export gen_simparams, reset, tick, reward, observe, step, step_metric, isdone, action_space_bounds, observation_space_bounds, render
+export gen_simparams, reset, tick, reward, observe, step, isdone, action_space_bounds, observation_space_bounds, render
 export SimParams, reel_drive, GaussianMLPDriver, load_gru_driver, set_random_seed
 
 ##################################
@@ -651,7 +651,7 @@ end
 isdone(simparams::SimParams) = simparams.step_counter ≥ simparams.nsteps
 
 function Base.step_metric(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
-    #debug = open("debug.log", "a"); println(debug, "Base.step(" u=", u, "batch_index=", batch_index, ")");  close(debug)
+    #debug = open("debug.log", "a"); println(debug, "Base.step_metric(" u=", u, "batch_index=", batch_index, ")");  close(debug)
     r = reward(simparams, u, batch_index)
     tick(simparams, u, batch_index)
     features = observe(simparams, batch_index)
