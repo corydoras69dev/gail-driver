@@ -187,7 +187,7 @@ function SimParams(trajdatas::Dict{Int, Trajdata}, segments::Vector{TrajdataSegm
             filepath = joinpath(ROOT_FILEPATH, "julia", "validation", "models", "gail_mlp.h5")  ## MLP!!
         end
     else
-        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail-" + str(iteration) + ".h5")
+        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail-" + string(iteration) + ".h5")
     end
 #    iteration = 413
     driver_model = load_gru_driver(filepath, iteration; gru_layer=type_gru)  ## MLP!!
