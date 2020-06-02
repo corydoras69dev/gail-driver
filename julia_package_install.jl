@@ -28,9 +28,11 @@ Pkg.clone(gail_root * "/NGSIM.jl")
 Pkg.build("NGSIM.jl")
 Pkg.clone(gail_root * "/Records.jl")
 Pkg.build("Records.jl")
+Pkg.clone("https://github.com/tawheeler/AutoDrivers.jl")
 using Vec
 using AutomotiveDrivingModels
 using NGSIM
 using AutoViz
 using Records
 using ForwardNets
+using AutoDrivers
