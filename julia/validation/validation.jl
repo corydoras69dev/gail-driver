@@ -90,7 +90,7 @@ function create_evaldata(evaldata::EvaluationData, foldset::FoldSet; nsegs::Int=
     EvaluationData(evaldata.trajdatas, segments)
 end
 
-function create_simparams(evaldata::EvaluationData)
+function create_simparams(evaldata::EvaluationData; gru_type::Bool=true)
     # Construct extractor
     extractor = Auto2D.MultiFeatureExtractor(
         EXTRACT_CORE,
@@ -111,7 +111,7 @@ function create_simparams(evaldata::EvaluationData)
     # Construct and return simparams
     Auto2D.SimParams(trajdatas, evaldata.segments, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
         false, false, false, -3.0, 1, EVAL_PRIME_STEPS, EVAL_DURATION_STEPS, AccelTurnrate, extractor,
-        0, true
+        0, gru_type
         )
 end
 
@@ -119,7 +119,7 @@ srand(0)
 eval_seg_nframes = ceil(Int, (EVAL_PRIME_DURATION + EVAL_DURATION)/NGSIM_TIMESTEP) + 1
 VALDATA_SUBSET = create_evaldata(evaldata, foldset_match(assignment, FOLD_TEST), nsegs=N_SEGMENTS, nframes=eval_seg_nframes)
 FOLDSET_TEST = foldset_match(fill(1, N_SEGMENTS), 1)
-SIMPARAMS = create_simparams(VALDATA_SUBSET)
+SIMPARAMS(;gru_type::Bool=true) = create_simparams(VALDATA_SUBSET; gru_type=gru_type)
 
 function load_models(; context::IntegratedContinuous = CONTEXT)
     models = Dict{AbstractString, DriverModel}()
@@ -169,7 +169,8 @@ function load_models(; context::IntegratedContinuous = CONTEXT)
 end
 
 function validate(model::DriverModel;
-    simparams::Auto2D.SimParams = SIMPARAMS,
+    gru_type::Bool=true,
+    simparams::Auto2D.SimParams = SIMPARAMS(gru_type),
     metrics::Vector{TraceMetricExtractor} = METRICS,
     foldset::FoldSet = FOLDSET_TEST,
     n_simulations_per_trace::Int = N_SIMULATIONS_PER_TRACE,
@@ -186,7 +187,7 @@ function validate(model::DriverModel;
 
     if save
         println("save to (", METRIC_SAVE_FILE_DIR, "valid_"*modelname*string(max_loop)*".csv" ,")")
-        filename = "valid_"*modelname*".csv"
+        filename = "valid_"*modelname*string(max_loop)*".csv"
         writetable(joinpath(METRIC_SAVE_FILE_DIR, filename), metrics_df)
     end
 
@@ -195,9 +196,9 @@ end
 
 models = load_models()
 println("=========GAIL_MLP==============")
-validate(models["gail_mlp"]; modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=5)
+validate(models["gail_mlp"]; gru_type=false; modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=5)
 println("=========GAIL_GRU==============")
-validate(models["gail_gru"]; modelname="gail_gru", max_loop=1000, n_simulations_per_trace=5)
+validate(models["gail_gru"]; gru_type=true; modelname="gail_gru", max_loop=1000, n_simulations_per_trace=5)
 
 println("DONE!")
 
