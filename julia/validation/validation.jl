@@ -196,9 +196,9 @@ end
 
 models = load_models()
 println("=========GAIL_MLP==============")
-validate(models["gail_mlp"]; gru_type=false; modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=5)
+validate(models["gail_mlp"]; gru_type=false, modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=5)
 println("=========GAIL_GRU==============")
-validate(models["gail_gru"]; gru_type=true; modelname="gail_gru", max_loop=1000, n_simulations_per_trace=5)
+validate(models["gail_gru"]; gru_type=true, modelname="gail_gru", max_loop=1000, n_simulations_per_trace=5)
 
 println("DONE!")
 
