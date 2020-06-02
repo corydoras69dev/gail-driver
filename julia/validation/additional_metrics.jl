@@ -418,6 +418,10 @@ function calc_metrics!(
     # simulate traces and perform online metric extraction
     scene = Scene()
     for seg_index in foldset_seg_test
+        if (n_traces >= 2) 
+            break
+        end
+        println(seg_index, "/", length(foldset_seg_test))
         seg = simparams.segments[seg_index]
         trajdata = simparams.trajdatas[seg.trajdata_index]
 
@@ -429,6 +433,7 @@ function calc_metrics!(
         n_traces += 1
 
         for sim_index in 1 : n_simulations_per_trace
+            print(" ", sim_index, "/", n_simulations_per_trace)
             reset_simstate!(simparams.simstates[1], seg)
             
             if Symbol("net") in fieldnames(model)
@@ -449,6 +454,7 @@ function calc_metrics!(
                 end
             end
         end
+        println(" ")
     end
 
     # compute metric scores

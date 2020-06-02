@@ -110,7 +110,9 @@ function create_simparams(evaldata::EvaluationData)
 
     # Construct and return simparams
     Auto2D.SimParams(trajdatas, evaldata.segments, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
-        false, true, false, -2.0, 1, EVAL_PRIME_STEPS, EVAL_DURATION_STEPS, AccelTurnrate, extractor)
+        false, false, false, -2.0, 1, EVAL_PRIME_STEPS, EVAL_DURATION_STEPS, AccelTurnrate, extractor,
+        0, true
+        )
 end
 
 srand(0)
@@ -141,27 +143,27 @@ function load_models(; context::IntegratedContinuous = CONTEXT)
     models["controller"] = Tim2DDriver(context, mlon=mlon, mlat=mlat, mlane=mlane, rec=SceneRecord(3, context.Δt))
 
     include(joinpath(ROOT_FILEPATH, "julia/pull_traces", "multifeatureset.jl"))
-    extractor = MultiFeatureExtractor(EXTRACT_CORE, EXTRACT_TEMPORAL, 
-                                    EXTRACT_WELL_BEHAVED, EXTRACT_NEIGHBOR_FEATURES, 
-                                    EXTRACT_CARLIDAR_RANGERATE, CARLIDAR_NBEAMS,
-                                    ROADLIDAR_NBEAMS, ROADLIDAR_NLANES)
-    models["GMR"] = open(io->read(io, GaussianMixtureRegressionDriver, extractor), "GMR.txt", "r")
+#    extractor = MultiFeatureExtractor(EXTRACT_CORE, EXTRACT_TEMPORAL, 
+#                                    EXTRACT_WELL_BEHAVED, EXTRACT_NEIGHBOR_FEATURES, 
+#                                    EXTRACT_CARLIDAR_RANGERATE, CARLIDAR_NBEAMS,
+#                                    ROADLIDAR_NBEAMS, ROADLIDAR_NLANES)
+#    models["GMR"] = open(io->read(io, GaussianMixtureRegressionDriver, extractor), "GMR.txt", "r")
 
     filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_gru.h5")
     iteration = 413
     models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration)
 
-    filepath = "./models/gail_mlp.h5"
+    filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_mlp.h5")
     iteration = 447
-    models["gail_mlp"] = load_gru_driver(filepath, iteration, gru_layer=false)
+    models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
 
-    filepath = "./models/bc_gru.h5"
-    iteration = -1
-    models["bc_gru"] = Auto2D.load_gru_driver(filepath, iteration, bc_policy=true)
+#    filepath = "./models/bc_gru.h5"
+#    iteration = -1
+#    models["bc_gru"] = Auto2D.load_gru_driver(filepath, iteration, bc_policy=true)
 
-    filepath = "./models/bc_mlp.h5"
-    iteration = -1
-    models["bc_mlp"] = load_gru_driver(filepath, iteration, gru_layer=false, bc_policy=true)
+#    filepath = "./models/bc_mlp.h5"
+#    iteration = -1
+#    models["bc_mlp"] = load_gru_driver(filepath, iteration, gru_layer=false, bc_policy=true)
 
     models
 end
@@ -171,7 +173,7 @@ function validate(model::DriverModel;
     metrics::Vector{TraceMetricExtractor} = METRICS,
     foldset::FoldSet = FOLDSET_TEST,
     n_simulations_per_trace::Int = N_SIMULATIONS_PER_TRACE,
-    save::Bool=false,
+    save::Bool=true,
     modelname::AbstractString=AutomotiveDrivingModels.get_name(model)
     )
 
@@ -181,6 +183,7 @@ function validate(model::DriverModel;
                         row = 1, prime_history=EVAL_PRIME_STEPS)
 
     if save
+        println("save to (", METRIC_SAVE_FILE_DIR, "valid_"*modelname*".csv" ,")")
         filename = "valid_"*modelname*".csv"
         writetable(joinpath(METRIC_SAVE_FILE_DIR, filename), metrics_df)
     end
@@ -188,5 +191,11 @@ function validate(model::DriverModel;
     metrics_df
 end
 
-print("DONE!")
+models = load_models()
+println("=========GAIL_GRU==============")
+validate(models["gail_gru"])
+println("=========GAIL_MLP==============")
+validate(models["gail_mlp"])
+
+println("DONE!")
 
