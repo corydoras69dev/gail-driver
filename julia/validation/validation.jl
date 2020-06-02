@@ -119,7 +119,7 @@ srand(0)
 eval_seg_nframes = ceil(Int, (EVAL_PRIME_DURATION + EVAL_DURATION)/NGSIM_TIMESTEP) + 1
 VALDATA_SUBSET = create_evaldata(evaldata, foldset_match(assignment, FOLD_TEST), nsegs=N_SEGMENTS, nframes=eval_seg_nframes)
 FOLDSET_TEST = foldset_match(fill(1, N_SEGMENTS), 1)
-SIMPARAMS(;gru_type::Bool=true) = create_simparams(VALDATA_SUBSET; gru_type=gru_type)
+SIMPARAMS = create_simparams(VALDATA_SUBSET)
 
 function load_models(; context::IntegratedContinuous = CONTEXT)
     models = Dict{AbstractString, DriverModel}()
@@ -170,7 +170,7 @@ end
 
 function validate(model::DriverModel;
     gru_type::Bool=true,
-    simparams::Auto2D.SimParams = SIMPARAMS(gru_type),
+    simparams::Auto2D.SimParams=SIMPARAMS,
     metrics::Vector{TraceMetricExtractor} = METRICS,
     foldset::FoldSet = FOLDSET_TEST,
     n_simulations_per_trace::Int = N_SIMULATIONS_PER_TRACE,
@@ -196,9 +196,11 @@ end
 
 models = load_models()
 println("=========GAIL_MLP==============")
-validate(models["gail_mlp"]; gru_type=false, modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=5)
+simparams = create_simparams(VALDATA_SUBSET; gru_type=false)
+validate(models["gail_mlp"]; simparams=simparams, gru_type=false, modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=5)
 println("=========GAIL_GRU==============")
-validate(models["gail_gru"]; gru_type=true, modelname="gail_gru", max_loop=1000, n_simulations_per_trace=5)
+simparams = create_simparams(VALDATA_SUBSET; gru_type=true)
+validate(models["gail_gru"]; simparams=simparams, gru_type=true, modelname="gail_gru", max_loop=1000, n_simulations_per_trace=5)
 
 println("DONE!")
 
