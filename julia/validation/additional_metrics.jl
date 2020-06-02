@@ -395,6 +395,7 @@ function calc_metrics!(
     row::Int = foldset_seg_test.fold, # row in metrics_df to write to
     prime_history::Int = 0,
     calc_logl::Bool = true,
+    max_loop::Int = 1000,
     )
     # reset metrics
     for metric in metrics
@@ -418,7 +419,7 @@ function calc_metrics!(
     # simulate traces and perform online metric extraction
     scene = Scene()
     for seg_index in foldset_seg_test
-        if (n_traces >= 20) 
+        if (n_traces >= max_loop) 
             break
         end
         println(now(), " ", seg_index, "/", length(foldset_seg_test))

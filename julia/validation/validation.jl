@@ -174,16 +174,18 @@ function validate(model::DriverModel;
     foldset::FoldSet = FOLDSET_TEST,
     n_simulations_per_trace::Int = N_SIMULATIONS_PER_TRACE,
     save::Bool=true,
-    modelname::AbstractString=AutomotiveDrivingModels.get_name(model)
+    modelname::AbstractString=AutomotiveDrivingModels.get_name(model),
+    max_loop::Int = 1000,
     )
 
     metrics_df = allocate_metrics_dataframe(METRICS, 1)
     calc_metrics!(metrics_df, model, metrics, simparams, foldset,
                         n_simulations_per_trace=n_simulations_per_trace,
-                        row = 1, prime_history=EVAL_PRIME_STEPS)
+                        row = 1, prime_history=EVAL_PRIME_STEPS,
+                        max_loop=max_loop)
 
     if save
-        println("save to (", METRIC_SAVE_FILE_DIR, "valid_"*modelname*".csv" ,")")
+        println("save to (", METRIC_SAVE_FILE_DIR, "valid_"*modelname*string(max_loop)*".csv" ,")")
         filename = "valid_"*modelname*".csv"
         writetable(joinpath(METRIC_SAVE_FILE_DIR, filename), metrics_df)
     end
@@ -192,10 +194,10 @@ function validate(model::DriverModel;
 end
 
 models = load_models()
-println("=========GAIL_GRU==============")
-validate(models["gail_gru"]; modelname="gail_gru")
 println("=========GAIL_MLP==============")
-validate(models["gail_mlp"]; modelname="gail_mlp")
+validate(models["gail_mlp"]; modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=5)
+println("=========GAIL_GRU==============")
+validate(models["gail_gru"]; modelname="gail_gru", max_loop=1000, n_simulations_per_trace=5)
 
 println("DONE!")
 
