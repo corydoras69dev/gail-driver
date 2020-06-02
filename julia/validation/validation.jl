@@ -7,7 +7,7 @@ include("../envs/Auto2D.jl")
 include("load_policy.jl")
 include("additional_metrics.jl")
 
-const METRIC_SAVE_FILE_DIR = dirname(@__FILE__) * "/results/"
+const METRIC_SAVE_FILE_DIR = dirname(@__FILE__) * "/"
 
 const N_SEGMENTS = 1000
 const N_SIMULATIONS_PER_TRACE = 20
@@ -193,9 +193,9 @@ end
 
 models = load_models()
 println("=========GAIL_GRU==============")
-validate(models["gail_gru"])
+validate(models["gail_gru"]; modelname="gail_gru")
 println("=========GAIL_MLP==============")
-validate(models["gail_mlp"])
+validate(models["gail_mlp"]; modelname="gail_mlp")
 
 println("DONE!")
 
