@@ -421,7 +421,7 @@ function calc_metrics!(
         if (n_traces >= 20) 
             break
         end
-        println(now(), seg_index, "/", length(foldset_seg_test))
+        println(now(), " ", seg_index, "/", length(foldset_seg_test))
         seg = simparams.segments[seg_index]
         trajdata = simparams.trajdatas[seg.trajdata_index]
 
