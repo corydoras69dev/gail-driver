@@ -110,7 +110,7 @@ function create_simparams(evaldata::EvaluationData)
 
     # Construct and return simparams
     Auto2D.SimParams(trajdatas, evaldata.segments, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
-        false, false, false, -2.0, 1, EVAL_PRIME_STEPS, EVAL_DURATION_STEPS, AccelTurnrate, extractor,
+        false, false, false, -3.0, 1, EVAL_PRIME_STEPS, EVAL_DURATION_STEPS, AccelTurnrate, extractor,
         0, true
         )
 end
