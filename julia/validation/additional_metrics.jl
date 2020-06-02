@@ -418,7 +418,7 @@ function calc_metrics!(
     # simulate traces and perform online metric extraction
     scene = Scene()
     for seg_index in foldset_seg_test
-        if (n_traces >= 2) 
+        if (n_traces >= 20) 
             break
         end
         println(seg_index, "/", length(foldset_seg_test))
