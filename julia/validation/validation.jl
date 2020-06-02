@@ -151,7 +151,7 @@ function load_models(; context::IntegratedContinuous = CONTEXT)
 
     filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_gru.h5")
     iteration = 413
-    models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration)
+    models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
 
     filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_mlp.h5")
     iteration = 447

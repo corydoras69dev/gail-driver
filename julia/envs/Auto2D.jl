@@ -190,6 +190,7 @@ function SimParams(trajdatas::Dict{Int, Trajdata}, segments::Vector{TrajdataSegm
         filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail-" * string(iteration) * ".h5")
     end
 #    iteration = 413
+    println("loading policy file .. (",filepath,")")
     driver_model = load_gru_driver(filepath, iteration; gru_layer=type_gru)  ## MLP!!
 
     SimParams(
