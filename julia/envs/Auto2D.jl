@@ -641,7 +641,7 @@ function reward(simparams::SimParams, u::Vector{Float64}, batch_index::Int = 1)
 end
 
 function observe(simparams::SimParams, batch_index::Int=1)
-    debug = open("debug.log", "a"); println(debug, "observe()");  close(debug)
+    #debug = open("debug.log", "a"); println(debug, "observe()");  close(debug)
     simstate = simparams.simstates[batch_index]
     trajdata = simparams.trajdatas[simstate.trajdata_index]
     veh_index = get_index_of_first_vehicle_with_id(simstate.scene, simstate.egoid)
