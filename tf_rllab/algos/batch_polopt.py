@@ -141,7 +141,7 @@ class BatchPolopt(RLAlgorithm):
                 
                 #ipdb.set_trace()
                 if itr != self.start_itr:
-                    self.policy.save_params(itr)
+                    self.policy.save_params(itr, sm.get_policy_type() == 'gru')
                 itr_start_time = time.time()
                 if itr >= self.temporal_noise_thresh:
                     self.env._noise_indicies = None

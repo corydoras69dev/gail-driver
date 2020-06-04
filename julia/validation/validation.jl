@@ -90,7 +90,7 @@ function create_evaldata(evaldata::EvaluationData, foldset::FoldSet; nsegs::Int=
     EvaluationData(evaldata.trajdatas, segments)
 end
 
-function create_simparams(evaldata::EvaluationData; gru_type::Bool=true)
+function create_simparams(evaldata::EvaluationData; iteration::Int=0, gru_type::Bool=true)
     # Construct extractor
     extractor = Auto2D.MultiFeatureExtractor(
         EXTRACT_CORE,
@@ -110,8 +110,8 @@ function create_simparams(evaldata::EvaluationData; gru_type::Bool=true)
 
     # Construct and return simparams
     Auto2D.SimParams(trajdatas, evaldata.segments, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
-        false, false, false, -3.0, 1, EVAL_PRIME_STEPS, EVAL_DURATION_STEPS, AccelTurnrate, extractor,
-        0, gru_type
+        false, true, false, -2.0, 1, EVAL_PRIME_STEPS, EVAL_DURATION_STEPS, AccelTurnrate, extractor,
+        iteration, gru_type; force_initial_file=false
         )
 end
 
@@ -119,7 +119,7 @@ srand(0)
 eval_seg_nframes = ceil(Int, (EVAL_PRIME_DURATION + EVAL_DURATION)/NGSIM_TIMESTEP) + 1
 VALDATA_SUBSET = create_evaldata(evaldata, foldset_match(assignment, FOLD_TEST), nsegs=N_SEGMENTS, nframes=eval_seg_nframes)
 FOLDSET_TEST = foldset_match(fill(1, N_SEGMENTS), 1)
-SIMPARAMS = create_simparams(VALDATA_SUBSET)
+#SIMPARAMS = create_simparams(VALDATA_SUBSET)
 
 function load_models(; context::IntegratedContinuous = CONTEXT)
     models = Dict{AbstractString, DriverModel}()
@@ -142,35 +142,40 @@ function load_models(; context::IntegratedContinuous = CONTEXT)
 
     models["controller"] = Tim2DDriver(context, mlon=mlon, mlat=mlat, mlane=mlane, rec=SceneRecord(3, context.Δt))
 
-    include(joinpath(ROOT_FILEPATH, "julia/pull_traces", "multifeatureset.jl"))
+#    include(joinpath(ROOT_FILEPATH, "julia/pull_traces", "multifeatureset.jl"))
 #    extractor = MultiFeatureExtractor(EXTRACT_CORE, EXTRACT_TEMPORAL, 
 #                                    EXTRACT_WELL_BEHAVED, EXTRACT_NEIGHBOR_FEATURES, 
 #                                    EXTRACT_CARLIDAR_RANGERATE, CARLIDAR_NBEAMS,
 #                                    ROADLIDAR_NBEAMS, ROADLIDAR_NLANES)
 #    models["GMR"] = open(io->read(io, GaussianMixtureRegressionDriver, extractor), "GMR.txt", "r")
 
-    filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_gru.h5")
-    iteration = 413
+    iteration = 499
+    filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_gru-499.h5")
+    #iteration = 413
+    #filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_gru.h5")
+    println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
     models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
 
-    filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_mlp.h5")
-    iteration = 447
+    filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_mlp-499.h5")
+    #iteration = 447
+    #filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_mlp.h5")
+    println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
     models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
 
-#    filepath = "./models/bc_gru.h5"
+#    filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "bc_gru.h5")
 #    iteration = -1
-#    models["bc_gru"] = Auto2D.load_gru_driver(filepath, iteration, bc_policy=true)
+#    models["bc_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true, bc_policy=true)
 
-#    filepath = "./models/bc_mlp.h5"
+#    filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "bc_mlp.h5")
 #    iteration = -1
-#    models["bc_mlp"] = load_gru_driver(filepath, iteration, gru_layer=false, bc_policy=true)
+#    models["bc_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false, bc_policy=true)
 
     models
 end
 
 function validate(model::DriverModel;
     gru_type::Bool=true,
-    simparams::Auto2D.SimParams=SIMPARAMS,
+    simparams::Auto2D.SimParams=0,
     metrics::Vector{TraceMetricExtractor} = METRICS,
     foldset::FoldSet = FOLDSET_TEST,
     n_simulations_per_trace::Int = N_SIMULATIONS_PER_TRACE,
@@ -195,12 +200,14 @@ function validate(model::DriverModel;
 end
 
 models = load_models()
-println("=========GAIL_MLP==============")
-simparams = create_simparams(VALDATA_SUBSET; gru_type=false)
-validate(models["gail_mlp"]; simparams=simparams, gru_type=false, modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=5)
 println("=========GAIL_GRU==============")
-simparams = create_simparams(VALDATA_SUBSET; gru_type=true)
-validate(models["gail_gru"]; simparams=simparams, gru_type=true, modelname="gail_gru", max_loop=1000, n_simulations_per_trace=5)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true)
+simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
+validate(models["gail_gru"]; simparams=simparams, gru_type=true, modelname="gail_gru", max_loop=1000, n_simulations_per_trace=20)
+println("=========GAIL_MLP==============")
+#simparams = create_simparams(VALDATA_SUBSET; iteration=447, gru_type=false)
+simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
+validate(models["gail_mlp"]; simparams=simparams, gru_type=false, modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=20)
 
 println("DONE!")
 

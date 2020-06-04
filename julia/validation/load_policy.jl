@@ -56,7 +56,8 @@ function load_gru_driver(
             gru_layer::Bool=true,
             bc_policy::Bool=false,
             action_type::DataType=AccelTurnrate)
-    #debug = open("debug.log", "a"); println(debug, "load_gru_driver(filepath::AbstractString = POLICY_FILEPATH, ...)");  close(debug)
+    #debug = open("debug.log", "a"); println(debug, "load_gru_driver(filepath=", filepath, " iteration=", iteration, " gru_layer=", gru_layer, ")");  close(debug)
+    println("load_gru_driver(filepath=", filepath, " iteration=", iteration, " gru_layer=", gru_layer, ")");
 
 #    if iteration == -1 # load most recent
 #        fid = h5open(filepath)

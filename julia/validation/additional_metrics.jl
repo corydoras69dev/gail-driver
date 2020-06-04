@@ -269,7 +269,9 @@ function rollout!(
     simstate = simparams.simstates[1]
 
     # clear rec and make first observations
+    #println("fieldnames(model.net)=", fieldnames(model.net))
     if Symbol("gru") in fieldnames(model.net)
+        println("rollout::gru!!")
         model.net[:gru].h_prev = zeros(length(model.net[:gru].h_prev))
     end
     empty!(simstate.rec)
@@ -296,8 +298,8 @@ function rollout!(
         # Find action and step forward
         
         ego_action = rand(model)
-        a = clamp(ego_action.a, -5.0, 3.0)
-        ω = clamp(ego_action.ω, -0.1, 0.1)
+        a = clamp(ego_action.a, -0.5, 0.3)
+        ω = clamp(ego_action.ω, -0.01, 0.01)
         Auto2D.step(simparams, [a, ω])
 
         # update record
@@ -401,8 +403,10 @@ function calc_metrics!(
     for metric in metrics
         try
             reset!(metric)
+            #println("reset!(metric)",metric)
         catch
             AutomotiveDrivingModels.reset!(metric)
+            #println("AutomotiveDrivingModels.reset!(metric)",metric)
         end
     end
 
@@ -412,8 +416,10 @@ function calc_metrics!(
     # Set correct action type
     if Symbol("a") in fieldnames(rand(model))
         simparams.ego_action_type = AccelTurnrate
+        #println(" ego_action_type=AccelTurnrate")
     else
         simparams.ego_action_type = LatLonAccel
+        println(" ego_action_type=LatLonAccel")
     end
 
     # simulate traces and perform online metric extraction
@@ -434,23 +440,31 @@ function calc_metrics!(
         n_traces += 1
 
         for sim_index in 1 : n_simulations_per_trace
+            #debug = open("debug.log", "a"); print(debug, " ", sim_index, "/", n_simulations_per_trace);  close(debug)
             print(" ", sim_index, "/", n_simulations_per_trace)
             reset_simstate!(simparams.simstates[1], seg)
             
+            #println("fieldnames=",fieldnames(model))
             if Symbol("net") in fieldnames(model)
+                #debug = open("debug.log", "a"); println(debug, "rollout!()");  close(debug)
                 rollout!(rec_sim, model, seg.egoid, trajdata,
                           time_start, time_end, simparams, prime_history=prime_history)      
+                #println("rollout!()")
             else
+                #debug = open("debug.log", "a"); println(debug, "simulate!()");  close(debug)
                 simulate!(rec_sim, model, seg.egoid, trajdata,
                           time_start, time_end, simparams, prime_history=prime_history)
+                println("simulate!()")
             end
 
             for metric in metrics
                 if !check_outliers(rec_orig, rec_sim, seg.egoid)
                     try
                         extract!(metric, rec_orig, rec_sim, trajdata.roadway, seg.egoid)
+                        #debug = open("debug.log", "a"); println(debug, "extract!()");  close(debug)
                     catch
                         AutomotiveDrivingModels.extract!(metric, rec_orig, rec_sim, trajdata.roadway, seg.egoid)
+                        #debug = open("debug.log", "a"); println(debug, "AutomotiveDrivingModels.extract!()");  close(debug)
                     end
                 end
             end

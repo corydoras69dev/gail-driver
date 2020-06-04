@@ -156,7 +156,8 @@ function SimParams(trajdatas::Dict{Int, Trajdata}, segments::Vector{TrajdataSegm
     extractor::MultiFeatureExtractor,
     iteration::Int,
     type_gru::Bool,
-    context = IntegratedContinuous(NGSIM_TIMESTEP,1),
+    context = IntegratedContinuous(NGSIM_TIMESTEP,1);
+    force_initial_file::Bool=false
     )
     #debug = open("debug.log", "a"); println(debug, "SimParams()");  close(debug)
 
@@ -180,18 +181,23 @@ function SimParams(trajdatas::Dict{Int, Trajdata}, segments::Vector{TrajdataSegm
         )
     playback_reactive_scene_buffer = Scene()
 
-    if iteration == 0
+    if iteration == 0 || force_initial_file
         if type_gru
             filepath = joinpath(ROOT_FILEPATH, "julia", "validation", "models", "gail_gru.h5")  ## GRU!!
         else
             filepath = joinpath(ROOT_FILEPATH, "julia", "validation", "models", "gail_mlp.h5")  ## MLP!!
         end
     else
-        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail-" * string(iteration) * ".h5")
+        if type_gru
+            filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_gru-" * string(iteration) * ".h5")
+        else
+            filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_mlp-" * string(iteration) * ".h5")
+        end
     end
-#    iteration = 413
-    println("loading policy file .. (",filepath,")")
-    driver_model = load_gru_driver(filepath, iteration; gru_layer=type_gru)  ## MLP!!
+    #iteration=413
+    println("loading policy file .. (", filepath, ", iter=", iteration, ", type_gru=", type_gru, ")")
+    println("load_gru_driver(filepath, iteration; gru_layer=type_gru)  ## LOAD GRU DRIVER")
+    driver_model = load_gru_driver(filepath, iteration; gru_layer=type_gru)  ## LOAD GRU DRIVER
 
     SimParams(
         col_weight, off_weight, rev_weight, jrk_weight, acc_weight, cen_weight, ome_weight, use_debug_reward,
@@ -542,7 +548,8 @@ function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vec
                     end
 
                     set_desired_speed!(model, simstate.playback_reactive_speeds[s.id])
-                    AutomotiveDrivingModels.observe!(model, simparams, simstate.scene, trajdata.roadway, s.id)
+                    #AutomotiveDrivingModels.observe!(model, simparams, simstate.scene, trajdata.roadway, s.id)
+                    AutomotiveDrivingModels.observe!(model, simstate.scene, trajdata.roadway, s.id)
                     action = rand(model)::LatLonAccel
 
                     if s.id in simstate.playback_reactive_active_vehicle_ids ||

@@ -170,7 +170,7 @@ class Model(Parameterized):
 #        sess.run(assignments)
         print 'done.'
 
-    def save_params(self, itr, overwrite=False):
+    def save_params(self, itr, type_gru, overwrite=False):
         print 'saving model...'
         #ipdb.set_trace()
         if not hasattr(self, 'log_dir'):
@@ -193,7 +193,11 @@ class Model(Parameterized):
             for v, val in zip(vs, vals):
                 dset[v.name] = val
 
-        filename = log_dir + "/" + self.save_name + '-' + str(itr) + '.h5'
+        if type_gru:
+            type_name = '_gru'
+        else:
+            type_name = '_mlp'
+        filename = log_dir + "/" + self.save_name + type_name + '-' + str(itr) + '.h5'
         sess = tf.get_default_session()
 
         key = self._prefix(itr)
