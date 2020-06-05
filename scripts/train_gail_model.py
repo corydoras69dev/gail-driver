@@ -55,7 +55,7 @@ parser.add_argument('--normalize_act', type=bool, default=False)
 parser.add_argument('--norm_tol', type=float, default=1e-1)
 
 # Env dict
-parser.add_argument('--use_playback_reactive', type=bool, default=False)
+parser.add_argument('--use_playback_reactive', type=bool, default=True)
 
 parser.add_argument('--extract_core', type=int, default=1)
 parser.add_argument('--extract_well_behaved', type=int, default=1)
