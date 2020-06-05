@@ -298,8 +298,8 @@ function rollout!(
         # Find action and step forward
         
         ego_action = rand(model)
-        a = clamp(ego_action.a, -0.5, 0.3)
-        ω = clamp(ego_action.ω, -0.01, 0.01)
+        a = clamp(ego_action.a, -5.0, 3.0)
+        ω = clamp(ego_action.ω, -0.1, 0.1)
         Auto2D.step(simparams, [a, ω])
 
         # update record
