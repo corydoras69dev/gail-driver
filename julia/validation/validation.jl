@@ -90,7 +90,7 @@ function create_evaldata(evaldata::EvaluationData, foldset::FoldSet; nsegs::Int=
     EvaluationData(evaldata.trajdatas, segments)
 end
 
-function create_simparams(evaldata::EvaluationData; iteration::Int=0, gru_type::Bool=true)
+function create_simparams(evaldata::EvaluationData; iteration::Int=0, gru_type::Bool=true, force_initial_file=false)
     # Construct extractor
     extractor = Auto2D.MultiFeatureExtractor(
         EXTRACT_CORE,
@@ -111,7 +111,7 @@ function create_simparams(evaldata::EvaluationData; iteration::Int=0, gru_type::
     # Construct and return simparams
     Auto2D.SimParams(trajdatas, evaldata.segments, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
         false, true, false, -2.0, 1, EVAL_PRIME_STEPS, EVAL_DURATION_STEPS, AccelTurnrate, extractor,
-        iteration, gru_type; force_initial_file=false
+        iteration, gru_type; force_initial_file=force_initial_file
         )
 end
 
@@ -201,11 +201,11 @@ end
 
 models = load_models()
 println("=========GAIL_GRU==============")
-#simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true, force_initial_file=true)
 simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
 validate(models["gail_gru"]; simparams=simparams, gru_type=true, modelname="gail_gru", max_loop=1000, n_simulations_per_trace=20)
 println("=========GAIL_MLP==============")
-#simparams = create_simparams(VALDATA_SUBSET; iteration=447, gru_type=false)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=447, gru_type=false, force_initial_file=true)
 simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
 validate(models["gail_mlp"]; simparams=simparams, gru_type=false, modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=20)
 
