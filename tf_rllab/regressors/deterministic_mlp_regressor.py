@@ -41,6 +41,8 @@ class DeterministicMLPRegressor(LayersPowered, Serializable):
         :param hidden_nonlinearity: Non-linearity used for each layer of the mean network.
         :param optimizer: Optimizer for minimizing the negative log-likelihood.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.quick_init(self, locals())
 
         with tf.variable_scope(name):
@@ -108,6 +110,8 @@ class DeterministicMLPRegressor(LayersPowered, Serializable):
             self.x_std_var = x_std_var
 
     def predict_sym(self, xs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return L.get_output(self.l_out, xs)
 
     # def fit(self, xs, ys):
@@ -132,10 +136,16 @@ class DeterministicMLPRegressor(LayersPowered, Serializable):
     #     logger.record_tabular(prefix + 'dLoss', loss_before - loss_after)
 
     def predict(self, xs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self.f_predict(np.asarray(xs))
 
     def get_param_values(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return LayersPowered.get_param_values(self, **tags)
 
     def set_param_values(self, flattened_params, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return LayersPowered.set_param_values(self, flattened_params, **tags)

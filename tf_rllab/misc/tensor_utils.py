@@ -1,9 +1,13 @@
 import tensorflow as tf
 import numpy as np
+from rllab import config
+import ipdb
 
 
 def compile_function(inputs, outputs, log_name=None):
     def run(*input_vals):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         sess = tf.get_default_session()
         return sess.run(outputs, feed_dict=dict(list(zip(inputs, input_vals))))
 
@@ -11,12 +15,16 @@ def compile_function(inputs, outputs, log_name=None):
 
 
 def flatten_tensor_variables(ts):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return tf.concat(0, [tf.reshape(x, [-1]) for x in ts])
 
 
 def unflatten_tensor_variables(flatarr, shapes, symb_arrs):
     arrs = []
     n = 0
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     for (shape, symb_arr) in zip(shapes, symb_arrs):
         size = np.prod(list(shape))
         arr = tf.reshape(flatarr[n:n + size], shape)
@@ -26,18 +34,26 @@ def unflatten_tensor_variables(flatarr, shapes, symb_arrs):
 
 
 def new_tensor(name, ndim, dtype):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return tf.placeholder(dtype=dtype, shape=[None] * ndim, name=name)
 
 
 def new_tensor_like(name, arr_like):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return new_tensor(name, arr_like.get_shape().ndims, arr_like.dtype.base_dtype)
 
 
 def concat_tensor_list(tensor_list):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return np.concatenate(tensor_list, axis=0)
 
 
 def concat_tensor_dict_list(tensor_dict_list):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     keys = list(tensor_dict_list[0].keys())
     ret = dict()
     for k in keys:
@@ -51,6 +67,8 @@ def concat_tensor_dict_list(tensor_dict_list):
 
 
 def stack_tensor_list(tensor_list):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return np.array(tensor_list)
     # tensor_shape = np.array(tensor_list[0]).shape
     # if tensor_shape is tuple():
@@ -64,6 +82,8 @@ def stack_tensor_dict_list(tensor_dict_list):
     :param tensor_dict_list: a list of dictionaries of {tensors or dictionary of tensors}.
     :return: a dictionary of {stacked tensors or dictionary of stacked tensors}
     """
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     keys = list(tensor_dict_list[0].keys())
     ret = dict()
     for k in keys:
@@ -77,6 +97,8 @@ def stack_tensor_dict_list(tensor_dict_list):
 
 
 def split_tensor_dict_list(tensor_dict):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     keys = list(tensor_dict.keys())
     ret = None
     for k in keys:
@@ -92,10 +114,14 @@ def split_tensor_dict_list(tensor_dict):
 
 
 def to_onehot_sym(inds, dim):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return tf.one_hot(inds, depth=dim, on_value=1, off_value=0)
 
 
 def pad_tensor(x, max_len):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return np.concatenate([
         x,
         np.tile(np.zeros_like(x[0]), (max_len -
@@ -104,6 +130,8 @@ def pad_tensor(x, max_len):
 
 
 def pad_tensor_n(xs, max_len):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     ret = np.zeros((len(xs), max_len) + xs[0].shape[1:], dtype=xs[0].dtype)
     for idx, x in enumerate(xs):
         ret[idx][:len(x)] = x
@@ -111,6 +139,8 @@ def pad_tensor_n(xs, max_len):
 
 
 def pad_tensor_dict(tensor_dict, max_len):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     keys = list(tensor_dict.keys())
     ret = dict()
     for k in keys:

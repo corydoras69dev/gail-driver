@@ -6,6 +6,9 @@ from tf_rllab.algos.batch_polopt import BatchPolopt
 from tf_rllab.misc import tensor_utils
 import tensorflow as tf
 
+from rllab import config
+import ipdb
+
 
 class NPO(BatchPolopt):
     """
@@ -18,6 +21,10 @@ class NPO(BatchPolopt):
             optimizer_args=None,
             step_size=0.01,
             **kwargs):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         if optimizer is None:
             if optimizer_args is None:
                 optimizer_args = dict()
@@ -28,6 +35,10 @@ class NPO(BatchPolopt):
 
     @overrides
     def init_opt(self):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         is_recurrent = int(self.policy.recurrent)
         obs_var = self.env.observation_space.new_tensor_variable(
             'obs',
@@ -96,6 +107,10 @@ class NPO(BatchPolopt):
 
     @overrides
     def optimize_policy(self, itr, samples_data):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+    
         all_input_values = tuple(ext.extract(
             samples_data,
             "observations", "actions", "advantages"
@@ -128,6 +143,9 @@ class NPO(BatchPolopt):
 
     def optimize_policy_from_inputs(self, all_input_values):
 
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         logger.log("Computing loss before")
         loss_before = self.optimizer.loss(all_input_values)
         logger.log("Computing KL before")
@@ -146,6 +164,10 @@ class NPO(BatchPolopt):
 
     @overrides
     def get_itr_snapshot(self, itr, samples_data):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         return dict(
             itr=itr,
             policy=self.policy,

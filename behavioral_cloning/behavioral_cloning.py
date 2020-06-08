@@ -9,6 +9,9 @@ from dataloader import DataLoader
 import tensorflow as tf
 import time
 
+from rllab import config
+import ipdb
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -62,6 +65,8 @@ def main():
                         default='policy',   help='variable scope for policy network')
 
     args = parser.parse_args()
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
 
     # Construct model
     net = PolicyNetwork(args)
@@ -109,6 +114,8 @@ def save_h5(args, net):
 
 
 def train(args, net):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     data_loader = DataLoader(
         args.batch_size, args.val_frac, args.seq_length, args.extract_temporal)
 

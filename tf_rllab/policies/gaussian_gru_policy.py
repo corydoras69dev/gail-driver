@@ -10,6 +10,8 @@ from tf_rllab.policies.base import StochasticPolicy
 from rllab.core.serializable import Serializable
 from rllab.misc.overrides import overrides
 from rllab.misc import logger
+from rllab import config
+import ipdb
 
 
 class GaussianGRUPolicy(StochasticPolicy, LayersPowered, Serializable):
@@ -32,6 +34,8 @@ class GaussianGRUPolicy(StochasticPolicy, LayersPowered, Serializable):
         :param hidden_nonlinearity: nonlinearity used for each hidden layer
         :return:
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         with tf.variable_scope(name):
             Serializable.quick_init(self, locals())
             super(GaussianGRUPolicy, self).__init__(env_spec)
@@ -140,6 +144,8 @@ class GaussianGRUPolicy(StochasticPolicy, LayersPowered, Serializable):
 
     @overrides
     def dist_info_sym(self, obs_var, state_info_vars):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         n_batches = tf.shape(obs_var)[0]
         n_steps = tf.shape(obs_var)[1]
         obs_var = tf.reshape(obs_var, tf.pack([n_batches, n_steps, -1]))
@@ -164,9 +170,13 @@ class GaussianGRUPolicy(StochasticPolicy, LayersPowered, Serializable):
 
     @property
     def vectorized(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return True
 
     def reset(self, dones=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if dones is None:
             dones = [True]
         dones = np.asarray(dones)
@@ -184,11 +194,15 @@ class GaussianGRUPolicy(StochasticPolicy, LayersPowered, Serializable):
     # the current policy
     @overrides
     def get_action(self, observation):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         actions, agent_infos = self.get_actions([observation])
         return actions[0], {k: v[0] for k, v in agent_infos.items()}
 
     @overrides
     def get_actions(self, observations):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         flat_obs = self.observation_space.flatten_n(observations)
         if self.state_include_action:
             assert self.prev_actions is not None
@@ -213,14 +227,20 @@ class GaussianGRUPolicy(StochasticPolicy, LayersPowered, Serializable):
     @property
     @overrides
     def recurrent(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return True
 
     @property
     def distribution(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self.dist
 
     @property
     def state_info_specs(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if self.state_include_action:
             return [
                 ("prev_action", (self.action_dim,)),
@@ -229,6 +249,8 @@ class GaussianGRUPolicy(StochasticPolicy, LayersPowered, Serializable):
             return []
 
     def log_diagnostics(self, paths):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         log_stds = np.vstack([path["agent_infos"]["log_std"]
                               for path in paths])
         logger.record_tabular('AveragePolicyStd', np.mean(np.exp(log_stds)))

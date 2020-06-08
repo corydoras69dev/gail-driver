@@ -8,16 +8,22 @@ import numpy as np
 import tensorflow as tf
 from tf_rllab.misc import tensor_utils
 from rllab.misc.ext import sliced_fun
+from rllab import config
+import ipdb
 
 
 class PerlmutterHvp(object):
     def __init__(self, num_slices=1):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.target = None
         self.reg_coeff = None
         self.opt_fun = None
         self._num_slices = num_slices
 
     def update_opt(self, f, target, inputs, reg_coeff):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.target = target
         self.reg_coeff = reg_coeff
         params = target.get_params(trainable=True)
@@ -52,7 +58,11 @@ class PerlmutterHvp(object):
         )
 
     def build_eval(self, inputs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         def eval(x):
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             xs = tuple(self.target.flat_to_params(x, trainable=True))
             ret = sliced_fun(self.opt_fun["f_Hx_plain"], self._num_slices)(
                 inputs, xs) + self.reg_coeff * x
@@ -63,12 +73,16 @@ class PerlmutterHvp(object):
 
 class FiniteDifferenceHvp(object):
     def __init__(self, base_eps=1e-8, symmetric=True, grad_clip=None, num_slices=1):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.base_eps = base_eps
         self.symmetric = symmetric
         self.grad_clip = grad_clip
         self._num_slices = num_slices
 
     def update_opt(self, f, target, inputs, reg_coeff):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.target = target
         self.reg_coeff = reg_coeff
 
@@ -113,7 +127,11 @@ class FiniteDifferenceHvp(object):
         )
 
     def build_eval(self, inputs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         def eval(x):
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             xs = tuple(self.target.flat_to_params(x, trainable=True))
             ret = sliced_fun(self.opt_fun["f_Hx_plain"], self._num_slices)(
                 inputs, xs) + self.reg_coeff * x
@@ -152,6 +170,8 @@ class ConjugateGradientOptimizer(Serializable):
         exhausting all backtracking budgets
         :return:
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.quick_init(self, locals())
         self._cg_iters = cg_iters
         self._reg_coeff = reg_coeff
@@ -182,6 +202,8 @@ class ConjugateGradientOptimizer(Serializable):
         :param extra_inputs: A list of symbolic variables as extra inputs which should not be subsampled
         :return: No return value.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
 
         inputs = tuple(inputs)
         if extra_inputs is None:
@@ -229,18 +251,24 @@ class ConjugateGradientOptimizer(Serializable):
         )
 
     def loss(self, inputs, extra_inputs=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         inputs = tuple(inputs)
         if extra_inputs is None:
             extra_inputs = tuple()
         return sliced_fun(self._opt_fun["f_loss"], self._num_slices)(inputs, extra_inputs)
 
     def constraint_val(self, inputs, extra_inputs=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         inputs = tuple(inputs)
         if extra_inputs is None:
             extra_inputs = tuple()
         return sliced_fun(self._opt_fun["f_constraint"], self._num_slices)(inputs, extra_inputs)
 
     def optimize(self, inputs, extra_inputs=None, subsample_grouped_inputs=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         prev_param = np.copy(self._target.get_param_values(trainable=True))
         inputs = tuple(inputs)
         if extra_inputs is None:

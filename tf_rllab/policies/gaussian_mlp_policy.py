@@ -12,6 +12,8 @@ from rllab.misc.overrides import overrides
 from rllab.misc import logger
 from tf_rllab.misc import tensor_utils
 import tensorflow as tf
+from rllab import config
+import ipdb
 
 
 class GaussianMLPPolicy(StochasticPolicy, LayersPowered, Serializable):
@@ -53,6 +55,8 @@ class GaussianMLPPolicy(StochasticPolicy, LayersPowered, Serializable):
             - softplus: the std will be computed as log(1+exp(x))
         :return:
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.quick_init(self, locals())
         assert isinstance(env_spec.action_space, Box)
 
@@ -145,9 +149,13 @@ class GaussianMLPPolicy(StochasticPolicy, LayersPowered, Serializable):
 
     @property
     def vectorized(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return True
 
     def dist_info_sym(self, obs_var, state_info_vars=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         mean_var, std_param_var = L.get_output(
             [self._l_mean, self._l_std_param], obs_var)
         if self.min_std_param is not None:
@@ -162,6 +170,8 @@ class GaussianMLPPolicy(StochasticPolicy, LayersPowered, Serializable):
 
     @overrides
     def get_action(self, observation):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         flat_obs = self.observation_space.flatten(observation)
         mean, log_std = [x[0] for x in self._f_dist([flat_obs])]
         rnd = np.random.normal(size=mean.shape)
@@ -169,6 +179,8 @@ class GaussianMLPPolicy(StochasticPolicy, LayersPowered, Serializable):
         return action, dict(mean=mean, log_std=log_std)
 
     def get_actions(self, observations):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         flat_obs = self.observation_space.flatten_n(observations)
         means, log_stds = self._f_dist(flat_obs)
         rnd = np.random.normal(size=means.shape)
@@ -184,6 +196,8 @@ class GaussianMLPPolicy(StochasticPolicy, LayersPowered, Serializable):
         :param old_dist_info_vars:
         :return:
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         new_dist_info_vars = self.dist_info_sym(obs_var, action_var)
         new_mean_var, new_log_std_var = new_dist_info_vars["mean"], new_dist_info_vars["log_std"]
         old_mean_var, old_log_std_var = old_dist_info_vars["mean"], old_dist_info_vars["log_std"]
@@ -193,10 +207,14 @@ class GaussianMLPPolicy(StochasticPolicy, LayersPowered, Serializable):
         return new_action_var
 
     def log_diagnostics(self, paths):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         log_stds = np.vstack([path["agent_infos"]["log_std"]
                               for path in paths])
         logger.record_tabular('AveragePolicyStd', np.mean(np.exp(log_stds)))
 
     @property
     def distribution(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._dist

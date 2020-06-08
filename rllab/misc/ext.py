@@ -8,10 +8,15 @@ import numpy as np
 import operator
 from functools import reduce
 
+from rllab import config
+import ipdb
+
 sys.setrecursionlimit(50000)
 
 
 def extract(x, *keys):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     if isinstance(x, (dict, lazydict)):
         return tuple(x[k] for k in keys)
     elif isinstance(x, list):
@@ -21,10 +26,14 @@ def extract(x, *keys):
 
 
 def extract_dict(x, *keys):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return {k: x[k] for k in keys if k in x}
 
 
 def flatten(xs):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return [x for y in xs for x in y]
 
 
@@ -33,6 +42,8 @@ def compact(x):
     For a dictionary this removes all None values, and for a list this removes
     all None elements; otherwise it returns the input itself.
     """
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     if isinstance(x, dict):
         return dict((k, v) for k, v in x.items() if v is not None)
     elif isinstance(x, list):
@@ -42,6 +53,8 @@ def compact(x):
 
 def cached_function(inputs, outputs):
     import theano
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     with Message("Hashing theano fn"):
         if hasattr(outputs, '__len__'):
             hash_content = tuple(map(theano.pp, outputs))
@@ -70,6 +83,8 @@ def cached_function(inputs, outputs):
 # Immutable, lazily evaluated dict
 class lazydict(object):
     def __init__(self, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self._lazy_dict = kwargs
         self._dict = {}
 
@@ -91,6 +106,8 @@ class lazydict(object):
 
 
 def iscanl(f, l, base=None):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     started = False
     for x in l:
         if base or started:
@@ -102,6 +119,8 @@ def iscanl(f, l, base=None):
 
 
 def iscanr(f, l, base=None):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     started = False
     for x in list(l)[::-1]:
         if base or started:
@@ -113,15 +132,21 @@ def iscanr(f, l, base=None):
 
 
 def scanl(f, l, base=None):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return list(iscanl(f, l, base))
 
 
 def scanr(f, l, base=None):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return list(iscanr(f, l, base))
 
 
 def compile_function(inputs=None, outputs=None, updates=None, givens=None, log_name=None, **kwargs):
     import theano
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     if log_name:
         msg = Message("Compiling function %s" % log_name)
         msg.__enter__()
@@ -141,38 +166,54 @@ def compile_function(inputs=None, outputs=None, updates=None, givens=None, log_n
 
 def new_tensor(name, ndim, dtype):
     import theano.tensor as TT
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return TT.TensorType(dtype, (False,) * ndim)(name)
 
 
 def new_tensor_like(name, arr_like):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return new_tensor(name, arr_like.ndim, arr_like.dtype)
 
 
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
 
 
 def is_iterable(obj):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return isinstance(obj, str) or getattr(obj, '__iter__', False)
 
 
 # cut the path for any time >= t
 def truncate_path(p, t):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return dict((k, p[k][:t]) for k in p)
 
 
 def concat_paths(p1, p2):
     import numpy as np
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return dict((k1, np.concatenate([p1[k1], p2[k1]])) for k1 in list(p1.keys()) if k1 in p2)
 
 
 def path_len(p):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return len(p["states"])
 
 
 def shuffled(sequence):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     deck = list(sequence)
     while len(deck):
         i = random.randint(0, len(deck) - 1)  # choose random card
@@ -186,6 +227,8 @@ seed_ = None
 
 
 def set_seed(seed):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     seed %= 4294967294
     global seed_
     seed_ = seed
@@ -207,6 +250,8 @@ def set_seed(seed):
 
 
 def get_seed():
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return seed_
 
 
@@ -237,6 +282,8 @@ def flatten_hessian(cost, wrt, consider_constant=None,
     """
     import theano
     from theano.tensor import arange
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     # Check inputs have the right format
     import theano.tensor as TT
     from theano import Variable
@@ -296,14 +343,20 @@ def flatten_hessian(cost, wrt, consider_constant=None,
 
 def flatten_tensor_variables(ts):
     import theano.tensor as TT
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return TT.concatenate(list(map(TT.flatten, ts)))
 
 
 def flatten_shape_dim(shape):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return reduce(operator.mul, shape, 1)
 
 
 def print_lasagne_layer(layer, prefix=""):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     params = ""
     if layer.name:
         params += ", name=" + layer.name
@@ -318,6 +371,8 @@ def print_lasagne_layer(layer, prefix=""):
 
 
 def unflatten_tensor_variables(flatarr, shapes, symb_arrs):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     import theano.tensor as TT
     import numpy as np
     arrs = []
@@ -342,6 +397,8 @@ Assume:
 
 def sliced_fun(f, n_slices):
     def sliced_f(sliced_inputs, non_sliced_inputs=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if non_sliced_inputs is None:
             non_sliced_inputs = []
         if isinstance(non_sliced_inputs, tuple):
@@ -373,10 +430,14 @@ def sliced_fun(f, n_slices):
 
 
 def stdize(data, eps=1e-6):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     return (data - np.mean(data, axis=0)) / (np.std(data, axis=0) + eps)
 
 
 def iterate_minibatches_generic(input_lst=None, batchsize=None, shuffle=False):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     if batchsize is None:
         batchsize = len(input_lst[0])
 

@@ -12,14 +12,22 @@ from rllab.misc.overrides import overrides
 from tf_rllab.optimizers.first_order_optimizer import Solver
 from tf_rllab.optimizers.lbfgs_optimizer import LbfgsOptimizer
 
+from rllab import config
+import ipdb
+
 
 class NeuralNetwork(Model):
 
     def _predict(self, t, X):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         sess = tf.get_default_session()
 
         N, _ = X.shape
         B = self.input_var.get_shape()[0].value
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
 
         if B is None or B == N:
             pred = sess.run(t, {self.input_var: X})
@@ -31,6 +39,10 @@ class NeuralNetwork(Model):
         return pred
 
     def likelihood_loss(self):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         if self.output_layer.nonlinearity == tf.nn.softmax:
             logits = self.output_layer.get_logits_for(
                 L.get_output(self.layers[-2]))
@@ -67,6 +79,10 @@ class NeuralNetwork(Model):
         Compute penalties for model complexity (e.g., l2 regularization, or kl penalties for vae and bnn).
         """
         # loss coming from weight regularization
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         loss = reg * \
             tf.reduce_sum(tf.get_collection(
                 tf.GraphKeys.REGULARIZATION_LOSSES))
@@ -83,41 +99,59 @@ class NeuralNetwork(Model):
         return reg * loss
 
     def loss(self, reg=0.0, cmx=1.0):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         return tf.add(self.likelihood_loss(), self.complexity_loss(reg, cmx), name='loss')
 
     @property
     def input_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_in
 
     @property
     def output_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_out
 
     @property
     def input_var(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_in.input_var
 
     @property
     def target_var(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_tar.input_var
 
     @property
     def layers(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._layers
 
     @property
     def output(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._output
 
     @property
     def n_params(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return sum([np.prod(param.get_shape()).value for param in self.get_params()])
 
 
 class DeterministicNetwork(NeuralNetwork):
 
     def predict(self, X):
-
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if self.output_layer.nonlinearity == tf.nn.softmax:
             y_p = tf.argmax(self._output, 1)
         else:
@@ -130,8 +164,11 @@ class DeterministicNetwork(NeuralNetwork):
 class StochasticNetwork(NeuralNetwork):
 
     def predict(self, X, k=1):
-        sess = tf.get_default_session()
 
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
+        sess = tf.get_default_session()
         o_p = []
         for _ in range(k):
 
@@ -156,6 +193,10 @@ class MLP(LayersPowered, Serializable, DeterministicNetwork):
                  output_W_init=L.XavierUniformInitializer(), output_b_init=tf.zeros_initializer, batch_size=None,
                  input_var=None, input_layer=None, input_shape=None, batch_normalization=False, weight_normalization=False,
                  ):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         Serializable.quick_init(self, locals())
         self.name = name
 
@@ -217,6 +258,8 @@ class RewardMLP(MLP):
     """
 
     def compute_reward(self, X):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         predits = -tf.log(1.0 - self.output)
         #predits = -tf.log(1.0 - tf.sigmoid(self.output))
         Y_p = self._predict(predits, X)
@@ -226,6 +269,8 @@ class RewardMLP(MLP):
         """
         predict logits ...
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         logits = self.output_layer.get_logits_for(
             L.get_output(self.layers[-2]))
         #logits = self.output
@@ -233,6 +278,8 @@ class RewardMLP(MLP):
         return Y_p
 
     def likelihood_loss(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         logits = self.output_layer.get_logits_for(
             L.get_output(self.layers[-2]))
         #logits = L.get_output(self.layers[-1])
@@ -242,6 +289,8 @@ class RewardMLP(MLP):
         return tf.reduce_sum(loss)
 
     def complexity_loss(self, reg, cmx):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return tf.constant(0.0)
 
     def loss(self, reg=0.0, cmx=0.0):
@@ -250,11 +299,15 @@ class RewardMLP(MLP):
         #ent_B = tfutil.logit_bernoulli_entropy(logits)
         #self.obj = tf.reduce_sum(loss_B - self.ent_reg_weight * ent_B)
         # return tf.reduce_sum(loss)
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         loss = self.likelihood_loss()
         return loss
     
     @property
     def clip_ops(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return []
 
 class WassersteinMLP(MLP):
@@ -264,6 +317,8 @@ class WassersteinMLP(MLP):
     """
 
     def compute_reward(self, X):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         assert self.output_nonlinearity is None
         predits = self.output
         Y_p = self._predict(predits, X)
@@ -273,28 +328,40 @@ class WassersteinMLP(MLP):
         """
         predict logits ...
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         logits = self.output
         Y_p = self._predict(logits, X)
         return Y_p
 
     def likelihood_loss(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return tf.reduce_sum(self.output * self.target_var)
 
     def complexity_loss(self, reg, cmx):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return tf.constant(0.0)
 
     def loss(self, reg= 0.0, cmx= 0.0):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         loss = self.likelihood_loss()
         return loss
     
     @property
     def clip_ops(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         ops = [var.assign(tf.clip_by_value(var, -0.01, 0.01)) for var in self.get_params()]
         return ops
 
 
 class BaselineMLP(MLP, Baseline):
     def initialize_optimizer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self._optimizer = LbfgsOptimizer('optim')
 
         optimizer_args = dict(
@@ -309,11 +376,15 @@ class BaselineMLP(MLP, Baseline):
     @overrides
     def predict(self, path):
         # X = np.column_stack((path['observations'], path['actions']))
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         X = path['observations']
         return super(BaselineMLP, self).predict(X)
 
     @overrides
     def fit(self, paths):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         observations = np.concatenate([p["observations"] for p in paths])
         returns = np.concatenate([p["returns"] for p in paths])
         #self._regressor.fit(observations, returns.reshape((-1, 1)))
@@ -325,6 +396,8 @@ class GRUNetwork(object):
                  gru_layer_cls=L.GRULayer,
                  output_nonlinearity=None, input_var=None, input_layer=None, layer_args=None):
         with tf.variable_scope(name):
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             if input_layer is None:
                 l_in = L.InputLayer(
                     shape=(None, None) + input_shape, input_var=input_var, name="input")
@@ -383,52 +456,78 @@ class GRUNetwork(object):
 
     @property
     def state_dim(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._hidden_dim
 
     @property
     def hidden_dim(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._hidden_dim
 
     @property
     def input_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_in
 
     @property
     def input_var(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_in.input_var
 
     @property
     def output_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_out
 
     @property
     def recurrent_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_gru
 
     @property
     def step_input_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_step_input
 
     @property
     def step_prev_state_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_step_prev_state
 
     @property
     def step_hidden_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_step_hidden
 
     @property
     def step_state_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_step_state
 
     @property
     def step_output_layer(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._l_step_output
 
     @property
     def hid_init_param(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._hid_init_param
 
     @property
     def state_init_param(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._hid_init_param

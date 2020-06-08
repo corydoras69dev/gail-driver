@@ -12,6 +12,8 @@ from tf_rllab.misc import tensor_utils
 from rllab.misc import logger
 from tf_rllab.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer
 from tf_rllab.optimizers.lbfgs_optimizer import LbfgsOptimizer
+from rllab import config
+import ipdb
 
 
 class BernoulliMLPRegressor(LayersPowered, Serializable):
@@ -43,6 +45,8 @@ class BernoulliMLPRegressor(LayersPowered, Serializable):
         :param use_trust_region: Whether to use trust region constraint.
         :param step_size: KL divergence constraint for each iteration
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.quick_init(self, locals())
 
         with tf.variable_scope(name):
@@ -116,6 +120,8 @@ class BernoulliMLPRegressor(LayersPowered, Serializable):
             self.first_optimized = not no_initial_trust_region
 
     def fit(self, xs, ys):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if self.normalize_inputs:
             # recompute normalizing constants for inputs
             new_mean = np.mean(xs, axis=0, keepdims=True)
@@ -146,18 +152,28 @@ class BernoulliMLPRegressor(LayersPowered, Serializable):
         self.first_optimized = True
 
     def predict(self, xs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self.f_predict(np.asarray(xs))
 
     def sample_predict(self, xs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         p = self.f_p(xs)
         return self._dist.sample(dict(p=p))
 
     def predict_log_likelihood(self, xs, ys):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         p = self.f_p(np.asarray(xs))
         return self._dist.log_likelihood(np.asarray(ys), dict(p=p))
 
     def get_param_values(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return LayersPowered.get_param_values(self, **tags)
 
     def set_param_values(self, flattened_params, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return LayersPowered.set_param_values(self, flattened_params, **tags)

@@ -13,6 +13,8 @@ from tf_rllab.misc import tensor_utils
 import tensorflow as tf
 import numpy as np
 
+from rllab import config
+import ipdb
 
 class GAIL(TRPO):
     """
@@ -40,6 +42,10 @@ class GAIL(TRPO):
         temporal_noise_thresh=100,
         wgan=False,
             **kwargs):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+            
         kwargs['temporal_noise_thresh'] = temporal_noise_thresh
         super(GAIL, self).__init__(optimizer=optimizer,
                                    optimizer_args=optimizer_args, **kwargs)
@@ -78,6 +84,10 @@ class GAIL(TRPO):
             samples_data,
             "observations", "actions", "advantages"
         ))
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         agent_infos = samples_data["agent_infos"]
         state_info_list = [agent_infos[k] for k in self.policy.state_info_keys]
         dist_info_list = [agent_infos[k]
@@ -174,6 +184,9 @@ class GAIL(TRPO):
     @overrides
     def process_samples(self, itr, paths):
         path_lengths = []
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
 
         for path in paths:
             X = np.column_stack((path['observations'], path['actions']))

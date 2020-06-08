@@ -9,6 +9,9 @@ from tf_rllab.misc import tensor_utils
 from rllab.core.serializable import Serializable
 import tensorflow as tf
 
+from rllab import config
+import ipdb
+
 
 class VPG(BatchPolopt, Serializable):
     """
@@ -23,6 +26,8 @@ class VPG(BatchPolopt, Serializable):
             optimizer=None,
             optimizer_args=None,
             **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.quick_init(self, locals())
         if optimizer is None:
             default_args = dict(
@@ -41,6 +46,8 @@ class VPG(BatchPolopt, Serializable):
 
     @overrides
     def init_opt(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         is_recurrent = int(self.policy.recurrent)
 
         obs_var = self.env.observation_space.new_tensor_variable(
@@ -113,6 +120,8 @@ class VPG(BatchPolopt, Serializable):
 
     @overrides
     def optimize_policy(self, itr, samples_data):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         logger.log("optimizing policy")
         inputs = ext.extract(
             samples_data,
@@ -138,6 +147,8 @@ class VPG(BatchPolopt, Serializable):
 
     @overrides
     def get_itr_snapshot(self, itr, samples_data):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return dict(
             itr=itr,
             policy=self.policy,

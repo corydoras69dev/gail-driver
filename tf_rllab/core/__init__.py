@@ -1,8 +1,12 @@
 import tensorflow as tf
 import numpy as np
+from rllab import config
+import ipdb
 
 
 def flatten(t):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     flat_dim = np.prod(t.get_shape().as_list())
     return tf.reshape(t, (-1, flat_dim))
 
@@ -14,6 +18,8 @@ class BayesRegularizer(object):
                                   samples=1,
                                   empirical=0)
                  ):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.hyperparams = hyperparams
         self.fan_in = fan_in
         self.fan_out = fan_out
@@ -30,6 +36,8 @@ class BayesRegularizer(object):
 
         t is split in half. Top rows interpreted as mean, bottom rows as stdev.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         # unpack posterior params
         mu, rho = tf.split(1, 2, t)
         sig = tf.log(1.0 + tf.exp(rho))
@@ -46,6 +54,8 @@ class BayesRegularizer(object):
         """
         Given batch of mu and sigma vectors, compute kl divergence from standard gaussian.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         mu_prior = tf.constant(np.zeros((self.fan_out,)), dtype=tf.float32)
         sig_prior = tf.constant(np.ones((self.fan_out,)), dtype=tf.float32)
 
@@ -57,6 +67,8 @@ class BayesRegularizer(object):
         """
         helper function for computing kl divergence.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         # unpack hyperparams
         k = self.hyperparams['samples']
         muldiag = self.hyperparams['muldiag']
@@ -89,16 +101,24 @@ class BayesRegularizer(object):
 
     @property
     def w_mu(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._mu
 
     @property
     def w_sig(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._sig
 
     @w_mu.setter
     def w_mu(self, value):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self._mu = value
 
     @w_sig.setter
     def w_sig(self, value):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self._sig = value

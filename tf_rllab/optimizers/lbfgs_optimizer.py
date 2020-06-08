@@ -7,6 +7,8 @@ import tensorflow as tf
 import scipy.optimize
 import time
 
+from rllab import config
+import ipdb
 
 class LbfgsOptimizer(Serializable):
     """
@@ -14,6 +16,8 @@ class LbfgsOptimizer(Serializable):
     """
 
     def __init__(self, name, max_opt_itr=20, callback=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.quick_init(self, locals())
         self._name = name
         self._max_opt_itr = max_opt_itr
@@ -31,6 +35,8 @@ class LbfgsOptimizer(Serializable):
         :return: No return value.
         """
 
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self._target = target
 
         def get_opt_output():
@@ -51,11 +57,15 @@ class LbfgsOptimizer(Serializable):
         )
 
     def loss(self, inputs, extra_inputs=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if extra_inputs is None:
             extra_inputs = list()
         return self._opt_fun["f_loss"](*(list(inputs) + list(extra_inputs)))
 
     def optimize(self, inputs, extra_inputs=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         f_opt = self._opt_fun["f_opt"]
 
         if extra_inputs is None:

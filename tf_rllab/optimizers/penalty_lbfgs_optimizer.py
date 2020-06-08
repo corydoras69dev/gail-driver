@@ -5,6 +5,8 @@ from rllab.core.serializable import Serializable
 import tensorflow as tf
 import numpy as np
 import scipy.optimize
+from rllab import config
+import ipdb
 
 
 class PenaltyLbfgsOptimizer(Serializable):
@@ -24,6 +26,8 @@ class PenaltyLbfgsOptimizer(Serializable):
             decrease_penalty_factor=0.5,
             max_penalty_itr=10,
             adapt_penalty=True):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.quick_init(self, locals())
         self._name = name
         self._max_opt_itr = max_opt_itr
@@ -50,6 +54,8 @@ class PenaltyLbfgsOptimizer(Serializable):
         :param inputs: A list of symbolic variables as inputs
         :return: No return value.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         constraint_term, constraint_value = leq_constraint
         with tf.variable_scope(self._name):
             penalty_var = tf.placeholder(tf.float32, tuple(), name="penalty")
@@ -88,12 +94,18 @@ class PenaltyLbfgsOptimizer(Serializable):
         )
 
     def loss(self, inputs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._opt_fun["f_loss"](*inputs)
 
     def constraint_val(self, inputs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._opt_fun["f_constraint"](*inputs)
 
     def optimize(self, inputs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
 
         inputs = tuple(inputs)
 

@@ -314,6 +314,9 @@ From a python shell::
 # from __future__ import collections.MutableMapping
 # does not exist in future, otherwise Python 2.5 would work, since 0.91.01
 
+from rllab import config
+import ipdb
+
 import sys
 if not sys.version.startswith('2'):  # in python 3
     xrange = range
@@ -435,6 +438,8 @@ class MetaParameters(object):
     """
 
     def __init__(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.sigma0 = None  # [~0.01, ~10]  # no default available
 
         # learning rates and back-ward time horizons
@@ -689,6 +694,8 @@ if use_archives:
         """
 
         def __init__(self, *args, **kwargs):
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             # collections.MutableMapping.__init__(self)
             super(DerivedDictBase, self).__init__()
             # super(SolutionDict, self).__init__()  # the same
@@ -739,6 +746,8 @@ if use_archives:
         """
 
         def __init__(self, *args, **kwargs):
+            if config.TF_NN_SETTRACE:
+               ipdb.set_trace()
             # DerivedDictBase.__init__(self, *args, **kwargs)
             super(SolutionDict, self).__init__(*args, **kwargs)
             self.data_with_same_key = {}
@@ -784,6 +793,8 @@ if use_archives:
 
     class CMASolutionDict(SolutionDict):
         def __init__(self, *args, **kwargs):
+            if config.TF_NN_SETTRACE:
+               ipdb.set_trace()
             # SolutionDict.__init__(self, *args, **kwargs)
             super(CMASolutionDict, self).__init__(*args, **kwargs)
             self.last_solution_index = 0
@@ -854,6 +865,8 @@ class BestSolution(object):
         Better solutions have smaller `f`-values.
 
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.x = x
         self.x_geno = None
         self.f = f if f is not None and f is not np.nan else np.inf
@@ -924,6 +937,8 @@ class BoundaryHandlerBase(object):
         for any dimension.
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         if not bounds:
             self.bounds = None
         else:
@@ -1066,6 +1081,8 @@ class BoundaryHandlerBase(object):
 
 class BoundNone(BoundaryHandlerBase):
     def __init__(self, bounds=None):
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         if bounds is not None:
             raise ValueError()
         # BoundaryHandlerBase.__init__(self, None)
@@ -1117,6 +1134,8 @@ class BoundTransform(BoundaryHandlerBase):
         a scalar or a list or array of appropriate size.
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         # BoundaryHandlerBase.__init__(self, bounds)
         super(BoundTransform, self).__init__(bounds)
         self.bounds_tf = BoxConstraintsLinQuadTransformation(
@@ -1190,6 +1209,8 @@ class BoundPenalty(BoundaryHandlerBase):
         are lower  and upper domain boundaries, each is either `None` or
         a scalar or a list or array of appropriate size.
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         # #
         # bounds attribute reminds the domain boundary values
         # BoundaryHandlerBase.__init__(self, bounds)
@@ -1385,6 +1406,8 @@ class BoxConstraintsTransformationBase(object):
     """
 
     def __init__(self, bounds):
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         try:
             if len(bounds[0]) != 2:
                 raise ValueError
@@ -1442,6 +1465,8 @@ class _BoxConstraintsTransformationTemplate(BoxConstraintsTransformationBase):
     """copy/paste this template to implement a new boundary handling transformation"""
 
     def __init__(self, bounds):
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         # BoxConstraintsTransformationBase.__init__(self, bounds)
         super(_BoxConstraintsTransformationTemplate, self).__init__(bounds)
 
@@ -1517,6 +1542,8 @@ class BoxConstraintsLinQuadTransformation(BoxConstraintsTransformationBase):
         better suited for values close to lb and ub.
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         # BoxConstraintsTransformationBase.__init__(self, bounds)
         super(BoxConstraintsLinQuadTransformation, self).__init__(bounds)
         # super().__init__(bounds) # only available since Python 3.x
@@ -1524,6 +1551,8 @@ class BoxConstraintsLinQuadTransformation(BoxConstraintsTransformationBase):
 
     def initialize(self, length=None):
         """see ``__init__``"""
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         if length is None:
             length = len(self.bounds)
         max_i = min((len(self.bounds) - 1, length - 1))
@@ -1785,6 +1814,8 @@ class GenoPheno(object):
         unexpected results.
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         self.N = dim
         self.fixed_values = fixed_values
         if tf is not None:
@@ -2074,6 +2105,8 @@ class OOOptimizer(object):
 
     def __init__(self, xstart, **more_args):
         """``xstart`` is a mandatory argument"""
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         self.xstart = xstart
         self.more_args = more_args
         self.initialize()
@@ -2241,6 +2274,8 @@ class CMAAdaptSigmaBase(object):
     """
 
     def __init__(self, *args, **kwargs):
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         self.is_initialized_base = False
         self._ps_updated_iteration = -1
 
@@ -2314,6 +2349,8 @@ class CMAAdaptSigmaDistanceProportional(CMAAdaptSigmaBase):
     """
 
     def __init__(self, coefficient=1.2):
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         # base class provides method hsig()
         super(CMAAdaptSigmaDistanceProportional, self).__init__()
         self.coefficient = coefficient
@@ -2330,6 +2367,8 @@ class CMAAdaptSigmaCSA(CMAAdaptSigmaBase):
         """postpone initialization to a method call where dimension and mueff should be known.
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         self.is_initialized = False
 
     def initialize(self, es):
@@ -2446,6 +2485,8 @@ class CMAAdaptSigmaMedianImprovement(CMAAdaptSigmaBase):
     """
 
     def __init__(self):
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         # CMAAdaptSigmaBase.__init__(self)
         # base class provides method hsig()
         super(CMAAdaptSigmaMedianImprovement, self).__init__()
@@ -2512,6 +2553,8 @@ class CMAAdaptSigmaTPA(CMAAdaptSigmaBase):
     """
 
     def __init__(self, dimension=None, opts=None):
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         # base class provides method hsig()
         super(CMAAdaptSigmaTPA, self).__init__()
         # CMAAdaptSigmaBase.__init__(self)
@@ -2941,6 +2984,8 @@ class CMAEvolutionStrategy(OOOptimizer):
         """see class `CMAEvolutionStrategy`
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         if isinstance(x0, CMAEvolutionStrategy):
             self.copy_constructor(x0)
             return
@@ -4815,6 +4860,8 @@ class CMAOptions(dict):
         Returns: see above.
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         # if not CMAOptions.defaults:  # this is different from self.defaults!!!
         #     CMAOptions.defaults = fmin([],[])
         if s is None:
@@ -5082,6 +5129,8 @@ class _CMAStopDict(dict):
     """
 
     def __init__(self, d={}):
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         update = isinstance(d, CMAEvolutionStrategy)
         super(_CMAStopDict, self).__init__({} if update else d)
         self._stoplist = []  # to keep multiple entries
@@ -5113,6 +5162,8 @@ class _CMAStopDict(dict):
         assert es is not None
 
         if es.countiter == 0:  # in this case termination tests fail
+            if config.TF_NN_SETTRACE:
+               ipdb.set_trace()
             self.__init__()
             return self
 
@@ -5274,6 +5325,8 @@ class _CMAParameters(object):
         dimension and population size, by calling `set`
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         self.N = N
         if ccovfac == 1:
             ccovfac = opts['CMA_on']  # that's a hack
@@ -6006,6 +6059,8 @@ class CMADataLogger(BaseDataLogger):
         instance, default ``modulo=1`` means logging with each call
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         # super(CMAData, self).__init__({'iter':[], 'stds':[], 'D':[],
         #        'sig':[], 'fit':[], 'xm':[]})
         # class properties:
@@ -7327,6 +7382,8 @@ class NoiseHandler(object):
             :See: `fmin()`, `CMAOptions`, `CMAEvolutionStrategy.ask_and_eval()`
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         self.lam_reeval = reevals  # 2 + popsize/20, see method indices(), originally 2 + popsize/10
         self.epsilon = epsilon
         self.parallel = parallel
@@ -7569,6 +7626,8 @@ class Sections(object):
                 load previous data from file ``str(func) + '.pkl'``
 
         """
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         self.func = func
         self.args = args
         self.x = x
@@ -7718,6 +7777,8 @@ class ElapsedTime(object):
     """
 
     def __init__(self):
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
         self.tic0 = time.clock()
         self.tic = self.tic0
         self.lasttoc = time.clock()
@@ -8306,6 +8367,8 @@ class ConstRandnShift(object):
         self.seed = seed
         self.stddev = stddev
         self._xopt = {}
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
 
     def __call__(self, x):
         """return "shifted" ``x - shift``
@@ -8364,6 +8427,8 @@ class Rotation(object):
         # otherwise there might be shared bases which is probably not what we
         # want
         self.dicMatrices = {}
+        if config.TF_NN_SETTRACE:
+           ipdb.set_trace()
 
     def __call__(self, x, inverse=False):  # function when calling an object
         """Rotates the input array `x` with a fixed rotation matrix
@@ -8418,6 +8483,8 @@ class FFWrapper(object):
             # the original fitness to be called
             self.inner_fitness = fitness_function
             # self.condition_number = ...
+            if config.TF_NN_SETTRACE:
+               ipdb.set_trace()
 
         def __call__(self, x, *args):
             """identity as default transformation"""
@@ -8440,6 +8507,8 @@ class FFWrapper(object):
         """
 
         def __init__(self, callable=None):
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             self.count_evaluations = 0
             self.inner_fitness = callable
 
@@ -8477,6 +8546,8 @@ class FFWrapper(object):
                 >>> assert f(x) == f0(shift_fct(x))
 
             """
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             self.inner_fitness = fitness_function
             # akin to FitnessTransformation.__init__(self, fitness_function)
             # akin to super(TransformSearchSpace,
@@ -8495,6 +8566,8 @@ class FFWrapper(object):
                  the dimension must fit to the `fitness_function` argument
                  when called
             """
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             super(FFWrapper.ScaleCoordinates, self).__init__(
                 fitness_function, self.transformation)
             # TransformSearchSpace.__init__(self, fitness_function,
@@ -8524,6 +8597,8 @@ class FFWrapper(object):
             expands to ``cma.ConstRandnShift()``.
 
             """
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             self.inner_fitness = f
             self.x_transformation = shift if shift else ConstRandnShift()
             # alternatively we could have called super
@@ -8542,6 +8617,8 @@ class FFWrapper(object):
             rotation.
 
             """
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             super(FFWrapper.RotatedFitness, self).__init__(f, rotate)
             # self.x_transformation = rotate
 
@@ -8560,6 +8637,8 @@ class FFWrapper(object):
 
         def __init__(self, f, index_value_pairs):
             """`f` has """
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             super(FFWrapper.FixVariables, self).__init__(
                 f, self.insert_variables)
             # same as TransformSearchSpace.__init__(f, self.insert_variables)
@@ -8579,6 +8658,8 @@ class FFWrapper(object):
 
     class SomeNaNFitness(FitnessTransformation):
         def __init__(self, fitness_function, probability_of_nan=0.1):
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             self.p = probability_of_nan
             self.inner_fitness = fitness_function
 
@@ -8594,6 +8675,8 @@ class FFWrapper(object):
         def __init__(self, fitness_function,
                      rel_noise=lambda dim: 1.1 * np.random.randn() / dim,
                      abs_noise=lambda: 1.1 * np.random.randn()):
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             self.rel_noise = rel_noise
             self.abs_noise = abs_noise
             self.inner_fitness = fitness_function
@@ -8618,6 +8701,8 @@ class FFWrapper(object):
         """
 
         def __init__(self, fitness_function, *args, **kwargs):
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             self.inner_fitness = fitness_function
             self.args = args
             self.kwargs = kwargs
@@ -8630,6 +8715,8 @@ class FFWrapper(object):
         """search in [-10, 10] for the unknown (optimum)"""
 
         def __init__(self, seed=2):
+            if config.TF_NN_SETTRACE:
+                ipdb.set_trace()
             self.seed = seed
             self._x_opt_ = {}
             self.rotate = Rotation(seed)
@@ -8671,6 +8758,8 @@ class FitnessFunctions(object):
     """ versatile container for test objective functions """
 
     def __init__(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.counter = 0  # number of calls or any other practical use
 
     def rot(self, x, fun, rot=1, args=()):

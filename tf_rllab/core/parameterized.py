@@ -7,12 +7,16 @@ import numpy as np
 import ipdb
 import h5py
 import os
+from rllab import config
+import ipdb
 
 load_params = True
 
 
 @contextmanager
 def suppress_params_loading():
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     global load_params
     load_params = False
     yield
@@ -21,6 +25,8 @@ def suppress_params_loading():
 
 class Parameterized(object):
     def __init__(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self._cached_params = {}
         self._cached_param_dtypes = {}
         self._cached_param_shapes = {}
@@ -32,6 +38,8 @@ class Parameterized(object):
         """
         Internal method to be implemented which does not perform caching
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         raise NotImplementedError
 
     def get_params(self, **tags):
@@ -39,12 +47,16 @@ class Parameterized(object):
         Get the list of parameters, filtered by the provided tags.
         Some common tags include 'regularizable' and 'trainable'
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
         if tag_tuple not in self._cached_params:
             self._cached_params[tag_tuple] = self.get_params_internal(**tags)
         return self._cached_params[tag_tuple]
 
     def get_param_dtypes(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
         if tag_tuple not in self._cached_param_dtypes:
             params = self.get_params(**tags)
@@ -54,6 +66,8 @@ class Parameterized(object):
         return self._cached_param_dtypes[tag_tuple]
 
     def get_param_shapes(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         tag_tuple = tuple(sorted(list(tags.items()), key=lambda x: x[0]))
         if tag_tuple not in self._cached_param_shapes:
             params = self.get_params(**tags)
@@ -63,11 +77,15 @@ class Parameterized(object):
         return self._cached_param_shapes[tag_tuple]
 
     def get_param_values(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         params = self.get_params(**tags)
         param_values = tf.get_default_session().run(params)
         return flatten_tensors(param_values)
 
     def set_param_values(self, flattened_params, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         debug = tags.pop("debug", False)
         param_values = unflatten_tensors(
             flattened_params, self.get_param_shapes(**tags))
@@ -91,9 +109,13 @@ class Parameterized(object):
         tf.get_default_session().run(ops, feed_dict=feed_dict)
 
     def flat_to_params(self, flattened_params, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return unflatten_tensors(flattened_params, self.get_param_shapes(**tags))
 
     def __getstate__(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         d = Serializable.__getstate__(self)
         global load_params
         if load_params:
@@ -101,6 +123,8 @@ class Parameterized(object):
         return d
 
     def __setstate__(self, d):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.__setstate__(self, d)
         global load_params
         if load_params:
@@ -110,10 +134,14 @@ class Parameterized(object):
 
 class JointParameterized(Parameterized):
     def __init__(self, components):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(JointParameterized, self).__init__()
         self.components = components
 
     def get_params_internal(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         params = [
             param for comp in self.components for param in comp.get_params_internal(**tags)]
         # only return unique parameters
@@ -125,6 +153,8 @@ class Model(Parameterized):
     _log_dir = './models'
 
     def load_params(self, filename, itr, skip_params):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         #ipdb.set_trace()
         print 'loading policy params...'
         if not hasattr(self, 'load_dir'):
@@ -164,6 +194,8 @@ class Model(Parameterized):
 #                        param.assign(hf[path][...])
 #                    )
 #
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         sess = tf.get_default_session()
         saver = tf.train.Saver()
         saver.restore(sess, filename)
@@ -172,7 +204,8 @@ class Model(Parameterized):
 
     def save_params(self, itr, type_gru, overwrite=False):
         print 'saving model...'
-        #ipdb.set_trace()
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if not hasattr(self, 'log_dir'):
             log_dir = Model._log_dir
         else:
@@ -218,6 +251,8 @@ class Model(Parameterized):
 
     def write_params(self, filename):
         print 'saving model...'
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         sess = tf.get_default_session()
         saver = tf.train.Saver(max_to_keep=None)
         saver.save(sess, filename)
@@ -230,6 +265,8 @@ class Model(Parameterized):
 
     def save_extra_data(self, names, data):
         print 'saving model...'
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if not hasattr(self, 'log_dir'):
             log_dir = Model._log_dir
         else:
@@ -245,11 +282,17 @@ class Model(Parameterized):
         print 'done.'
 
     def set_log_dir(self, log_dir):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.log_dir = log_dir
 
     def set_load_dir(self, load_dir):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.load_dir = load_dir
 
     @staticmethod
     def _prefix(x):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return 'iter{:05}/'.format(x)

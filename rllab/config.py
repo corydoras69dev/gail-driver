@@ -49,6 +49,8 @@ CODE_SYNC_IGNORES = ["*.git/*", "*data/*", "*.pod/*"]
 
 DOCKER_CODE_DIR = "/root/code/rllab"
 
+TF_NN_SETTRACE = True
+
 AWS_CODE_SYNC_S3_PATH = "s3://to/be/overriden/in/personal"
 
 # whether to use fast code sync

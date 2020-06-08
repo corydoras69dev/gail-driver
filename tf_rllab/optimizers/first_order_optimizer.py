@@ -13,6 +13,8 @@ from functools import partial
 import pyprind
 
 import numpy as np
+from rllab import config
+import ipdb
 
 
 class FirstOrderOptimizer(Serializable):
@@ -41,6 +43,8 @@ class FirstOrderOptimizer(Serializable):
         :param kwargs:
         :return:
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.quick_init(self, locals())
         self._opt_fun = None
         self._target = None
@@ -67,6 +71,8 @@ class FirstOrderOptimizer(Serializable):
         :return: No return value.
         """
 
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self._target = target
 
         self._train_op = self._tf_optimizer.minimize(
@@ -100,6 +106,8 @@ class FirstOrderOptimizer(Serializable):
             self._opt_fun.set('c_loss', c_loss)
 
     def loss(self, inputs, extra_inputs=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         raise NotImplementedError  # Not sure what this is for yet ...
         # if extra_inputs is None:
         #extra_inputs = tuple()
@@ -108,6 +116,8 @@ class FirstOrderOptimizer(Serializable):
     def optimize(self, inputs, extra_inputs=None, callback=None,
                  val_inputs=[None], val_extra_inputs=tuple([None])):
 
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if len(inputs) == 0:
             # Assumes that we should always sample mini-batches
             raise NotImplementedError
@@ -229,6 +239,8 @@ class Solver(object):
 
     def __init__(self, model, reg, cmx, max_epochs, batch_size, tolerance,
                  tf_optimizer_cls=None, tf_optimizer_args=None, callback=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self._optimizer = FirstOrderOptimizer(max_epochs=max_epochs, batch_size=batch_size, tolerance=tolerance,
                                               tf_optimizer_cls=tf_optimizer_cls, tf_optimizer_args=tf_optimizer_args)
         self._optimizer.update_opt(model.loss(reg=reg, cmx=cmx), model, [model.input_var], extra_inputs=[model.target_var],
@@ -236,6 +248,8 @@ class Solver(object):
         self._callback = callback
 
     def train(self, X_train, Y_train, X_validate=None, Y_validate=None, assign_vlr=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         sess = tf.get_default_session()
         if assign_vlr is not None:
             #sess = tf.get_default_session()
@@ -252,6 +266,8 @@ class Solver(object):
 
 class SimpleSolver(object):
     def __init__(self, model, epochs, batch_size):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.learning_rate = tf.placeholder(tf.float32, shape=(), name='lr')
         self.model = model
         self.epochs = epochs
@@ -262,6 +278,8 @@ class SimpleSolver(object):
         self.opt = self.optimizer.minimize(model.loss())
 
     def train(self, X_train, Y_train, lr):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         sess = tf.get_default_session()
 
         N = X_train.shape[0]

@@ -1,10 +1,16 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.contrib.layers.python.layers import initializers
+from rllab import config
+import ipdb
 
 
 def py_ortho_init(scale):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     def _init(shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         u, s, v = np.linalg.svd(np.random.uniform(size=shape))
         return np.cast['float32'](u * scale)
 
@@ -13,9 +19,13 @@ def py_ortho_init(scale):
 
 class OrthogonalInitializer(object):
     def __init__(self, scale=1.1):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.scale = scale
 
     def __call__(self, shape, dtype=tf.float32, *args, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         result, = tf.py_func(py_ortho_init(self.scale), [shape], [tf.float32])
         result.set_shape(shape)
         return result
@@ -23,6 +33,8 @@ class OrthogonalInitializer(object):
 
 class PolicyNetwork():
     def __init__(self, args):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         # Placeholder for data
         self.inputs = tf.placeholder(
             tf.float32, [args.batch_size, args.state_dim], name="inputs")
@@ -38,6 +50,8 @@ class PolicyNetwork():
         self._create_optimizer(args)
 
     def _create_mlp(self, args):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
 
         # Create fully connected network of desired size
         W = tf.get_variable("mlp_policy/hidden_0/W",
@@ -75,6 +89,8 @@ class PolicyNetwork():
                 args.action_dim), name="mlp_policy/output_log_std/param", dtype=tf.float32)
 
     def _create_gru(self, args):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
 
         # Weights for the initial hidden state
         self.hprev = tf.get_variable("gru_policy/mean_network/gru/h0",
@@ -131,6 +147,8 @@ class PolicyNetwork():
             args.action_dim), name="gru_policy/output_log_std/param", dtype=tf.float32)
 
     def _create_optimizer(self, args):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         # Find negagtive log-likelihood of true actions
         std_a = tf.exp(self.a_logstd)
         pl_1 = 0.5 * tf.to_float(args.action_dim) * np.log(2. * np.pi)

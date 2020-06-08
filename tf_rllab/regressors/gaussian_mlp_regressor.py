@@ -10,6 +10,8 @@ from tf_rllab.distributions.diagonal_gaussian import DiagonalGaussian
 from rllab.core.serializable import Serializable
 from rllab.misc import logger
 import tensorflow as tf
+from rllab import config
+import ipdb
 
 
 class GaussianMLPRegressor(LayersPowered, Serializable):
@@ -55,6 +57,8 @@ class GaussianMLPRegressor(LayersPowered, Serializable):
         :param std_nonlinearity: Non-linearity used for each layer of the std network. Only used if `std_share_network`
         is False. It defaults to the same non-linearity as the mean.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         Serializable.quick_init(self, locals())
 
         with tf.variable_scope(name):
@@ -190,6 +194,8 @@ class GaussianMLPRegressor(LayersPowered, Serializable):
             self._y_std_var = y_std_var
 
     def fit(self, xs, ys):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if self._subsample_factor < 1:
             num_samples_tot = xs.shape[0]
             idx = np.random.randint(0, num_samples_tot, int(
@@ -238,6 +244,8 @@ class GaussianMLPRegressor(LayersPowered, Serializable):
         :param xs:
         :return:
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._f_predict(xs)
 
     def sample_predict(self, xs):
@@ -246,14 +254,20 @@ class GaussianMLPRegressor(LayersPowered, Serializable):
         :param xs:
         :return:
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         means, log_stds = self._f_pdists(xs)
         return self._dist.sample(dict(mean=means, log_std=log_stds))
 
     def predict_log_likelihood(self, xs, ys):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         means, log_stds = self._f_pdists(xs)
         return self._dist.log_likelihood(ys, dict(mean=means, log_std=log_stds))
 
     def log_likelihood_sym(self, x_var, y_var):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         normalized_xs_var = (x_var - self._x_mean_var) / self._x_std_var
 
         normalized_means_var, normalized_log_stds_var = \
@@ -266,7 +280,11 @@ class GaussianMLPRegressor(LayersPowered, Serializable):
         return self._dist.log_likelihood_sym(y_var, dict(mean=means_var, log_std=log_stds_var))
 
     def get_param_values(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return LayersPowered.get_param_values(self, **tags)
 
     def set_param_values(self, flattened_params, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         LayersPowered.set_param_values(self, flattened_params, **tags)

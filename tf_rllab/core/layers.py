@@ -13,6 +13,9 @@ from warnings import warn
 
 from tf_rllab.core import BayesRegularizer
 
+from rllab import config
+import ipdb
+
 
 class G(object):
     pass
@@ -22,6 +25,8 @@ G._n_layers = 0
 
 
 def create_param(spec, shape, name, trainable=True, regularizable=True, regularizer=None):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     if not hasattr(spec, '__call__'):
         assert isinstance(spec, (tf.Tensor, tf.Variable))
         return spec
@@ -39,6 +44,8 @@ def create_param(spec, shape, name, trainable=True, regularizable=True, regulari
 
 
 def as_tuple(x, N, t=None):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     try:
         X = tuple(x)
     except TypeError:
@@ -92,6 +99,8 @@ def conv_output_length(input_length, filter_size, stride, pad=0):
     ValueError
         When an invalid padding is specified, a `ValueError` is raised.
     """
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     if input_length is None:
         return None
     if pad == 'valid':
@@ -114,6 +123,8 @@ def conv_output_length(input_length, filter_size, stride, pad=0):
 
 class Layer(object):
     def __init__(self, incoming, name=None, variable_reuse=None, weight_normalization=False, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if isinstance(incoming, tuple):
             self.input_shape = incoming
             self.input_layer = None
@@ -139,10 +150,14 @@ class Layer(object):
 
     @property
     def penalize_complexity(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return False
 
     @property
     def output_shape(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         shape = self.get_output_shape_for(self.input_shape)
         if any(isinstance(s, (tf.Variable, tf.Tensor)) for s in shape):
             raise ValueError("%s returned a symbolic output shape from its "
@@ -153,12 +168,18 @@ class Layer(object):
         return shape
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         raise NotImplementedError
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         raise NotImplementedError
 
     def add_param_plain(self, spec, shape, name, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         with tf.variable_scope(self.name, reuse=self.variable_reuse):
             tags['trainable'] = tags.get('trainable', True)
             tags['regularizable'] = tags.get('regularizable', True)
@@ -168,6 +189,8 @@ class Layer(object):
             return param
 
     def add_param(self, spec, shape, name, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         param = self.add_param_plain(spec, shape, name, **kwargs)
         if name is not None and name.startswith("W") and self.weight_normalization:
             # Hacky: check if the parameter is a weight matrix. If so, apply
@@ -189,6 +212,8 @@ class Layer(object):
         return param
 
     def get_params(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         result = list(self.params.keys())
 
         only = set(tag for tag, value in list(tags.items()) if value)
@@ -208,6 +233,8 @@ class Layer(object):
 
 class InputLayer(Layer):
     def __init__(self, shape, input_var=None, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(InputLayer, self).__init__(shape, **kwargs)
         self.shape = shape
         if input_var is None:
@@ -227,6 +254,8 @@ class InputLayer(Layer):
 
 class MergeLayer(Layer):
     def __init__(self, incomings, name=None, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.input_shapes = [incoming if isinstance(incoming, tuple)
                              else incoming.output_shape
                              for incoming in incomings]
@@ -269,10 +298,14 @@ class ConcatLayer(MergeLayer):
     """
 
     def __init__(self, incomings, axis=1, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(ConcatLayer, self).__init__(incomings, **kwargs)
         self.axis = axis
 
     def get_output_shape_for(self, input_shapes):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         # Infer the output shape by grabbing, for each axis, the first
         # input size that is not `None` (if there is any)
         output_shape = [next((s for s in sizes if s is not None), None)
@@ -294,6 +327,8 @@ class ConcatLayer(MergeLayer):
         return tuple(output_shape)
 
     def get_output_for(self, inputs, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         dtypes = [x.dtype.as_numpy_dtype for x in inputs]
         if len(set(dtypes)) > 1:
             # need to convert to common data type
@@ -307,6 +342,8 @@ concat = ConcatLayer  # shortcut
 
 class XavierUniformInitializer(object):
     def __call__(self, shape, dtype=tf.float32, *args, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if len(shape) == 2:
             n_inputs, n_outputs = shape
         else:
@@ -319,6 +356,8 @@ class XavierUniformInitializer(object):
 
 class HeUniformInitializer(object):
     def __call__(self, shape, dtype=tf.float32, *args, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if len(shape) == 2:
             n_inputs, _ = shape
         else:
@@ -330,6 +369,8 @@ class HeUniformInitializer(object):
 
 def py_ortho_init(scale):
     def _init(shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         u, s, v = np.linalg.svd(np.random.uniform(size=shape))
         return np.cast['float32'](u * scale)
 
@@ -338,9 +379,13 @@ def py_ortho_init(scale):
 
 class OrthogonalInitializer(object):
     def __init__(self, scale=1.1):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         self.scale = scale
 
     def __call__(self, shape, dtype=tf.float32, *args, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         result, = tf.py_func(py_ortho_init(self.scale), [shape], [tf.float32])
         result.set_shape(shape)
         return result
@@ -349,6 +394,8 @@ class OrthogonalInitializer(object):
 class ParamLayer(Layer):
     def __init__(self, incoming, num_units, param=tf.zeros_initializer,
                  trainable=True, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(ParamLayer, self).__init__(incoming, **kwargs)
         self.num_units = num_units
         self.param = self.add_param(
@@ -359,9 +406,13 @@ class ParamLayer(Layer):
         )
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return input_shape[:-1] + (self.num_units,)
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         ndim = input.get_shape().ndims
         reshaped_param = tf.reshape(
             self.param, (1,) * (ndim - 1) + (self.num_units,))
@@ -373,6 +424,8 @@ class ParamLayer(Layer):
 class OpLayer(MergeLayer):
     def __init__(self, incoming, op,
                  shape_op=lambda x: x, extras=None, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if extras is None:
             extras = []
         incomings = [incoming] + extras
@@ -395,6 +448,8 @@ class BayesLayer(Layer):
         """
         Warning: Think carefully about the 'regularizable' keyword.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(BayesLayer, self).__init__(incoming, **kwargs)
         self.nonlinearity = tf.identity if nonlinearity is None else nonlinearity
 
@@ -421,12 +476,16 @@ class BayesLayer(Layer):
                 b, (num_units,), name="b", regularizable=False)
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return (input_shape[0], self.num_units)
 
     def get_output_for(self, input, **kwargs):
         """
         input: a tensor
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         activation = self.get_logits_for(input, **kwargs)
         return self.nonlinearity(activation)
 
@@ -436,6 +495,8 @@ class BayesLayer(Layer):
 
         input: a tensor
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if input.get_shape().ndims > 2:
             # if the input has more than two dimensions, flatten it into a
             # batch of feature vectors.
@@ -450,6 +511,8 @@ class LatentLayer(Layer):
     def __init__(self, incoming, num_units, nonlinearity=None, W=XavierUniformInitializer(), b=tf.zeros_initializer,
                  reg_params={},
                  **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(LatentLayer, self).__init__(incoming, **kwargs)
         self.nonlinearity = tf.identity if nonlinearity is None else nonlinearity
         if nonlinearity is not None:
@@ -478,6 +541,8 @@ class LatentLayer(Layer):
                 b, (num_units,), name="b_rho", regularizable=False)
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return (input_shape[0], self.num_units)
 
     def get_output_for(self, input, **kwargs):
@@ -486,6 +551,8 @@ class LatentLayer(Layer):
 
         input: a tensor
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         batch_size = input.get_shape()[0].value
 
         Z_mu, Z_sig = self.get_dparams_for(input, **kwargs)
@@ -498,6 +565,8 @@ class LatentLayer(Layer):
 
         input: a tensor
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if input.get_shape().ndims > 2:
             # if the input has more than two dimensions, flatten it into a
             # batch of feature vectors.
@@ -510,12 +579,16 @@ class LatentLayer(Layer):
 
     @property
     def penalize_complexity(self):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return True
 
 
 class DenseLayer(Layer):
     def __init__(self, incoming, num_units, nonlinearity=None, W=XavierUniformInitializer(), b=tf.zeros_initializer,
                  **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(DenseLayer, self).__init__(incoming, **kwargs)
         self.nonlinearity = tf.identity if nonlinearity is None else nonlinearity
 
@@ -532,12 +605,16 @@ class DenseLayer(Layer):
                 b, (num_units,), name="b", regularizable=False)
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return (input_shape[0], self.num_units)
 
     def get_output_for(self, input, **kwargs):
         """
         input: a tensor
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         activation = self.get_logits_for(input, **kwargs)
         return self.nonlinearity(activation)
 
@@ -547,6 +624,8 @@ class DenseLayer(Layer):
 
         input: a tensor
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if input.get_shape().ndims > 2:
             # if the input has more than two dimensions, flatten it into a
             # batch of feature vectors.
@@ -565,6 +644,8 @@ class BaseConvLayer(Layer):
         """
         Input is assumed to be of shape batch*height*width*channels
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(BaseConvLayer, self).__init__(incoming, **kwargs)
         if nonlinearity is None:
             self.nonlinearity = tf.identity
@@ -610,11 +691,15 @@ class BaseConvLayer(Layer):
         tuple of int
             The shape of the weight matrix.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         num_input_channels = self.input_shape[-1]
         return self.filter_size + (num_input_channels, self.num_filters)
 
     def get_output_shape_for(self, input_shape):
         # computes incorrect value for circular convolution
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if self.pad == 'SAME' or self.pad == 'CIRCULAR':
             pad = ('same',) * self.n
         elif self.pad == 'VALID':
@@ -631,6 +716,8 @@ class BaseConvLayer(Layer):
                              self.stride, pad))) + (self.num_filters,)
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         conved = self.convolve(input, **kwargs)
 
         if self.b is None:
@@ -660,6 +747,8 @@ class BaseConvLayer(Layer):
             `input` convolved according to the configuration of this layer,
             without any bias or nonlinearity applied.
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         raise NotImplementedError("BaseConvLayer does not implement the "
                                   "convolve() method. You will want to "
                                   "use a subclass such as Conv2DLayer.")
@@ -685,6 +774,8 @@ class ConvNDLayer(BaseConvLayer):
                  pad="VALID", untie_biases=False,
                  W=XavierUniformInitializer(), b=tf.zeros_initializer,
                  nonlinearity=tf.nn.relu, n=2, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(ConvNDLayer, self).__init__(incoming=incoming, num_filters=num_filters, filter_size=filter_size,
                                           stride=stride, pad=pad, untie_biases=untie_biases, W=W, b=b,
                                           nonlinearity=nonlinearity, n=n, **kwargs)
@@ -694,6 +785,8 @@ class ConvNDLayer(BaseConvLayer):
             self.convolution = tf.nn.conv2d
 
     def convolve(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         conved = self.convolution(input, self.W, strides=(
             1,) + self.stride + (1,), padding=self.pad)
         return conved
@@ -705,6 +798,8 @@ class ConvNDLayer(BaseConvLayer):
             v: a 1-D `Tensor` (vector)
             k: a 1-D `Tensor` (kernel)
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         v_n, v_h, v_w, v_c = map(lambda x: x.value, v.get_shape())
         k_h, k_w, k_cin, k_cout = map(lambda x: x.value, k.get_shape())
         size = v_w
@@ -739,6 +834,8 @@ class ConvNDLayer(BaseConvLayer):
 
 
 def pool_output_length(input_length, pool_size, stride, pad):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     if input_length is None or pool_size is None:
         return None
 
@@ -750,6 +847,8 @@ def pool_output_length(input_length, pool_size, stride, pad):
 
 class Pool2DLayer(Layer):
     def __init__(self, incoming, pool_size, stride=None, pad="VALID", mode='max', **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(Pool2DLayer, self).__init__(incoming, **kwargs)
 
         self.pool_size = as_tuple(pool_size, 2)
@@ -770,6 +869,8 @@ class Pool2DLayer(Layer):
         self.mode = mode
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         output_shape = list(input_shape)  # copy / convert to mutable list
 
         output_shape[1] = pool_output_length(input_shape[1],
@@ -787,6 +888,8 @@ class Pool2DLayer(Layer):
         return tuple(output_shape)
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         assert self.mode == "max"
         pooled = tf.nn.max_pool(
             input,
@@ -798,6 +901,8 @@ class Pool2DLayer(Layer):
 
 
 def spatial_expected_softmax(x, temp=1):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     assert len(x.get_shape()) == 4
     vals = []
     for dim in [0, 1]:
@@ -820,13 +925,19 @@ class SpatialExpectedSoftmaxLayer(Layer):
     """
 
     def __init__(self, incoming, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super().__init__(incoming, **kwargs)
         # self.temp = self.add_param(tf.ones_initializer, shape=(), name="temperature")
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return (input_shape[0], input_shape[-1] * 2)
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return spatial_expected_softmax(input)  # , self.temp)
         # max_ = tf.reduce_max(input, reduction_indices=[1, 2], keep_dims=True)
         # exp = tf.exp(input - max_) + 1e-5
@@ -868,6 +979,8 @@ class SpatialExpectedSoftmaxLayer(Layer):
 
 class DropoutLayer(Layer):
     def __init__(self, incoming, p=0.5, rescale=True, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(DropoutLayer, self).__init__(incoming, **kwargs)
         self.p = p
         self.rescale = rescale
@@ -881,6 +994,8 @@ class DropoutLayer(Layer):
         deterministic : bool
             If true dropout and scaling is disabled, see notes
         """
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if deterministic or self.p == 0:
             return input
         else:
@@ -917,6 +1032,8 @@ class FlattenLayer(Layer):
     """
 
     def __init__(self, incoming, outdim=2, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(FlattenLayer, self).__init__(incoming, **kwargs)
         self.outdim = outdim
 
@@ -924,6 +1041,8 @@ class FlattenLayer(Layer):
             raise ValueError('Dim must be >0, was %i', outdim)
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         to_flatten = input_shape[self.outdim - 1:]
 
         if any(s is None for s in to_flatten):
@@ -934,6 +1053,8 @@ class FlattenLayer(Layer):
         return input_shape[:self.outdim - 1] + (flattened,)
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         # total_entries = tf.reduce_prod(tf.shape(input))
         pre_shape = tf.shape(input)[:self.outdim - 1]
         to_flatten = tf.reduce_prod(tf.shape(input)[self.outdim - 1:])
@@ -945,6 +1066,8 @@ flatten = FlattenLayer  # shortcut
 
 class ReshapeLayer(Layer):
     def __init__(self, incoming, shape, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(ReshapeLayer, self).__init__(incoming, **kwargs)
         shape = tuple(shape)
         for s in shape:
@@ -970,6 +1093,8 @@ class ReshapeLayer(Layer):
         self.get_output_shape_for(self.input_shape)
 
     def get_output_shape_for(self, input_shape, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         # Initialize output shape from shape specification
         output_shape = list(self.shape)
         # First, replace all `[i]` with the corresponding input dimension, and
@@ -986,7 +1111,7 @@ class ReshapeLayer(Layer):
                 masked_output_shape[dim] = input_shape[o[0]]
                 if (input_shape[o[0]] is None) \
                         and (masked_input_shape[o[0]] is None):
-                    # first time we copied this unknown input size: mask
+# first time we copied this unknown input size: mask
                     # it, we have a 1:1 correspondence between out[dim] and
                     # in[o[0]] and can ignore it for -1 inference even if
                     # it is unknown.
@@ -1024,6 +1149,8 @@ class ReshapeLayer(Layer):
         return tuple(output_shape)
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         # Replace all `[i]` with the corresponding input dimension
         output_shape = list(self.shape)
         for dim, o in enumerate(output_shape):
@@ -1038,11 +1165,15 @@ reshape = ReshapeLayer  # shortcut
 
 class SliceLayer(Layer):
     def __init__(self, incoming, indices, axis=-1, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(SliceLayer, self).__init__(incoming, **kwargs)
         self.slice = indices
         self.axis = axis
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         output_shape = list(input_shape)
         if isinstance(self.slice, int):
             del output_shape[self.axis]
@@ -1054,6 +1185,8 @@ class SliceLayer(Layer):
         return tuple(output_shape)
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         axis = self.axis
         ndims = input.get_shape().ndims
         if axis < 0:
@@ -1069,6 +1202,8 @@ class SliceLayer(Layer):
 
 class DimshuffleLayer(Layer):
     def __init__(self, incoming, pattern, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(DimshuffleLayer, self).__init__(incoming, **kwargs)
 
         # Sanity check the pattern
@@ -1093,6 +1228,8 @@ class DimshuffleLayer(Layer):
         self.get_output_shape_for(self.input_shape)
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         # Build output shape while keeping track of the dimensions that we are
         # attempting to collapse, so we can ensure that they are broadcastable
         output_shape = []
@@ -1122,6 +1259,8 @@ class DimshuffleLayer(Layer):
         return tuple(output_shape)
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return tf.transpose(input, self.pattern)
 
 
@@ -1130,6 +1269,8 @@ dimshuffle = DimshuffleLayer  # shortcut
 
 def apply_ln(layer):
     def _normalize(x, prefix):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         EPS = 1e-5
         dim = x.get_shape()[-1].value
 
@@ -1166,6 +1307,9 @@ class GRULayer(Layer):
                  gate_nonlinearity=tf.nn.sigmoid, W_x_init=XavierUniformInitializer(), W_h_init=OrthogonalInitializer(),
                  b_init=tf.zeros_initializer, hidden_init=tf.zeros_initializer, hidden_init_trainable=False,
                  layer_normalization=False, **kwargs):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
 
         if hidden_nonlinearity is None:
             hidden_nonlinearity = tf.identity
@@ -1225,6 +1369,8 @@ class GRULayer(Layer):
         self.step(h_dummy, x_dummy)
 
     def step(self, hprev, x):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if self.layer_normalization:
             ln = apply_ln(self)
             x_ru = ln(tf.matmul(x, self.W_x_ru), "x_ru")
@@ -1251,13 +1397,19 @@ class GRULayer(Layer):
             return h
 
     def get_step_layer(self, l_in, l_prev_hidden, name=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return GRUStepLayer(incomings=[l_in, l_prev_hidden], recurrent_layer=self, name=name)
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         n_batch, n_steps = input_shape[:2]
         return n_batch, n_steps, self.num_units
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         input_shape = tf.shape(input)
         n_batches = input_shape[0]
         n_steps = input_shape[1]
@@ -1284,17 +1436,25 @@ class GRULayer(Layer):
 
 class GRUStepLayer(MergeLayer):
     def __init__(self, incomings, recurrent_layer, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(GRUStepLayer, self).__init__(incomings, **kwargs)
         self._gru_layer = recurrent_layer
 
     def get_params(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._gru_layer.get_params(**tags)
 
     def get_output_shape_for(self, input_shapes):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         n_batch = input_shapes[0][0]
         return n_batch, self._gru_layer.num_units
 
     def get_output_for(self, inputs, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         x, hprev = inputs
         n_batch = tf.shape(x)[0]
         x = tf.reshape(x, tf.pack([n_batch, -1]))
@@ -1309,6 +1469,8 @@ class TfGRULayer(Layer):
 
     def __init__(self, incoming, num_units, hidden_nonlinearity, horizon=None, hidden_init_trainable=False,
                  **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         assert len(incoming.output_shape) == 3
         input_dim = incoming.shape[2]
         gru = tf.nn.rnn_cell.GRUCell(
@@ -1341,9 +1503,13 @@ class TfGRULayer(Layer):
                                  regularizable=False)
 
     def step(self, hprev, x):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self.gru(x, hprev, scope=self.scope)[1]
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         input_shape = tf.shape(input)
         n_batches = input_shape[0]
         state = tf.tile(
@@ -1374,10 +1540,14 @@ class TfGRULayer(Layer):
             return shuffled_hs
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         n_batch, n_steps = input_shape[:2]
         return n_batch, n_steps, self.num_units
 
     def get_step_layer(self, l_in, l_prev_hidden, name=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return GRUStepLayer(incomings=[l_in, l_prev_hidden], recurrent_layer=self, name=name)
 
 
@@ -1416,6 +1586,9 @@ class PseudoLSTMLayer(Layer):
                  forget_bias=1.0, b_init=tf.zeros_initializer, hidden_init=tf.zeros_initializer,
                  hidden_init_trainable=False, cell_init=tf.zeros_initializer, cell_init_trainable=False,
                  gate_squash_inputs=False, layer_normalization=False, **kwargs):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
 
         if hidden_nonlinearity is None:
             hidden_nonlinearity = tf.identity
@@ -1482,6 +1655,8 @@ class PseudoLSTMLayer(Layer):
         self.norm_params = dict()
 
     def step(self, hcprev, x):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         hprev = hcprev[:, :self.num_units]
         cprev = hcprev[:, self.num_units:]
 
@@ -1552,13 +1727,19 @@ class PseudoLSTMLayer(Layer):
             return tf.concat(1, [h, c])
 
     def get_step_layer(self, l_in, l_prev_state, name=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return LSTMStepLayer(incomings=[l_in, l_prev_state], recurrent_layer=self, name=name)
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         n_batch, n_steps = input_shape[:2]
         return n_batch, n_steps, self.num_units
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         input_shape = tf.shape(input)
         n_batches = input_shape[0]
         n_steps = input_shape[1]
@@ -1600,6 +1781,9 @@ class LSTMLayer(Layer):
                  b_init=tf.zeros_initializer, hidden_init=tf.zeros_initializer, hidden_init_trainable=False,
                  cell_init=tf.zeros_initializer, cell_init_trainable=False, layer_normalization=False,
                  **kwargs):
+
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
 
         if hidden_nonlinearity is None:
             hidden_nonlinearity = tf.identity
@@ -1686,6 +1870,9 @@ class LSTMLayer(Layer):
             New hidden state:  h(t) = o(t) * f_h(c(t))
         """
 
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
+
         hprev = hcprev[:, :self.num_units]
         cprev = hcprev[:, self.num_units:]
 
@@ -1718,13 +1905,19 @@ class LSTMLayer(Layer):
         return tf.concat(1, [h, c])
 
     def get_step_layer(self, l_in, l_prev_state, name=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return LSTMStepLayer(incomings=[l_in, l_prev_state], recurrent_layer=self, name=name)
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         n_batch, n_steps = input_shape[:2]
         return n_batch, n_steps, self.num_units
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         input_shape = tf.shape(input)
         n_batches = input_shape[0]
         n_steps = input_shape[1]
@@ -1754,17 +1947,25 @@ class LSTMLayer(Layer):
 
 class LSTMStepLayer(MergeLayer):
     def __init__(self, incomings, recurrent_layer, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(LSTMStepLayer, self).__init__(incomings, **kwargs)
         self._recurrent_layer = recurrent_layer
 
     def get_params(self, **tags):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self._recurrent_layer.get_params(**tags)
 
     def get_output_shape_for(self, input_shapes):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         n_batch = input_shapes[0][0]
         return n_batch, 2 * self._recurrent_layer.num_units
 
     def get_output_for(self, inputs, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         x, hcprev = inputs
         n_batch = tf.shape(x)[0]
         x = tf.reshape(x, tf.pack([n_batch, -1]))
@@ -1779,6 +1980,8 @@ class TfBasicLSTMLayer(Layer):
 
     def __init__(self, incoming, num_units, hidden_nonlinearity, horizon=None, hidden_init_trainable=False,
                  forget_bias=1.0, use_peepholes=False, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         assert not use_peepholes, "Basic LSTM does not support peepholes!"
         assert len(incoming.output_shape) == 3
         input_dim = incoming.shape[2]
@@ -1821,6 +2024,8 @@ class TfBasicLSTMLayer(Layer):
                                  regularizable=False)
 
     def step(self, hcprev, x):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         hprev = hcprev[:, :self.num_units]
         cprev = hcprev[:, self.num_units:]
         x.set_shape((None, self.input_shape[-1]))
@@ -1828,6 +2033,8 @@ class TfBasicLSTMLayer(Layer):
         return tf.concat(1, [h, c])
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         input_shape = tf.shape(input)
         n_batches = input_shape[0]
         h0s = tf.tile(
@@ -1866,10 +2073,14 @@ class TfBasicLSTMLayer(Layer):
             return shuffled_hs
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         n_batch, n_steps = input_shape[:2]
         return n_batch, n_steps, self.num_units
 
     def get_step_layer(self, l_in, l_prev_state, name=None):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return LSTMStepLayer(incomings=[l_in, l_prev_state], recurrent_layer=self, name=name)
 
 
@@ -1881,6 +2092,8 @@ def get_all_layers(layer, treat_as_input=None):
     # We perform a depth-first search. We add a layer to the result list only
     # after adding all its incoming layers (if any) or when detecting a cycle.
     # We use a LIFO stack to avoid ever running into recursion depth limits.
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     try:
         queue = deque(layer)
     except TypeError:
@@ -1923,17 +2136,25 @@ def get_all_layers(layer, treat_as_input=None):
 
 class NonlinearityLayer(Layer):
     def __init__(self, incoming, nonlinearity=tf.nn.relu, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(NonlinearityLayer, self).__init__(incoming, **kwargs)
         self.nonlinearity = (tf.identity if nonlinearity is None
                              else nonlinearity)
 
     def get_output_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self.nonlinearity(input)
 
     def get_logits_for(self, input, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return input
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return input_shape
 
 
@@ -1941,6 +2162,8 @@ class BatchNormLayer(Layer):
     def __init__(self, incoming, center=True, scale=False, epsilon=0.001, decay=0.9,
                  beta=tf.zeros_initializer, gamma=tf.ones_initializer, moving_mean=tf.zeros_initializer,
                  moving_variance=tf.ones_initializer, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(BatchNormLayer, self).__init__(incoming, **kwargs)
 
         self.center = center
@@ -1970,6 +2193,8 @@ class BatchNormLayer(Layer):
         self.axis = axis
 
     def get_output_for(self, input, phase='train', **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         if phase == 'train':
             # Calculate the moments based on the individual batch.
             mean, variance = tf.nn.moments(
@@ -1991,10 +2216,14 @@ class BatchNormLayer(Layer):
         return output
 
     def get_output_shape_for(self, input_shape):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return input_shape
 
 
 def batch_norm(layer, **kwargs):
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     nonlinearity = getattr(layer, 'nonlinearity', None)
     scale = True
     layers = []
@@ -2019,12 +2248,18 @@ def batch_norm(layer, **kwargs):
 
 class ElemwiseSumLayer(MergeLayer):
     def __init__(self, incomings, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         super(ElemwiseSumLayer, self).__init__(incomings, **kwargs)
 
     def get_output_for(self, inputs, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return functools.reduce(tf.add, inputs)
 
     def get_output_shape_for(self, input_shapes):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         assert len(set(input_shapes)) == 1
         return input_shapes[0]
 
@@ -2033,6 +2268,8 @@ def get_output(layer_or_layers, inputs=None, **kwargs):
     """
     Forward pass through entire computational graph, returning activations at specified layer.
     """
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     # track accepted kwargs used by get_output_for
     accepted_kwargs = {'deterministic'}
     # obtain topological ordering of all layers the output layer(s) depend on
@@ -2116,6 +2353,8 @@ def unique(l):
     list
         A list of elements of `l` without duplicates and in the same order.
     """
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     new_list = []
     seen = set()
     for el in l:
@@ -2130,6 +2369,8 @@ def get_all_params(layer, **tags):
     """
     :type layer: Layer|list[Layer]
     """
+    if config.TF_NN_SETTRACE:
+        ipdb.set_trace()
     layers = get_all_layers(layer)
     params = chain.from_iterable(l.get_params(**tags) for l in layers)
     return unique(params)
