@@ -25,7 +25,7 @@ G._n_layers = 0
 
 
 def create_param(spec, shape, name, trainable=True, regularizable=True, regularizer=None):
-    if config.TF_NN_SETTRACE:
+    if config.TF_NN_SETTRACE: # too many times called
         ipdb.set_trace()
     if not hasattr(spec, '__call__'):
         assert isinstance(spec, (tf.Tensor, tf.Variable))
@@ -178,7 +178,7 @@ class Layer(object):
         raise NotImplementedError
 
     def add_param_plain(self, spec, shape, name, **tags):
-        if config.TF_NN_SETTRACE:
+        if config.TF_NN_SETTRACE: # too many times called.
             ipdb.set_trace()
         with tf.variable_scope(self.name, reuse=self.variable_reuse):
             tags['trainable'] = tags.get('trainable', True)
@@ -189,7 +189,7 @@ class Layer(object):
             return param
 
     def add_param(self, spec, shape, name, **kwargs):
-        if config.TF_NN_SETTRACE:
+        if config.TF_NN_SETTRACE: # too many times called.
             ipdb.set_trace()
         param = self.add_param_plain(spec, shape, name, **kwargs)
         if name is not None and name.startswith("W") and self.weight_normalization:
@@ -435,9 +435,13 @@ class OpLayer(MergeLayer):
         self.incomings = incomings
 
     def get_output_shape_for(self, input_shapes):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self.shape_op(*input_shapes)
 
     def get_output_for(self, inputs, **kwargs):
+        if config.TF_NN_SETTRACE:
+            ipdb.set_trace()
         return self.op(*inputs)
 
 
@@ -613,7 +617,7 @@ class DenseLayer(Layer):
         """
         input: a tensor
         """
-        if config.TF_NN_SETTRACE:
+        if config.TF_NN_SETTRACE: #too many times called
             ipdb.set_trace()
         activation = self.get_logits_for(input, **kwargs)
         return self.nonlinearity(activation)
@@ -624,7 +628,7 @@ class DenseLayer(Layer):
 
         input: a tensor
         """
-        if config.TF_NN_SETTRACE:
+        if config.TF_NN_SETTRACE: #too many times called
             ipdb.set_trace()
         if input.get_shape().ndims > 2:
             # if the input has more than two dimensions, flatten it into a
@@ -1508,7 +1512,7 @@ class TfGRULayer(Layer):
         return self.gru(x, hprev, scope=self.scope)[1]
 
     def get_output_for(self, input, **kwargs):
-        if config.TF_NN_SETTRACE:
+        if config.TF_NN_SETTRACE:  ## many times called
             ipdb.set_trace()
         input_shape = tf.shape(input)
         n_batches = input_shape[0]

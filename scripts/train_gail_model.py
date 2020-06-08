@@ -1,6 +1,8 @@
 import gym
 import argparse
 import calendar
+from rllab import config
+import ipdb
 
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.normalized_env import normalize
@@ -16,8 +18,11 @@ from tf_rllab import RLLabRunner
 from tf_rllab.algos.trpo import TRPO
 from tf_rllab.algos.gail import GAIL
 
+config.TF_NN_SETTRACE = False
 from tf_rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from tf_rllab.policies.gaussian_gru_policy import GaussianGRUPolicy
+config.TF_NN_SETTRACE = True
+ipdb.set_trace()
 
 from tf_rllab.core.network import MLP, RewardMLP, WassersteinMLP, BaselineMLP
 from tf_rllab.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
@@ -28,8 +33,6 @@ import os
 import seedmng.mng
 import random
 import os.path as osp
-from rllab import config
-import ipdb
 import joblib
 
 parser = argparse.ArgumentParser()
