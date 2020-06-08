@@ -21,8 +21,6 @@ from tf_rllab.algos.gail import GAIL
 config.TF_NN_SETTRACE = False
 from tf_rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from tf_rllab.policies.gaussian_gru_policy import GaussianGRUPolicy
-config.TF_NN_SETTRACE = True
-ipdb.set_trace()
 
 from tf_rllab.core.network import MLP, RewardMLP, WassersteinMLP, BaselineMLP
 from tf_rllab.optimizers.conjugate_gradient_optimizer import ConjugateGradientOptimizer, FiniteDifferenceHvp
@@ -133,6 +131,7 @@ parser.add_argument('--ckpt_itr', type=int, default=-1)
 args = parser.parse_args()
 from rllab.config_personal import expert_trajs_path, model_path
 
+config.TF_NN_SETTRACE = True
 sm = seedmng.mng.SeedMng()
 sm.set_root(args.seed)
 sm.set_iteration(9999)
@@ -330,6 +329,8 @@ elif args.reward_type == 'mlp':
 							epsilon= args.adam_epsilon)
 else:
 	raise NotImplementedError
+
+config.TF_NN_SETTRACE = True
 
 algo = GAIL(
 	env=env,
