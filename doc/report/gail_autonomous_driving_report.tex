@@ -1,0 +1,229 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LaTeX Template: Project Titlepage Modified (v 0.1) by rcx
+%
+% Original Source: http://www.howtotex.com
+% Date: February 2014
+% 
+% This is a title page template which be used for articles & reports.
+% 
+% This is the modified version of the original Latex template from
+% aforementioned website.
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[openany,11pt]{report}%report
+\usepackage[a4paper]{geometry}
+\usepackage[myheadings]{fullpage}
+\usepackage{fancyhdr}
+\usepackage{fancybox}	
+\usepackage{lastpage}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{wrapfig, subcaption, setspace, booktabs}
+\usepackage[T1]{fontenc}
+\usepackage[font=small, labelfont=bf]{caption}
+\usepackage{fourier}
+\usepackage[protrusion=true, expansion=true]{microtype}
+\usepackage[english]{babel}
+\usepackage{sectsty}
+\usepackage{url, lipsum}
+\usepackage{mathtools}
+\usepackage{makeidx}
+\usepackage{float}
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
+\onehalfspacing
+\widowpenalty = 10000
+\clubpenalty = 10000
+\usepackage{pdflscape}
+\usepackage{tikz-cd}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,calc,trees,positioning}
+\usetikzlibrary{chains,fit,shapes.geometric,shapes.arrows}
+\usepackage{forest}
+\usetikzlibrary{arrows.meta, shapes.geometric, calc, shadows}
+\usetikzlibrary{arrows,automata}
+\usetikzlibrary{trees}
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{shapes.geometric,arrows.meta,decorations.markings}
+\usepackage{pgfgantt}
+\usetikzlibrary{mindmap}
+\usepackage{subcaption}
+\usepackage{csquotes}
+\usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage{tabulary}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usetikzlibrary{calc}
+\usepackage{smartdiagram}
+\usepackage{wrapfig}
+\usesmartdiagramlibrary{additions}	
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{makecell}
+\usepackage{forest}
+\usepackage{here}
+\usepackage{url} 
+\usepackage{csquotes}
+\usepackage{afterpage}
+\usepackage{xcolor}
+\usepackage{longtable}
+\usepackage{comment}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\usepackage{wasysym}
+\usepackage{adjustbox,lipsum}
+\usepackage{amssymb}
+\usepackage{makecell}
+\usepackage{bigints}
+\usepackage{ascmac}
+\usepackage{cancel}
+\usepackage{hyperref}
+\usepackage{lscape}
+
+%Makecell, used to add linebreak to tables
+\renewcommand\theadalign{bc}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[4pt]}
+
+\lstdefinestyle{INI}{% define own style
+  basicstyle=\ttfamily\small,
+    columns=fullflexible,
+    morecomment=[s][\color{blue}\bfseries]{[}{]},
+    morecomment=[l]{\#},
+    morecomment=[l]{;},
+    commentstyle=\color{gray}\ttfamily,
+    morekeywords={},
+    otherkeywords={=,:},
+      frame=single,                   % adds a frame around the code
+    keywordstyle={\color{black}\bfseries}
+}
+
+\lstdefinelanguage{json}{
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\scriptsize,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{background},
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+%-------------------------------------------------------------------------------
+% HEADER & FOOTER
+%-------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\setlength\headheight{15pt}
+\fancyhead[L]{Generative Adversarial Network for Autonomous Driving}
+\fancyhead[R]{TDI-202006-JQ0080}
+\setcounter{secnumdepth}{4}
+
+%-------------------------------------------------------------------------------
+% Table of Content / Index
+%-------------------------------------------------------------------------------
+\makeindex
+%-------------------------------------------------------------------------------
+% Extra
+%-------------------------------------------------------------------------------
+
+%%Changing chapter name with section
+%\makeatletter
+%\renewcommand{\@chapapp}{Section}
+%\makeatother
+
+\def\changemargin#1#2{\list{}{\rightmargin#2\leftmargin#1}\item[]}
+\let\endchangemargin=\endlist 
+
+%running fraction with slash - requires math mode.
+\newcommand*\rfrac[2]{{}^{#1}\!/_{#2}}
+
+%Bit larger cells for arrays
+\renewcommand{\arraystretch}{1.5}
+
+
+\tikzset{description title/.append style={
+    signal, 
+   signal to=south, 
+    signal from=north,
+    minimum width=2.0cm,
+    yshift=-0.2cm,
+  }
+}
+\newcommand{\bm}[1]{{\mbox{\boldmath $#1$}}}
+
+%-------------------------------------------------------------------------------
+% TITLE PAGE
+%-------------------------------------------------------------------------------
+
+\begin{document}
+
+\title{ \HRule{0.5pt} \\
+		\LARGE \textbf{\uppercase{Generative Adversarial Networks for Autonomous Driving}}\\
+		\HRule{2pt} \\ [0.5cm]
+		\normalsize  \vspace*{8\baselineskip}
+		}
+
+\maketitle
+
+\newpage
+
+\date{
+    \normalsize{June 10, 2020}
+    }
+
+\textit{Revision History}
+\vspace*{0.2in} 	 
+
+\begin{tabular}{|c||c|p{10cm}|}
+\hline 
+Version & Date & Modification \\ 
+\hline 
+\hline 
+1.00& 10/JUN/2020 & Draft version.\\\hline
+\hline
+\end{tabular} 
+
+\newpage
+\tableofcontents
+\clearpage
+
+\pagestyle{plain}
+
+\input{introduction.tex}
+\input{algorithm.tex}
+\input{implementation.tex}
+\input{dataprocess.tex}
+\input{experimental_results.tex}
+\input{conclusions.tex}
+
+
+\newpage
+
+
+\bibliographystyle{IEEEtran} %XXXXXXXXXXXXXX BIBLIO
+\bibliography{biblio}
+
+\end{document}
+

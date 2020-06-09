@@ -149,7 +149,7 @@
 \fancyhf{}
 \setlength\headheight{15pt}
 \fancyhead[L]{GAIL User Manual}
-\fancyhead[R]{TDI-202005-JQ00XX}
+\fancyhead[R]{TDI-202006-JQ0081}
 \setcounter{secnumdepth}{4}
 
 %-------------------------------------------------------------------------------
@@ -186,7 +186,7 @@
 \newcommand{\bm}[1]{{\mbox{\boldmath $#1$}}}
 
 \date{
-    \normalsize{May 14, 2020}
+    \normalsize{June 10, 2020}
     }
 
 %-------------------------------------------------------------------------------
@@ -215,7 +215,7 @@
 Version & Date & Modification \\ 
 \hline 
 \hline 
-1.00& 27/03/2020 & Initial version.\\\hline
+1.00& 10/JUNE/2020 & Draft.\\\hline
 \end{tabular} 
 
 \newpage
@@ -415,7 +415,7 @@ xterm:\> python
 \end{figure}
 
 \section{Install Julia version 0.6}
-Requirements: Julia version 0.6 fix.  (0.5, 0.7 are both incompatible as 0.6)
+Requirements: Julia version 0.6 fix.  (0.5, 0.7 are both incompatible as 0.6j)
 
 It is needed to refresh/upgrade the pre-installed packages/libraries:
 \begin{lstlisting}[style=DOS]
@@ -443,7 +443,7 @@ xterm:\> julia
 
 
 
-\section{Install packages NGSIM/AutomoticeDrivingModels/FOrwardNets}
+\section{Install packages NGSIM/AutomoticeDrivingModels/ForwardNets}
 
 
 
@@ -584,6 +584,40 @@ The file RootDir.jl must be made.
 \begin{lstlisting}[style=DOS]
 ROOT_FILEPATH="/home/[username]/gail/gail-driver/"
 \end{lstlisting}
+
+Now on writting ...
+
+JULIA modules are premised on github.
+Here will show how to register to github and download from githib.
+
+
+\chapter{Data for experimentsS}
+
+For all data used in the experiment, include the address of website.
+
+(The acquired data will be included in the package.)
+
+
+Now on writting.......
+
+\section{Generating Filtered Trajectory}
+
+Filtered trajectories are also necessary for experiment.
+
+(The generated trajectories will be included in the package.)
+
+Following trajectory data must be generate by using observed data and NGSIM library.
+This section describes how to generate the filtered data. 
+
+\begin{itemize}
+\item trajdata\_i80\_trajectories-0400-0415.txt
+\item trajdata\_i80\_trajectories-0500-0515.txt
+\item trajdata\_i80\_trajectories-0515-0530.txt
+\item trajdata\_i101\_trajectories-0750am-0415am.txt
+\item trajdata\_i101\_trajectories-0805am-0515am.txt
+\item trajdata\_i101\_trajectories-0820am-0530am.txt
+\end{itemize}
+
 
 
 \end{document}
