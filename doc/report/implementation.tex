@@ -1,20 +1,51 @@
 \chapter{Implementation}
 \label{chapter:Implementation}
 
+This chapter describes the main modules written by Python and Julia.
+The structure of each neural network is also described.
 
 \section{Software structure summary}
 
+The program is roughly divided into a training program consisting of Python and Julia and a validation program consisting only of Julia.
+
+
 \subsection{Training program summary}
+
+All vehicle behavior is described by the Julia program. The discriminator network is implemented in python's tensorflow.
+policy network is a ForwardNets module by Julia, but uses python's tensorflow to configure the network.
+
+Now writing...
+
 
 \subsection{Validation program summary}
 
+All vehicle behavior is described by the Julia program. 
+Policy is also written in Julia.
+The validation program does not update Policy. It also doesn't use the discriminator, so it doesn't use Python code.
+
+Now writing...
 
 
-\subsection{Features}
+\section{Features for policy network}
 
-Now writeng...
 
-\subsection{Metrics}
+This section details the 51-element input vector used by Policy.
+
+Now writing...
+
+\section{Input for discriminator}
+
+
+This section details input of discriminator.
+
+Now writing...
+
+\section{Metrics}
+
+
+This section details the metrics for vehicle behavior that are evaluated by the validation program.
+
+Now writing...
 
 \begin{itemize}
 \item Root Weighted Square Error.
@@ -40,7 +71,7 @@ Now writeng...
 \end{itemize}
 \end{itemize}
 
-\subsection{Summary of environment}
+\section{Summary of environment}
 
 Now writeng...
 
@@ -50,7 +81,10 @@ Now writeng...
 \end{itemize}
 
 
-\subsection{Reward network summary}
+\section{Reward network summary}
+
+Reward network is a discriminator and is realized by tensorflow. The surrogate reward is calculated based on the discrimination result by this network.
+
 
 Now writing...
 \begin{itemize}
@@ -59,20 +93,35 @@ Now writing...
 \item size of nodes
 \end{itemize}
 
+\begin{itemize}
+\item location in sourcecode.
+\item specification
+\end{itemize}
 
-\subsection{Policy network summary}
+
+\section{Policy network summary}
 
 Now writing...
+
 \begin{itemize}
 \item input, output
 \item layers
 \item size of nodes
 \end{itemize}
 
-\subsubsection{GRU tructure}
+\subsection{GRU structure}
 
-\subsubsection{MLP structure}
+\begin{itemize}
+\item location in sourcecode.
+\item specification
+\end{itemize}
 
+\subsection{MLP structure}
+
+\begin{itemize}
+\item location in sourcecode.
+\item specification
+\end{itemize}
 
 \section{Summary of external modules for this experiments}
 
