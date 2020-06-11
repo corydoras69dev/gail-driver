@@ -508,7 +508,7 @@ function step_forward!(simstate::SimState, simparams::SimParams, action_ego::Vec
                     AutomotiveDrivingModels.observe!(model, simparams, simstate.scene, trajdata.roadway, s.id)
                     action = rand(model)::AccelTurnrate
                     a = clamp(action.a, -5.0, 3.0)
-                    ω = clamp(action.ω, -0.01, 0.01)
+                    ω = clamp(action.ω, -0.1, 0.1)
 
                     # Propagate scene
                     veh = simstate.scene[veh_index]
@@ -679,7 +679,7 @@ function Base.step(simparams::SimParams, u::Vector{Float64}, batch_index::Int=1)
     done = done || (simstate.scene[veh_index].state.v < 0.0)
 
     #debug = open("debug.log", "a"); println(debug, " feat=", features, " r=", r," done=", done, ">"); close(debug)
-    sleep(0.001)
+#    sleep(0.001)
     (features, r, done)
 end
 
