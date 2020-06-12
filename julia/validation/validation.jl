@@ -121,7 +121,7 @@ VALDATA_SUBSET = create_evaldata(evaldata, foldset_match(assignment, FOLD_TEST),
 FOLDSET_TEST = foldset_match(fill(1, N_SEGMENTS), 1)
 #SIMPARAMS = create_simparams(VALDATA_SUBSET)
 
-function load_models(; context::IntegratedContinuous = CONTEXT, force_initial_file::Bool=true, iteration::Int=499)
+function load_models(; context::IntegratedContinuous = CONTEXT, force_initial_file::Bool=false, iteration::Int=499)
     models = Dict{AbstractString, DriverModel}()
 
     models["SG"] = StaticGaussianDriver{AccelTurnrate}(context, MvNormal([0.07813232200000027,0.0025751835870002756], [[0.533053, 0.000284046] [0.000284046, 0.000348645]]))
@@ -149,7 +149,7 @@ function load_models(; context::IntegratedContinuous = CONTEXT, force_initial_fi
 #                                    ROADLIDAR_NBEAMS, ROADLIDAR_NLANES)
 #    models["GMR"] = open(io->read(io, GaussianMixtureRegressionDriver, extractor), "GMR.txt", "r")
 
-    if foece_initial_file
+    if force_initial_file
         iteration = 413
         filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_gru.h5")
         println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
