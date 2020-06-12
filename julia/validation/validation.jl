@@ -90,7 +90,7 @@ function create_evaldata(evaldata::EvaluationData, foldset::FoldSet; nsegs::Int=
     EvaluationData(evaldata.trajdatas, segments)
 end
 
-function create_simparams(evaldata::EvaluationData; iteration::Int=0, gru_type::Bool=true, force_initial_file=false)
+function create_simparams(evaldata::EvaluationData; iteration::Int=0, gru_type::Bool=true, force_initial_file::Bool=false)
     # Construct extractor
     extractor = Auto2D.MultiFeatureExtractor(
         EXTRACT_CORE,
@@ -121,7 +121,7 @@ VALDATA_SUBSET = create_evaldata(evaldata, foldset_match(assignment, FOLD_TEST),
 FOLDSET_TEST = foldset_match(fill(1, N_SEGMENTS), 1)
 #SIMPARAMS = create_simparams(VALDATA_SUBSET)
 
-function load_models(; context::IntegratedContinuous = CONTEXT)
+function load_models(; context::IntegratedContinuous = CONTEXT, force_initial_file::Bool=true, iteration::Int=499)
     models = Dict{AbstractString, DriverModel}()
 
     models["SG"] = StaticGaussianDriver{AccelTurnrate}(context, MvNormal([0.07813232200000027,0.0025751835870002756], [[0.533053, 0.000284046] [0.000284046, 0.000348645]]))
@@ -149,18 +149,26 @@ function load_models(; context::IntegratedContinuous = CONTEXT)
 #                                    ROADLIDAR_NBEAMS, ROADLIDAR_NLANES)
 #    models["GMR"] = open(io->read(io, GaussianMixtureRegressionDriver, extractor), "GMR.txt", "r")
 
-    iteration = 499
-    filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_gru-499.h5")
-    #iteration = 413
-    #filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_gru.h5")
-    println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
-    models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
+    if foece_initial_file
+        iteration = 413
+        filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_gru.h5")
+        println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
+        models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
 
-    filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_mlp-499.h5")
-    #iteration = 447
-    #filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_mlp.h5")
-    println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
-    models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
+        iteration = 447
+        filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_mlp.h5")
+        println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
+        models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
+    else
+        iteration = 499
+        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_gru-499.h5")
+        println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
+        models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
+
+        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_mlp-499.h5")
+        println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
+        models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
+    end
 
 #    filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "bc_gru.h5")
 #    iteration = -1
@@ -188,6 +196,7 @@ function validate(model::DriverModel;
     calc_metrics!(metrics_df, model, metrics, simparams, foldset,
                         n_simulations_per_trace=n_simulations_per_trace,
                         row = 1, prime_history=EVAL_PRIME_STEPS,
+                        gru_type=gru_type,
                         max_loop=max_loop)
 
     if save
@@ -199,15 +208,15 @@ function validate(model::DriverModel;
     metrics_df
 end
 
-models = load_models()
+models = load_models(;force_initial_file=true)
 println("=========GAIL_GRU==============")
-#simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true, force_initial_file=true)
-simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
+simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true, force_initial_file=true)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
 validate(models["gail_gru"]; simparams=simparams, gru_type=true, modelname="gail_gru", max_loop=1000, n_simulations_per_trace=20)
-println("=========GAIL_MLP==============")
+#println("=========GAIL_MLP==============")
 #simparams = create_simparams(VALDATA_SUBSET; iteration=447, gru_type=false, force_initial_file=true)
-simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
-validate(models["gail_mlp"]; simparams=simparams, gru_type=false, modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=20)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
+#validate(models["gail_mlp"]; simparams=simparams, gru_type=false, modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=20)
 
 println("DONE!")
 

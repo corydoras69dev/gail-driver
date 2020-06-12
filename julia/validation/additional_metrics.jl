@@ -262,6 +262,7 @@ function rollout!(
     time_end::Float64,
     simparams::Auto2D.SimParams;
     prime_history::Int = 0,
+    gru_type::Bool=true,
     )
     
     # Initialize values
@@ -270,8 +271,9 @@ function rollout!(
 
     # clear rec and make first observations
     #println("fieldnames(model.net)=", fieldnames(model.net))
-    if Symbol("gru") in fieldnames(model.net)
-        println("rollout::gru!!")
+    #if Symbol("gru") in fieldnames(model.net)
+    if gru_type
+        #println("rollout::gru!!")
         model.net[:gru].h_prev = zeros(length(model.net[:gru].h_prev))
     end
     empty!(simstate.rec)
@@ -397,6 +399,7 @@ function calc_metrics!(
     row::Int = foldset_seg_test.fold, # row in metrics_df to write to
     prime_history::Int = 0,
     calc_logl::Bool = true,
+    gru_type::Bool = true,
     max_loop::Int = 1000,
     )
     # reset metrics
@@ -448,7 +451,7 @@ function calc_metrics!(
             if Symbol("net") in fieldnames(model)
                 #debug = open("debug.log", "a"); println(debug, "rollout!()");  close(debug)
                 rollout!(rec_sim, model, seg.egoid, trajdata,
-                          time_start, time_end, simparams, prime_history=prime_history)      
+                          time_start, time_end, simparams, prime_history=prime_history, gru_type=gru_type)      
                 #println("rollout!()")
             else
                 #debug = open("debug.log", "a"); println(debug, "simulate!()");  close(debug)
