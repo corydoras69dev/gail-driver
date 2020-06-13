@@ -431,7 +431,7 @@ function calc_metrics!(
         if (n_traces >= max_loop) 
             break
         end
-        println(now(), " ", seg_index, "/", length(foldset_seg_test))
+        println(now(), " ", seg_index, "/", max_loop)
         seg = simparams.segments[seg_index]
         trajdata = simparams.trajdatas[seg.trajdata_index]
 
