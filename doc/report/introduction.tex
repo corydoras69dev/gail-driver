@@ -1,7 +1,36 @@
 \chapter{Introduction}
 
-Now writing ....
+In recent years, many attempts have been made to apply the framework of reinforcement learning to autonomous driving.
 
-Introduction of report.
 
-see \cite{DBLP:journals/corr/KueflerMWK17}\cite{DBLP:journals/corr/DuanCHSA16}
+
+Reinforcement learning attempts to train agents to maximize their income by a defined reward function and try to improve their behavior.
+Reinforcement learning has become more active in recent years, as compared with supervised learning that has been extensively researched before that, in many cases it can act correctly even in cases where there is no training data.
+
+In the case of autonomous driving, in the task of moving smoothly, comfortably and safely toward the target location, items such as comfort and safety are defined as rewards, and the rewards are automatically maximized. By training driving agents, we can aim for comfortable and safe driving.
+
+By using the training data, a movement has begun which attempts to define the reward function. This is called IRL and seeks to improve the reward function by sampling the expert policy.(see\cite{kuderer2015learning})
+
+Another movement attempts to bring the policy closer to the expert policy more directly. This is called GAIL, and it grows to trick the discriminator that distinguishes the policy of the expert from the policy of the learning agent.
+At this time, the reward of the agent is defined as the logarithm of the probability of deceiving the discriminator.
+
+The paper "Imitating Driver Behavior with Generative Adversarial Networks"(see \cite{DBLP:journals/corr/KueflerMWK17}) shows  
+the Generative Adversarial Imitation Learning(GAIL) is very effective for imitating driver for autonomous driving.
+
+\begin{comment}
+
+近年、強化学習の枠組みを自動運転に適用しようとする試みは多い。
+
+強化学習は、定義された報酬関数による収入を最大化するようにエージェントをトレーニングし、エージェントに行動を改善させようと試みる。
+強化学習はそれ以前、盛んに研究された教師あり学習と比較して、教師データが存在しない事例でも正しく行動できる場合が多いため、最近では研究がより盛んである。
+
+自動運転の事例で言えば、目的となるロケーションに向けてスムーズに、快適かつ安全に移動するという課題では、快適さや安全さなどの項目を報酬として定義し、その報酬を最大化するように自動運転エージェントをトレーニングすることで、快適で安全な走行を目指すことが出来る。
+
+ところが、この報酬の定義が易しくないことが明らかになってきた。報酬を適切に与えないと、行動は意図したとおりに改善しない。
+
+training data を使用することで、報酬関数を定義しようと試みるムーブメントが始まった。これはIRLと呼ばれエキスパートポリシをサンプルすることによって報酬関数を改善しようとする。
+しかしながら、IRLは報酬関数の学習に大きな時間的コストが必要とされる。
+
+別のムーブメントで、ポリシをより直接的にエキスパートポリシに近づけようとする試みがある。これはGAILと呼ばれ、エキスパートのポリシと学習中のエージェントのポリシーを区別するディスクリミネータをだますように成長する。
+このとき、エージェントの報酬は、ディスクリミネータをだます確率の対数として定義される。
+\end{comment}
