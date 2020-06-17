@@ -101,19 +101,70 @@ The validation program does not update Policy. It also doesn't use the discrimin
 Now writing...
 
 
-\section{Features for policy network}
+\section{Features for observation}
+
+Observation includes 51 elements of scalars.
+
+\begin{itemize}
+\item 20 directions of Lidar beam range $[m]$
+\item 20 directions of Lidar beam range rate $[m/s]$
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=10cm]{./figures/lidar_beam.png}
+\caption{20 lidar beams(range and range-rate.}
+\label{fig:lidar_beam}
+\end{center}
+\end{figure}
+
+\item speed of ego vehicle. $[m/s]$
+
+Speed is a scalar value, longitudinal speed to the lane direction.
+
+\item vehicle length $[m]$
+
+Bounding box size of vehicle heading direction.
+
+\item vehicle width $[m]$
+
+Bounding box size of vehicle perpendicular heading direction.
+
+\item lane offset $[m]$
+
+Lateral distance from lane center.
+
+\item lane relative heading $[rad]$
+\item lane curvature $[m^{-1}]$
+\item marker distance (L) $[m]$
+\item marker distance (R) $[m]$
+\item 3 indicators in ${0, 1}$ value for undesirable  states.
+\end{itemize}
+
+3 indicators are used to identify when the ego vehicle encountered undesirable states, such as collision, off-road and reverse.
+If there are undesirable states, the correspondent  indicator shows 1 otherwise 0.
 
 
-This section details the 51-element input vector used by Policy.
-
-Now writing...
-
-\section{Input for discriminator}
 
 
-This section details input of discriminator.
 
-Now writing...
+\subsection{In/out of Policies}
+
+Policy's inputs are 51 elements as observation.
+
+Policies outputs are 2 elements as action.
+Action is as follows.
+
+\begin{itemize}
+\item acceleration $[m/s^2]$
+\item turn rate $[rad/s]$
+\end{itemize}
+
+
+\subsection{In/out for discriminator}
+
+Discriminator's inputs are 51 elements as an observation and an action. (total 53 elements)
+
+
 
 \section{Metrics}
 

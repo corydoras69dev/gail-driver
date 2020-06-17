@@ -279,3 +279,11 @@ which approaches infinity as tuples $(s_t,a_t)$ drawn from $\chi_\theta$ become 
 After performing rollouts with a given set of policy parameters $\theta$, surrogate rewards $\tilde{r}(s_t,a_t;\psi)$ are calculated and {\it TRPO} is used to perform a policy update.
 Although $\tilde{r}(s_t,a_t;\psi)$ may be quite different from the true reward function optimized by experts, it can be used to drive $\pi_\theta$ into regions of the state-action space similar to those explored by $\pi_E$.
 
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=9cm]{./figures/gail_diagram.png}
+\caption{GAIL diagram. Circles represent values, rectangles represent operations, and dotted arrows represent recurrence relations. Whereas policy $\pi_\theta$ states $s_t$ and actions $a_t$ are evaluated by discriminator $D_\psi$ during both training of $\pi_\theta$ and $D_\psi$ , expert pairs (boxed) are sampled only while training $D_\psi$.}
+\label{fig:gail_diagram}
+\end{center}
+\end{figure}
