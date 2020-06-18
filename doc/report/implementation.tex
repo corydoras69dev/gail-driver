@@ -184,31 +184,80 @@ Discriminator's output is a bit. "1" means it is an expert policy.
 
 This section details the metrics for vehicle behavior that are evaluated by the validation program.
 
+Speed, acceleration and jerk are calculated from the sample point to be calculated and the sample point one previous point (0.1 second before).
+Speed is calculated from the position of the sample point and the position of the previous sample point, acceleration is calculated from the speed of the sample point and the speed of previous sample point, jerk is calculated from the acceleration of the sample point and the acceleration of the previous sample point.
+Future sample points are not used.
+
+\begin{comment}
+速度、加速度、jerk は、計算を行うサンプル点とそのひとつ前(0.1秒前のサンプル点)から計算する。
+速度は、サンプル点と一つ前のサンプル点の位置から計算され、加速度は、サンプル点と一つ前のサンプル点の速度から計算され、jerkは、サンプル点と一つ前のサンプル点の加速度から計算される。
+未来のサンプル点は使用されていない。
+
+サンプルは1秒に10回(つまり10Hz)行われ、トラジェクトリは10秒間である。一つのトラジェクトリは100のサンプルポイントからなる。
+\end{comment}
+
+The sample is taken 10 times per second (ie 10Hz) and the trajectory is 10 seconds. Therefore, one trajectory consists of 100 sample points.
+The following metrics are calculated on that basis.
 
 \begin{itemize}
 \item Root Weighted Square Error.
 
-The square of the two-dimensional distance, lateral distance, and speed difference between the expert vehicle and the learning vehicle. The smaller value means more  learning policy is more similar to the expert.
+The square of the two-dimensional distance, lateral distance, and speed difference between the expert vehicle and the learning vehicle. The smaller value means learning policy is more similar to the expert.
 
 \begin{itemize}
 \item Position
+
+2 dimensional distance. 
+ 
 \item Lane Offset
+
+Lateral distance from lane center.
+
 \item Speed
+
+Longitudinal speed of vehicle heading direction.
+
 \end{itemize}
 \item Kullback-Leibler Divergence.
 
-The KL divergence of the probability distributions of the expert policy $\pi_E$ and the reinforcement learning policy $\pi_\theta$ is shown. A small value indicates that the learning policy is more similar to the expert.
+The KL divergence of the probability distributions of the expert policy $\pi_E$ and the reinforcement learning policy $\pi_\theta$ is shown. The smaller  value means the learning policy is more similar to the expert.
 
 \begin{itemize}
 \item iTTC
+
+Inverse time to collision.
+
 \item Speed
+
+Longitudinal speed of vehicle heading direction.
+
 \item Acceleration
+
+Longitudinal acceleration of vehicle heading direction.
+
 \item Turn-Rate
+
+Turn-rate of vehicle heading.
+
 \item Jerk
+
+Longitudinal jerk of vehicle heading direction.
+
 \end{itemize}
+
+
+
+
 \item Emergent Value.
 
-It is a metric for unfavorable driving, such as emergency braking or running off the track. The smaller these values are, the better.
+It is a metric for unfavorable driving, such as emergency braking or running off the track. The smaller values means driving is safety.
+In the following metrics, 1 represents once.
+There are 100 sample points on the trajectory, 
+offroad-rate is 100.0 if all the trajectories are off the track.
+Only collision is calculated so that the maximum value of one trajectory is 1.
+
+All the calculation methods follow the original paper.\cite{DBLP:journals/corr/KueflerMWK17}
+
 
 \begin{itemize}
 
@@ -218,7 +267,7 @@ It is the number of lane changes made in 10 seconds.
 
 \item Offroad Duration
 
-It is the number of seconds spent off road in 10 seconds.
+It is the number of spent off road in 10 seconds.
 
 \item Collision Rate
 
@@ -226,7 +275,7 @@ It is the number of collision made in 10 seconds.
 
 \item Hard Break Rate
 
-It is the number of seconds spent hard break in 10 seconds.
+It is the number of spent hard break in 10 seconds.
 
 \end{itemize}
 \end{itemize}
@@ -416,4 +465,132 @@ In reality, travelers often overcome some of this complexity by cooperating with
 
 
 List of the original program and the changes will be inserted.
+
+
+\subsection{Julia version problem}
+
+Original program is based on Julia 0.5. 
+Since JULIA that can be used in this experiment is limited to version 0.6 or later, grammatical corrections were made.
+
+\subsubsection{AbstructType definition}
+
+Old style definition is as follows.
+
+\begin{lstlisting}[caption=Julia old style definition ,label=list:julia_05_def, escapechar=!, language=Pascal, frame=single]
+abstract UserType                          # definition of abstract type
+a = Array(ArrayElement, size)              # definition of array
+\end{lstlisting}
+
+
+
+\begin{lstlisting}[caption=Julia 0.6 style ,label=list:julia_06_def, escapechar=!, language=Pascal, frame=single]
+abstract type UserType end                 # definition of abstract type
+a = Array{ArrayElement}(size)              # definition of array
+\end{lstlisting}
+
+
+\subsubsection{ForwardNets.jl/variable.jl}
+
+Old style definition is as follows.
+
+\begin{lstlisting}[caption=Julia old style definition 
+,label=list:julia_05_forwardnets, language=Pascal, frame=single]
+function Base.push!{T}(net::ForwardNet{T}, ::Type{Variable},
+    name::Symbol,
+    shape::Int...
+    )
+
+    push!(net, Variable(name, Array(T, shape...)))
+end
+function Base.push!{T}(net::ForwardNet{T}, ::Type{Variable},
+    name::Symbol,
+    parent::NameOrIndex,
+    )
+
+    node = Variable(name, output(net[parent]))
+    push!(net, node, parent)
+end
+\end{lstlisting}
+
+Each push function is defined twice, but it is an error because the argument is ambiguous. Avoiding the ambiguity by giving an extra dummy argument to the second function.
+Changed code is as follows.
+
+\begin{lstlisting}[caption=Changed code 
+,label=list:julia_06_forwardnets, language=Pascal, frame=single]
+function Base.push!{T}(net::ForwardNet{T}, ::Type{Variable},
+    name::Symbol,
+    shape::Int...
+    )
+
+    push!(net, Variable(name, Array{T}(shape...)))
+end
+function Base.push!{T}(net::ForwardNet{T}, ::Type{Variable},
+    name::Symbol,
+    parent::NameOrIndex,
+    ::Symbol      # dummy symbol inserted
+    )
+
+    node = Variable(name, output(net[parent]))
+    push!(net, node, parent)
+end
+\end{lstlisting}
+
+\subsubsection{AutomotiveDrivingModels.jl/src/util/minkowski.jl}
+
+This program is a part of the program that finds collision of two convex figures by minkovski sum.
+The edge set has an array of edges and a variable indicating the size of the array inside. 
+This class has the internal size and external size of an array separately, and is intended to prevent the array resizing from being heavily used.
+However, program authors confused the external and internal sizes of arrays in important places.
+
+Following function {\tt get\_sdge()} is a function for extracting an edge from a certain class defined to resemble an array of two-dimensional vectors.
+
+Old style definition is as follows.
+
+\begin{lstlisting}[caption=Julia old style definition 
+,label=list:julia_05_automotive, escapechar=!, language=Pascal, frame=single]
+function get_edge(pts::Array{VecE2,1}, i::Int, npts::Int=length(pts))
+    a = pts[i]
+    b = i+1 !$\leq$! npts ? pts[i+1] : pts[1]
+    LineSegment(a,b)
+end
+
+:
+
+# caller of the get_edge
+        seg = get_edge(poly.pts, i)
+
+\end{lstlisting}
+
+In fact, an array with an internal size of 8 and an external size of 4 was sorted, and un-initialized values and correct values were mixed and sorted.
+
+This default argument {\tt npts::Int=length(pts)} was misprocessed later because it initialized the external size {\tt npts} with the internal size {\tt length(pts)}.
+
+
+
+\begin{lstlisting}[caption=Changed code 
+,label=list:julia_06_automotive, escapechar=!, language=Pascal, frame=single]
+function get_edge(pts::Array{VecE2,1}, i::Int, npts::Int)  
+    a = pts[i]
+    b = i+1 !$\leq$! npts ? pts[i+1] : pts[1]
+    LineSegment(a,b)
+end
+
+:
+
+# caller of the get_edge.  Specify the external size explicitly.
+        seg = get_edge(poly.pts, i, poly.npts)  
+
+\end{lstlisting}
+
+
+\subsubsection{Vec.jl/src/Vec.jl}
+
+
+\begin{lstlisting}[caption=Changed code 
+,label=list:julia_06_vec, escapechar=!, language=Pascal, frame=single]
+Vec.abs2(a::VecE2) = a.x * a.x + a.y * a.y
+Vec.abs2(a::VecSE2) = a.x * a.x + a.y * a.y
+Vec.abs(a::VecE2) = sqrt(a.x * a.x + a.y * a.y)
+Vec.abs(a::VecSE2) = sqrt(a.x * a.x + a.y * a.y)
+\end{lstlisting}
 
