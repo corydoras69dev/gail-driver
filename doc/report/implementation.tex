@@ -29,7 +29,7 @@ AutoViz is undergoing significant changes.
 \begin{center}
 \includegraphics[width=10cm]{./figures/readmeimage.png}
 \caption{AutoViz demo.}
-\label{fig:example_gridworld}
+\label{fig:example_autoviz_demo}
 \end{center}
 \end{figure}
 
@@ -103,6 +103,8 @@ Now writing...
 
 \section{Features for observation}
 
+This is all the data that the vehicle observes while driving. The data consists of the relative position of another vehicle seen from the own vehicle around the vehicle as a reflection of virtual LiDAR, odometry, and other indicators.
+
 Observation includes 51 elements of scalars.
 
 \begin{itemize}
@@ -112,10 +114,13 @@ Observation includes 51 elements of scalars.
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=10cm]{./figures/lidar_beam.png}
-\caption{20 lidar beams(range and range-rate.}
+\caption{20 lidar beams(range and range-rate)}
 \label{fig:lidar_beam}
 \end{center}
 \end{figure}
+
+Range is the distance to another vehicle observed in the LiDAR beam direction.
+The range rate is the velocity (in the beam direction) of another vehicle observed in the LiDAR beam direction.
 
 \item speed of ego vehicle. $[m/s]$
 
@@ -136,7 +141,13 @@ Lateral distance from lane center.
 \item lane relative heading $[rad]$
 \item lane curvature $[m^{-1}]$
 \item marker distance (L) $[m]$
+
+Distance to the left edge of the road.
+
 \item marker distance (R) $[m]$
+
+Distance to the right edge of the road.
+
 \item 3 indicators in ${0, 1}$ value for undesirable  states.
 \end{itemize}
 
@@ -147,7 +158,7 @@ If there are undesirable states, the correspondent  indicator shows 1 otherwise 
 
 
 
-\subsection{In/out of Policies}
+\subsection{Input/output of policies}
 
 Policy's inputs are 51 elements as observation.
 
@@ -160,9 +171,11 @@ Action is as follows.
 \end{itemize}
 
 
-\subsection{In/out for discriminator}
+\subsection{Input/output for discriminator}
 
-Discriminator's inputs are 51 elements as an observation and an action. (total 53 elements)
+Discriminator's input is a 51 element vector as an observation and an action. (total 53 elements)
+
+Discriminator's output is a bit. "1" means it is an expert policy.
 
 
 
@@ -171,16 +184,21 @@ Discriminator's inputs are 51 elements as an observation and an action. (total 5
 
 This section details the metrics for vehicle behavior that are evaluated by the validation program.
 
-Now writing...
 
 \begin{itemize}
 \item Root Weighted Square Error.
+
+The square of the two-dimensional distance, lateral distance, and speed difference between the expert vehicle and the learning vehicle. The smaller value means more  learning policy is more similar to the expert.
+
 \begin{itemize}
 \item Position
 \item Lane Offset
 \item Speed
 \end{itemize}
-\item Kullback-Leobler Divergence.
+\item Kullback-Leibler Divergence.
+
+The KL divergence of the probability distributions of the expert policy $\pi_E$ and the reinforcement learning policy $\pi_\theta$ is shown. A small value indicates that the learning policy is more similar to the expert.
+
 \begin{itemize}
 \item iTTC
 \item Speed
@@ -189,21 +207,28 @@ Now writing...
 \item Jerk
 \end{itemize}
 \item Emergent Value.
+
+It is a metric for unfavorable driving, such as emergency braking or running off the track. The smaller these values are, the better.
+
 \begin{itemize}
+
 \item Lane Change Rate
+
+It is the number of lane changes made in 10 seconds.
+
 \item Offroad Duration
+
+It is the number of seconds spent off road in 10 seconds.
+
 \item Collision Rate
+
+It is the number of collision made in 10 seconds.
+
 \item Hard Break Rate
+
+It is the number of seconds spent hard break in 10 seconds.
+
 \end{itemize}
-\end{itemize}
-
-\section{Summary of environment}
-
-Now writeng...
-
-\begin{itemize}
-\item Interstate rode 101 and 80.
-\item Data sampling frequency, sampling times.
 \end{itemize}
 
 
@@ -216,12 +241,12 @@ Reward network is a discriminator and is realized by tensorflow. The surrogate r
 \begin{tabular}{|c|r|r|}
 \hline 
 layer  & weight   & bias \\ \hline \hline
-input  & 53 x 256 & 256  \\
-hidden & 256 x 128 & 128 \\ 
-hidden & 128 x 64 & 64 \\ 
-hidden & 64 x 64 & 64 \\ 
-hidden & 64 x 32 & 32 \\ 
-output & 32 x 1 & 1 \\ 
+input  & 53 $\times$ 256 & 256  \\
+hidden & 256 $\times$ 128 & 128 \\ 
+hidden & 128 $\times$ 64 & 64 \\ 
+hidden & 64 $\times$ 64 & 64 \\ 
+hidden & 64 $\times$ 32 & 32 \\ 
+output & 32 $\times$ 1 & 1 \\ 
 \hline
 \end{tabular} 
 \caption{}
@@ -237,6 +262,15 @@ output & 32 x 1 & 1 \\
 
 \section{Policy network summary}
 
+\begin{comment}
+本実験では、ポリシタイプはMLPとGRUの二通りの実験を行っている。MLPは通常の多層パーセプトロンであり、フィードフォワードの接続だけで作られている。GRUはリカレント層を持ち、現在の状態は過去の状態の影響を受ける。ここに、実験でポリシとして使用されたニューラルネットワークの構造を示す。
+\end{comment}
+
+In this experiment, two types of experiments, {\it MLP} and {\it GRU}, are performed. The {\it MLP} is a regular multi-layer perceptron, made entirely of feedforward connections. {\it GRU} has a recurrent layer, and its current state is affected by past states. Here is the structure of the neural network used as a policy in the experiment.
+
+
+
+
 
 \subsection{GRU structure}
 
@@ -246,16 +280,16 @@ output & 32 x 1 & 1 \\
 \begin{tabular}{|c|r|}
 \hline 
 layer  & weight    \\ \hline \hline
-w\_hc  & 32 x 32   \\
-w\_hr  & 32 x 32   \\
-w\_hu  & 32 x 32   \\
-w\_xc  & 32 x 32   \\
-w\_xr  & 32 x 32   \\
-w\_xu  & 32 x 32   \\
+w\_hc  & 32 $\times$ 32   \\
+w\_hr  & 32 $\times$ 32   \\
+w\_hu  & 32 $\times$ 32   \\
+w\_xc  & 32 $\times$ 32   \\
+w\_xr  & 32 $\times$ 32   \\
+w\_xu  & 32 $\times$ 32   \\
 b\_c  & 32   \\
 b\_r  & 32   \\
 b\_u  & 32   \\
-output & 32 x 2   \\
+output & 32 $\times$ 2   \\
 output bias & 2   \\
 \hline
 \end{tabular} 
@@ -268,13 +302,13 @@ output bias & 2   \\
 \begin{tabular}{|c|r|r|}
 \hline 
 layer  & weight   & bias \\ \hline \hline
-input  & 51 x 256 & 256  \\
-hidden & 256 x 128 & 128 \\
-hidden & 128 x 64  & 64  \\
-hidden & 64 x 64   & 64  \\
-hidden & 64 x 32   & 32  \\
-hidden & 32 x 32   & 32  \\
-output & 32 x 2    & 2  \\
+input  & 51 $\times$ 256 & 256  \\
+hidden0 & 256 $\times$ 128 & 128 \\
+hidden1 & 128 $\times$ 64  & 64  \\
+hidden2 & 64 $\times$ 64   & 64  \\
+hidden3 & 64 $\times$ 32   & 32  \\
+hidden4 & 32 $\times$ 32   & 32  \\
+output & 32 $\times$ 2    & 2  \\
 \hline
 \end{tabular} 
 \caption{GRU network mlp layer}
@@ -296,11 +330,11 @@ output & 32 x 2    & 2  \\
 \begin{tabular}{|c|r|r|}
 \hline 
 layer  & weight   & bias \\ \hline \hline
-input  & 51 x 256 & 256  \\
-hidden & 256 x 128 & 128 \\
-hidden & 128 x 64  & 64  \\
-hidden & 64 x 64   & 64  \\
-output & 64 x 32   & 32  \\
+input  & 51 $\times$ 256 & 256  \\
+hidden0 & 256 $\times$ 128 & 128 \\
+hidden1 & 128 $\times$ 64  & 64  \\
+hidden2 & 64 $\times$ 64   & 64  \\
+output & 64 $\times$ 32   & 32  \\
 \hline
 \end{tabular} 
 \caption{MLP network layer}
@@ -317,18 +351,24 @@ output & 64 x 32   & 32  \\
 \pagebreak
 \section{Summary of environment}
 
+To support the development of algorithms for driver behavior at microscopic levels, the Next Generation SIMulation ({\it NGSIM}) computer program is collecting detailed, high-quality traffic datasets. {\it NGSIM} stakeholder groups identified the collection of real-world vehicle trajectory data as important to understanding and researching driver behavior at microscopic levels. The {\it NGSIM} datasets represent the most detailed and accurate field data collected to date for traffic microsimulation research and development. 
+
+
+
+
+
 Dataset for this experiment is as follows.
+
 
 \subsection{Interstate 80 Freeway Dataset(Publication Number: FHWA-HRT-06-137)}
 
+The Interstate 80 (I-80) freeway dataset was the first of several datasets collected under the {\it NGSIM} program.
 
-To support the development of microscopic driver behavior algorithms, the Next Generation SIMulation (NGSIM) program is collecting detailed, high-quality traffic datasets. NGSIM stakeholder groups identified the collection of real-world vehicle trajectory data as important to understanding and researching microscopic driver behavior. The NGSIM datasets represent the most detailed and accurate field data collected to date for traffic microsimulation research and development. The Interstate 80 (I-80) freeway dataset was the first of several datasets collected under the NGSIM program.
-
-Researchers for the NGSIM program collected detailed vehicle trajectory data on eastbound I-80 in the San Francisco Bay area in Emeryville, CA, on April 13, 2005. The study area was approximately 500 meters (1,640 feet) in length and consisted of six freeway lanes, including a high-occupancy vehicle (HOV) lane. An onramp also was located within the study area. Seven synchronized digital video cameras, mounted from the top of a 30-story building adjacent to the freeway, recorded vehicles passing through the study area. NG-VIDEO, a customized software application developed for the NGSIM program, transcribed the vehicle trajectory data from the video. This vehicle trajectory data provided the precise location of each vehicle within the study area every one-tenth of a second, resulting in detailed lane positions and locations relative to other vehicles. 
+Researchers for the {\it NGSIM} program collected detailed vehicle trajectory data on eastbound I-80 in the San Francisco Bay area in Emeryville, CA, on April 13, 2005. The study area was approximately 500 meters (1,640 feet) in length and consisted of six freeway lanes, including a high-occupancy vehicle (HOV) lane. An onramp also was located within the study area. Seven synchronized digital video cameras, mounted from the top of a 30-story building adjacent to the freeway, recorded vehicles passing through the study area. NG-VIDEO, a customized software application developed for the {\it NGSIM} program, transcribed the vehicle trajectory data from the video. This vehicle trajectory data provided the precise location of each vehicle within the study area every one-tenth of a second, resulting in detailed lane positions and locations relative to other vehicles. 
 
 A total of 45 minutes of data are available in the full dataset, segmented into three 15-minute periods: 4:00 p.m. to 4:15 p.m.; 5:00 p.m. to 5:15 p.m.; and 5:15 p.m. to 5:30 p.m. These periods represent the buildup of congestion, or the transition between uncongested and congested conditions, and full congestion during the peak period. In addition to the vehicle trajectory data, the I-80 dataset also contains computer-aided design and geographic information system files, aerial orthorectified photos, freeway loop detector data within and surrounding the study area, raw and processed video, signal timing settings on adjacent arterial roads, traffic sign information and locations, weather data, and aggregate data analysis reports.
 
-The full I-80 dataset is freely available at the NGSIM Web site at \url{http://ops.fhwa.dot.gov/trafficanalysistools/ngsim.htm}.
+The full I-80 dataset is freely available at the {\it NGSIM} Web site at \url{http://ops.fhwa.dot.gov/trafficanalysistools/ngsim.htm}.
 
 \begin{figure}[H]
 \begin{center}
@@ -341,30 +381,34 @@ The full I-80 dataset is freely available at the NGSIM Web site at \url{http://o
 
 \subsection{US Highway 101 Dataset(Publication Number: FHWA-HRT-07-030)}
 
-To support the development of algorithms for driver behavior at microscopic levels, the Next Generation SIMulation (NGSIM) computer program is collecting detailed, high-quality traffic datasets. NGSIM stakeholder groups identified the collection of real-world vehicle trajectory data as important to understanding and researching driver behavior at microscopic levels. The NGSIM datasets represent the most detailed and accurate field data collected to date for traffic microsimulation research and development. The US Highway 101 (US 101) dataset was one of several datasets collected under the NGSIM program.
+The US Highway 101 (US 101) dataset was one of several datasets collected under the NGSIM program.
 Description
 
-Researchers for the NGSIM program collected detailed vehicle trajectory data on southbound US 101, also known as the Hollywood Freeway, in Los Angeles, CA, on June 15th, 2005. The study area was approximately 640 meters (2,100 feet) in length and consisted of five mainline lanes throughout the section. An auxiliary lane is present through a portion of the corridor between the on-ramp at Ventura Boulevard and the off-ramp at Cahuenga Boulevard. Eight synchronized digital video cameras, mounted from the top of a 36-story building adjacent to the freeway, recorded vehicles passing through the study area. NG-VIDEO, a customized software application developed for the NGSIM program, transcribed the vehicle trajectory data from the video. This vehicle trajectory data provided the precise location of each vehicle within the study area every one-tenth of a second, resulting in detailed lane positions and locations relative to other vehicles.
+Researchers for the {\it NGSIM} program collected detailed vehicle trajectory data on southbound US 101, also known as the Hollywood Freeway, in Los Angeles, CA, on June 15th, 2005. The study area was approximately 640 meters (2,100 feet) in length and consisted of five mainline lanes throughout the section. An auxiliary lane is present through a portion of the corridor between the on-ramp at Ventura Boulevard and the off-ramp at Cahuenga Boulevard. Eight synchronized digital video cameras, mounted from the top of a 36-story building adjacent to the freeway, recorded vehicles passing through the study area. NG-VIDEO, a customized software application developed for the {\it NGSIM} program, transcribed the vehicle trajectory data from the video. This vehicle trajectory data provided the precise location of each vehicle within the study area every one-tenth of a second, resulting in detailed lane positions and locations relative to other vehicles.
 
 A total of 45 minutes of data are available in the full dataset, segmented into three 15 minute periods: 7:50 a.m. to 8:05 a.m.; 8:05 a.m. to 8:20 a.m.; and 8:20 a.m. to 8:35 a.m.
 
 These periods represent the buildup of congestion, or the transition between uncongested and congested conditions, and full congestion during the peak period. In addition to the vehicle trajectory data, the US 101 dataset also contains computer-aided design and geographic information system files, aerial ortho-rectified photos, loop detector data, raw and processed video, weather data, and aggregate data analysis reports.
 
-The full US 101 dataset is freely available at the NGSIM Web site at \url{http://ops.fhwa.dot.gov/trafficanalysistools/ngsim.htm}.
+The full US 101 dataset is freely available at the {\it NGSIM} Web site at \url{http://ops.fhwa.dot.gov/trafficanalysistools/ngsim.htm}.
 
 Travelers in freeway merge areas face complex tasks in executing their short term trip plans. They must accelerate to the predominant through speeds, check for acceptable gaps, and position themselves for their next maneuvers. During medium and heavy congestion, these tasks are complicated by the volume of other travelers competing for space on crowded freeways.
 
 In reality, travelers often overcome some of this complexity by cooperating with other drivers. Existing microsimulation models generally use basic or modified versions of lane changing models to model freeway merging behaviors. While these models do account for gaps created by adjacent vehicles, and in some cases model reduced gap acceptance thresholds during congested conditions, the models do not explicitly account for cooperation among drivers. As a result, existing models tend to overpredict congestion because the models fail to capture localized system optimization that occurs when drivers exhibit cooperative behaviors.
 
-NGSIM researchers used the US 101 dataset to develop and validate a new driver behavior model, the Cooperative/Forced Freeway Merge model, which models lane changing on a freeway merge and weaving section that treats driver cooperation explicitly.
+{\it NGSIM} researchers used the US 101 dataset to develop and validate a new driver behavior model, the Cooperative/Forced Freeway Merge model, which models lane changing on a freeway merge and weaving section that treats driver cooperation explicitly.
 
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=7cm]{./figures/07030fig1.jpg}
 \caption{US highway 101}
-\label{fig:pict_us80}
+\label{fig:pict_us101}
 \end{center}
 \end{figure}
+
+
+
+
 
 
 
