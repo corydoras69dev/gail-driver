@@ -154,6 +154,9 @@ class BatchPolopt(RLAlgorithm):
                         saver.restore(sess, tf_filename)
                         #self.policy.restore_params(config.LOAD_DIR + "/policy0_" + str(itr) +".ckpt")
                         #self.sampler.algo.policy.restore_params(config.LOAD_DIR + "/policy1_" + str(itr) +".ckpt")
+                    else
+                        with open('newest.txt', 'w') as fnew:
+                            print(str(itr), file=fnew)
 
                     logger.log("Obtaining samples...")
                     #ipdb.set_trace()

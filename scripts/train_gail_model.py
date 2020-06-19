@@ -131,6 +131,8 @@ parser.add_argument('--ckpt_itr', type=int, default=-1)
 args = parser.parse_args()
 from rllab.config_personal import expert_trajs_path, model_path
 
+os.remove('newest.txt')
+os.remove('newest.txt')
 config.TF_NN_SETTRACE = False
 sm = seedmng.mng.SeedMng()
 sm.set_root(args.seed)

@@ -228,7 +228,9 @@ Version & Date & Modification \\
 \chapter{Overview}
 In this document, the items included in the GAIL package for Generative Adversarial Imitation Learning are described. In addition, the dependency information, the compilation procedure and the execution procedure of the application are provided.
 
-\chapter{Package Structure}
+\chapter{Julia Packages Structure}
+
+{\textcolor{red} {\bf It is assumed that julia packages are always on the git repository. Please commit the following julia packages on your github one by one.}}
 
 \definecolor{folderbg}{RGB}{124,166,198}
 \definecolor{folderborder}{RGB}{110,144,169}
@@ -276,22 +278,24 @@ In this document, the items included in the GAIL package for Generative Adversar
     fit=band,
     before computing xy={l=15pt},
   }
-[Package root
+[Source directory
 [{\bf gail-driver} : GAIL training inference tool.
 ]
-[{\bf AutomotiveDrivingModels} : automobile simulator.
+[{\bf AutomotiveDrivingModels.jl} : automobile simulator.
 ]
-[{\bf AutoVis} : automobile simulator visualizer.
+[{\bf AutoVis.jl} : automobile simulator visualizer.
 ]
-[{\bf NGSIM} : next generation automobile simulator 
+[{\bf NGSIM.jl} : next generation automobile simulator 
 ]
 [{\bf ForwardNets.jl} : External libraries.
 ]
 [{\bf Records.jl} : 
 ]
+[{\bf Vec.jl} : 
+]
 ]
 \end{forest}
-  \caption{folder structure}
+  \caption{julia packages structure}
   \label{fig:folder_struct}
 \end{figure}
 
@@ -306,7 +310,6 @@ Requirements: Computer running Ubuntu 18.04 (x86\_64(Intel)). Compiler: g$++$ ve
 CPU with 16 threads or more is recommended.
 It took 26 hours for validation with 3500MHz clock and 16threads available.
 Note that fewer threads will require more longer time.
-
 
 
 \section{Installing g$++$ version 7}
@@ -326,6 +329,7 @@ xterm:\> sudo apt install g++
 xterm:\> sudo apt install hdf5-tools
 \end{lstlisting}
 
+\begin{comment}
 Register different versions:
 \begin{lstlisting}[style=DOS]
 xterm:\> sudo sh register.sh
@@ -346,9 +350,11 @@ Press 0 and return. Confirm the default version.
 \begin{lstlisting}[style=DOS]
 xterm:\> g++ -v
 \end{lstlisting}
-
+\end{comment}
 
 %これから作る環境は以下の構造を想定している。
+\newpage
+The build environment is assumed to be as follows.
 
 \begin{figure}[H]
 \begin{forest}
@@ -375,7 +381,7 @@ xterm:\> g++ -v
     fit=band,
     before computing xy={l=15pt},
   }
-[Package root
+[Home directory
 [{\bf gail} : GAIL directory
  [{\bf gail-driver} : GAIL driver directory
  ]
@@ -390,7 +396,7 @@ xterm:\> g++ -v
 ]
 ]
 \end{forest}
-  \caption{folder structure}
+  %\caption{folder structure}
   \label{fig:folder_struct}
 \end{figure}
 
@@ -453,9 +459,10 @@ xterm:\> julia
 
 
 
-\section{Install packages NGSIM/AutomoticeDrivingModels/ForwardNets}
+\section{Install gail-driver and julia packages}
 
-
+JULIA packages are premised on github.
+Here will show how to download registered packages from github.
 
 \begin{lstlisting}[style=DOS]
 xterm:\> cd gail    #-> ~/gail
@@ -468,6 +475,13 @@ xterm:\> ./python_package_install.sh
 xterm:\> cd ../..
 \end{lstlisting}
 
+{\bf Note}: You may get the following error. But, there is no problem.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/error.png}
+    %\label{fig: 2DMOT2015}
+\end{figure}
 
 To connect python and julia.
 
@@ -503,17 +517,26 @@ python> import julia
 python> julia.install()
 \end{lstlisting}
 
-
-
-\section{Install gail-driver}
-
+On ubuntu terminal.
 
 \begin{lstlisting}[style=DOS]
-xterm:\> export PYTHONPATH="/home/[userinstall]/gail/gail-driver:PYTHONPATH"
+xterm:\> export PYTHONPATH="/home/[userinstall]/gail/gail-driver"
 \end{lstlisting}
 %(これは、.bashrc にも記載するとよい)
 
-Make directory. "~/gail/gail-driver/data".
+
+\section{Install data}
+
+Make the following directory - "~/gail/gail-driver/data", "~/gail/gail-driver/julia/validation/models". Extract data.zip and put the data as follows. The file RootDir.jl must be made as follows.
+
+\begin{lstlisting}[style=DOS]
+ROOT_FILEPATH="/home/[username]/gail/gail-driver/"
+\end{lstlisting}
+
+The empty directory {\tt models} must be made under the directory {\tt gail/gail-driver/data}.
+
+
+
 
 \begin{figure}[H]
 \begin{forest}
@@ -540,13 +563,13 @@ Make directory. "~/gail/gail-driver/data".
     fit=band,
     before computing xy={l=15pt},
   }
-[Package root
+[Home directory
 [{\bf gail} : GAIL directory
  [{\bf gail-driver} : GAIL driver directory
   [{\bf data} :
    [\textcolor{red}{NGSIM\_train\_test\_split.h5}]
-   [\textcolor{red}{core1\_temp0\_well1\_neig0\_carl1 .... \_clmr100\_rlmr50\_seed456.h5}
-   ]
+   [\textcolor{red}{core1\_temp0\_well1\_neig0\_carl1 .... \_clmr100\_rlmr50\_seed456.h5}]
+   [\textcolor{red}{models} ... this directory must be made. ]
   ]
   [{\bf julia} 
    [{\bf validation} 
@@ -556,7 +579,7 @@ Make directory. "~/gail/gail-driver/data".
      [\textcolor{red}{bc\_mlp.h5}]
      [\textcolor{red}{bc\_gru.h5}]
     ]
-    [\textcolor{red}{RootDir.jl}]
+    [\textcolor{red}{RootDir.jl} ... this directory must be made.]
    ]
   ]
  ]
@@ -583,17 +606,17 @@ Make directory. "~/gail/gail-driver/data".
 ]
 ]
 \end{forest}
-  \caption{folder structure}
+  %\caption{folder structure}
   \label{fig:folder_struct}
 \end{figure}
 
-The file RootDir.jl must be made as follows.
-\begin{lstlisting}[style=DOS]
-ROOT_FILEPATH="/home/[username]/gail/gail-driver/"
-\end{lstlisting}
-
-JULIA modules are premised on github.
-Here will show how to register to github and download from github.
+%The file RootDir.jl must be made as follows.
+%\begin{lstlisting}[style=DOS]
+%ROOT_FILEPATH="/home/[username]/gail/gail-driver/"
+%\end{lstlisting}
+%
+%JULIA modules are premised on github.
+%Here will show how to register to github and download from github.
 
 
 \chapter{Performing internal tests}
@@ -658,7 +681,7 @@ INFO: Vec tests passed
 
 
 
-
+\begin{comment}
 \chapter{Data for experiments}
 
 \section{Obtained data}
@@ -735,7 +758,7 @@ The following source data needs to be placed in the appropriate folder.
     fit=band,
     before computing xy={l=15pt},
   }
-[Package root
+[Home directory
 [{\bf gail} : GAIL directory
  [{\bf gail-driver} : GAIL driver directory
   [{\bf data} :
@@ -774,7 +797,7 @@ On Julia terminal, type like as follows.
 julia> using NGSIM
 julia> NGSIM.convert_raw_ngsim_to_trajdatas()
 \end{lstlisting}
-
+\end{comment}
 
 
 
@@ -834,8 +857,8 @@ The following arguments can be used to {\tt train\_gail\_mode.py}
 
 
 \begin{tabular}{|p{4cm}|p{10cm}|} \hline
---seed & random number seed \\
---policy\_type & policy type \{'mlp' or `gru' \} \\
+--seed & random number seed (default 456) \\
+--policy\_type & policy type \{'mlp' or `gru' \} (default mlp) \\
 --n\_iter & Number of iterations to perform. (default 500) \\
 --start\_iter & Start iteration to perform. (default 0) \\
 \hline
@@ -848,7 +871,7 @@ First time
 
 \begin{lstlisting}[style=DOS]
 xterm:\> cd gail/gail-driver
-xterm:\> python ./scripts/train_gail_model.py  --seed 456 --n_iter 500 
+xterm:\> python ./scripts/train_gail_model.py --seed 456 --n_iter 500 
 \end{lstlisting}
 
 An interface that bridges julia and python, often causing segmentation faults. In that case, by using the file generated up to the middle,
@@ -881,7 +904,7 @@ For example, suppose {\tt YY-MM-D2/gail-exp-1} is the newest directory. In this 
     fit=band,
     before computing xy={l=15pt},
   }
-[Package root
+[Home directory
 [{\bf gail} : GAIL directory
  [{\bf gail-driver} : GAIL driver directory
   [{\bf data} :
@@ -914,16 +937,18 @@ In this case, type like as follows.
 
 \begin{lstlisting}[style=DOS]
 xterm:\> cd gail/gail-driver
-xterm:\> python ./scripts/train_gail_model.py  --seed 456 --n_iter 500 \
-    --start_iter 471
+xterm:\> python ./scripts/train_gail_model.py --seed 456 --n_iter 500 \
+   --start_iter 471
 \end{lstlisting}
 
 
 
-\subsection{Data setting}
-
-
 \section{Validation}
+
+\subsection{Data prepare}
+
+Copy trained policy data from source location to destination location.
+filename is {\tt 'policy\_gail\_gru-499.h5'} or {\tt 'policy\_gail\_mlp-499.h5'}.
 
 
 \begin{figure}[H]
@@ -951,14 +976,26 @@ xterm:\> python ./scripts/train_gail_model.py  --seed 456 --n_iter 500 \
     fit=band,
     before computing xy={l=15pt},
   }
-[Package root
+[Home directory
 [{\bf gail} : GAIL directory
  [{\bf gail-driver} : GAIL driver directory
   [{\bf data} :
+   [{\bf NGSIM\_train\_test\_split.h5}]
+   [{\bf core1\_temp0\_well1\_neig0\_carl1 .... \_clmr100\_rlmr50\_seed456.h5}]
+   [{\bf models} 
+    [{\bf YY-MM-D1}
+      [{\bf gail-exp-0}]
+      [{\bf gail-exp-1}] ...
+    ]
+    [{\bf YY-MM-D2}
+      [{\bf gail-exp-0}]
+      [{\bf gail-exp-1} .. \textcolor{red}{'files source'} ]
+    ]
+   ]
   ]
   [{\bf julia} 
    [{\bf validation} 
-    [{\bf models} 
+    [{\bf models} .. \textcolor{red}{'files destination'}
     ]
    ]
   ]
@@ -970,7 +1007,6 @@ xterm:\> python ./scripts/train_gail_model.py  --seed 456 --n_iter 500 \
   \label{fig:folder_struct}
 \end{figure}
 
-
 \subsection{Perform}
 
 On the terminal, type like as follows.
@@ -980,24 +1016,28 @@ xterm:\> cd gail/gail-driver
 xterm:\> julia ./julia/validation/validation.jl
 \end{lstlisting}
 
+After validation , result files named {\tt 'valid\_gail\_mlp[loop times].csv'} or {\tt 'valid\_gail\_gru[loop times].csv'} will be obtained.
+In this file, the metrics of the same items as the paper are described.
+
 \begin{landscape}
 \subsection{Optional}
 
 Performing validation using trained data.
 Edit the file {\tt ./julia/validation/validation.jl} last paragraph like as follows.
 Please remind {\tt force\_initial\_file} must be {\tt false}. 
+
 \begin{lstlisting}[style=DOS]
 models = load_models(;force_initial_file=false) 
 println("=========GAIL_GRU==============")
-simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true, force_initial_file=true)
-#simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
-validate(models["gail_gru"]; simparams=simparams, gru_type=true, 
- modelname="gail_gru", max_loop=1000, n_simulations_per_trace=20)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=413,gru_type=true,force_initial_file=true)
+simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
+validate(models["gail_gru"]; simparams=simparams, gru_type=true, modelname="gail_gru",
+ max_loop=1000, n_simulations_per_trace=20)
 println("=========GAIL_MLP==============")
-simparams = create_simparams(VALDATA_SUBSET; iteration=447, gru_type=false, force_initial_file=true)
-#simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
-validate(models["gail_mlp"]; simparams=simparams, gru_type=false,  
- modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=20)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=447,gru_type=false,force_initial_file=true)
+simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
+validate(models["gail_mlp"]; simparams=simparams, gru_type=false,  modelname="gail_mlp", 
+ max_loop=1000, n_simulations_per_trace=20)
 \end{lstlisting}
 \end{landscape}
 
@@ -1005,19 +1045,19 @@ validate(models["gail_mlp"]; simparams=simparams, gru_type=false,
 Performing validation using authors driving data.
 Edit the file {\tt ./julia/validation/validation.jl} last paragraph like as follows.
 Please remind {\tt force\_initial\_file} must be {\tt true}. 
+
 \begin{lstlisting}[style=DOS]
 models = load_models(;force_initial_file=true)
 println("=========GAIL_GRU==============")
-#simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true, force_initial_file=true)
-simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
-validate(models["gail_gru"]; simparams=simparams, 
-  gru_type=true, modelname="gail_gru", max_loop=1000,  
-  n_simulations_per_trace=20)
+simparams = create_simparams(VALDATA_SUBSET; iteration=413,gru_type=true,force_initial_file=true)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=499,gru_type=true)
+validate(models["gail_gru"]; simparams=simparams, gru_type=true, modelname="gail_gru",
+ max_loop=1000, n_simulations_per_trace=20)
 println("=========GAIL_MLP==============")
-#simparams = create_simparams(VALDATA_SUBSET; iteration=447, gru_type=false, force_initial_file=true)
-simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
-validate(models["gail_mlp"]; simparams=simparams, gru_type=false,  
- modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=20)
+simparams = create_simparams(VALDATA_SUBSET; iteration=447,gru_type=false,force_initial_file=true)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=499,gru_type=false)
+validate(models["gail_mlp"]; simparams=simparams, gru_type=false, modelname="gail_mlp", 
+ max_loop=1000, n_simulations_per_trace=20)
 \end{lstlisting}
 \end{landscape}
 
