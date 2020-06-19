@@ -920,9 +920,56 @@ xterm:\> python ./scripts/train_gail_model.py  --seed 456 --n_iter 500 \
 
 
 
+\subsection{Data setting}
 
 
 \section{Validation}
+
+
+\begin{figure}[H]
+\begin{forest}
+  for tree={
+    font=\ttfamily,
+    grow'=0,
+    child anchor=west,
+    parent anchor=south,
+    anchor=west,
+    calign=first,
+    inner xsep=7pt,
+    edge path={
+      \noexpand\path [draw, \forestoption{edge}]
+      (!u.south west) +(7.5pt,0) |- (.child anchor) pic {folder} \forestoption{edge label};
+    },
+    file/.style={edge path={\noexpand\path [draw, \forestoption{edge}]
+          (!u.south west) +(7.5pt,0) |- (.child anchor) pic {file} \forestoption{edge label};}
+    },
+    before typesetting nodes={
+      if n=1
+        {insert before={[,phantom]}}
+        {}
+    },
+    fit=band,
+    before computing xy={l=15pt},
+  }
+[Package root
+[{\bf gail} : GAIL directory
+ [{\bf gail-driver} : GAIL driver directory
+  [{\bf data} :
+  ]
+  [{\bf julia} 
+   [{\bf validation} 
+    [{\bf models} 
+    ]
+   ]
+  ]
+ ]
+]
+]
+\end{forest}
+  \caption{folder structure}
+  \label{fig:folder_struct}
+\end{figure}
+
 
 \subsection{Perform}
 
@@ -933,55 +980,46 @@ xterm:\> cd gail/gail-driver
 xterm:\> julia ./julia/validation/validation.jl
 \end{lstlisting}
 
+\begin{landscape}
 \subsection{Optional}
 
 Performing validation using trained data.
 Edit the file {\tt ./julia/validation/validation.jl} last paragraph like as follows.
 Please remind {\tt force\_initial\_file} must be {\tt false}. 
-
 \begin{lstlisting}[style=DOS]
 models = load_models(;force_initial_file=false) 
 println("=========GAIL_GRU==============")
-simparams = create_simparams(VALDATA_SUBSET; iteration=413, 
-  gru_type=true, force_initial_file=true)
-#simparams = create_simparams(VALDATA_SUBSET; iteration=499,
-#  gru_type=true)
-validate(models["gail_gru"]; simparams=simparams, 
-  gru_type=true, modelname="gail_gru", max_loop=1000,  
-  n_simulations_per_trace=20)
+simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true, force_initial_file=true)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
+validate(models["gail_gru"]; simparams=simparams, gru_type=true, 
+ modelname="gail_gru", max_loop=1000, n_simulations_per_trace=20)
 println("=========GAIL_MLP==============")
-simparams = create_simparams(VALDATA_SUBSET; iteration=447, 
-  gru_type=false, force_initial_file=true)
-#simparams = create_simparams(VALDATA_SUBSET; iteration=499, 
-#  gru_type=false)
-validate(models["gail_mlp"]; simparams=simparams, 
-  gru_type=false, modelname="gail_mlp", max_loop=1000, 
-  n_simulations_per_trace=20)
+simparams = create_simparams(VALDATA_SUBSET; iteration=447, gru_type=false, force_initial_file=true)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
+validate(models["gail_mlp"]; simparams=simparams, gru_type=false,  
+ modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=20)
 \end{lstlisting}
+\end{landscape}
 
+\begin{landscape}
 Performing validation using authors driving data.
 Edit the file {\tt ./julia/validation/validation.jl} last paragraph like as follows.
 Please remind {\tt force\_initial\_file} must be {\tt true}. 
-
 \begin{lstlisting}[style=DOS]
 models = load_models(;force_initial_file=true)
 println("=========GAIL_GRU==============")
-#simparams = create_simparams(VALDATA_SUBSET; iteration=413, 
-#  gru_type=true, force_initial_file=true)
-simparams = create_simparams(VALDATA_SUBSET; iteration=499,
-  gru_type=true)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true, force_initial_file=true)
+simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
 validate(models["gail_gru"]; simparams=simparams, 
   gru_type=true, modelname="gail_gru", max_loop=1000,  
   n_simulations_per_trace=20)
 println("=========GAIL_MLP==============")
-#simparams = create_simparams(VALDATA_SUBSET; iteration=447, 
-#  gru_type=false, force_initial_file=true)
-simparams = create_simparams(VALDATA_SUBSET; iteration=499, 
-  gru_type=false)
-validate(models["gail_mlp"]; simparams=simparams, 
-  gru_type=false, modelname="gail_mlp", max_loop=1000, 
-  n_simulations_per_trace=20)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=447, gru_type=false, force_initial_file=true)
+simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
+validate(models["gail_mlp"]; simparams=simparams, gru_type=false,  
+ modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=20)
 \end{lstlisting}
+\end{landscape}
 
 
 \end{document}
