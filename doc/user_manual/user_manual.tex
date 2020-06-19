@@ -295,10 +295,19 @@ In this document, the items included in the GAIL package for Generative Adversar
   \label{fig:folder_struct}
 \end{figure}
 
+
+
+
 \chapter{Installation}
 Requirements: Computer running Ubuntu 18.04 (x86\_64(Intel)). Compiler: g$++$ version 7.  JULIA 0.6.4, Python 2.7, Anaconda2 version 5.3.0.
 
 \textbf{Note: Please check the compiler (g$++$) version before all work. gcc/g$++$ version must be 7.}
+
+CPU with 16 threads or more is recommended.
+It took 26 hours for validation with 3500MHz clock and 16threads available.
+Note that fewer threads will require more longer time.
+
+
 
 \section{Installing g$++$ version 7}
 
@@ -577,29 +586,106 @@ Make directory. "~/gail/gail-driver/data".
   \caption{folder structure}
   \label{fig:folder_struct}
 \end{figure}
-\begin{lstlisting}[style=DOS]
-xterm:\> import julia
-\end{lstlisting}
 
-The file RootDir.jl must be made.
+The file RootDir.jl must be made as follows.
 \begin{lstlisting}[style=DOS]
 ROOT_FILEPATH="/home/[username]/gail/gail-driver/"
 \end{lstlisting}
 
-Now on writting ...
-
 JULIA modules are premised on github.
-Here will show how to register to github and download from githib.
+Here will show how to register to github and download from github.
+
+
+\chapter{Performing internal tests}
+
+\section{Testing AutomotiveDrivingModels.jl}
+
+On the Julia terminal, type like as follows.
+
+\begin{lstlisting}[style=DOS]
+julia> using AutomotiveDrivingModels
+julia> Pkg.test("AutomotiveDrivingModels")
+\end{lstlisting}
+
+Expected result is as follows.
+
+\begin{lstlisting}[style=DOS]
+INFO: Testing AutomotiveDrivingModels
+INFO: AutomotiveDrivingModels tests passed
+\end{lstlisting}
+
+\section{Testing NGSIM.jl}
+
+\begin{lstlisting}[style=DOS]
+julia> using NGSIM
+julia> Pkg.test("NGSIM")
+\end{lstlisting}
+
+Expected result is as follows.
+
+\begin{lstlisting}[style=DOS]
+INFO: Testing NGSIM
+INFO: NGSIM tests passed
+\end{lstlisting}
+
+\section{Testing ForwardNets.jl}
+
+\begin{lstlisting}[style=DOS]
+julia> using ForwardNets
+julia> Pkg.test("ForwardNets")
+\end{lstlisting}
+
+Expected result is as follows.
+
+\begin{lstlisting}[style=DOS]
+INFO: Testing ForwardNets
+INFO: ForwardNets tests passed
+\end{lstlisting}
+
+\section{Testing Vec.jl}
+
+\begin{lstlisting}[style=DOS]
+julia> using Vec
+julia> Pkg.test("Vec")
+\end{lstlisting}
+
+Expected result is as follows.
+
+\begin{lstlisting}[style=DOS]
+INFO: Testing Vec
+INFO: Vec tests passed
+\end{lstlisting}
+
+
 
 
 \chapter{Data for experiments}
 
+\section{Obtained data}
+
+Code associated with initial submission of "Imitating Driver Behavior with Generative Adversarial Networks". Tagged files include four policies (bc\_mlp, bc\_gru, gail\_mlp, gail\_gru), splits for training and testing data (NGSIM\_train\_test\_split.h5), and expert training trajectories used during training (core1\_temp0\_well1\_neig0\_carl1\_roal0\_clrr1\_mtl100\_clb20\_rlb20\_rll2\_clmr100\_rlmr50\_seed456).
+
 For all data used in the experiment, include the address of website.
+Following data are obtained from web site: 
+\url{https://github.com/sisl/gail-driver/releases}
 
-(The acquired data will be included in the package.)
+\begin{tabular}{l}
+bc\_gru.h5 \\
+bc\_mlp.h5 \\
+core1\_temp0\_well1\_neig0\_carl1\_roal0\_clrr1\_mtl100\_clb20\_rlb20\_rll2\_clmr100\_rlmr50\_seed456.h5 \\
+gail\_gru.h5 \\
+gail\_mlp.h5 \\
+NGSIM\_train\_test\_split.h5 \\
+\end{tabular}
 
 
-Now on writting.......
+and vehicle data are obtained from following url.
+\url{https://github.com/sisl/NGSIM.jl/releases/download/v1.0.0/data.zip}
+
+
+
+The acquired data are contained in the package.
+
 
 \section{Generating Filtered Trajectory}
 
@@ -610,41 +696,285 @@ Filtered trajectories are also necessary for experiment.
 Following trajectory data must be generate by using observed data and NGSIM library.
 This section describes how to generate the filtered data. 
 
-\begin{itemize}
-\item trajdata\_i80\_trajectories-0400-0415.txt
-\item trajdata\_i80\_trajectories-0500-0515.txt
-\item trajdata\_i80\_trajectories-0515-0530.txt
-\item trajdata\_i101\_trajectories-0750am-0415am.txt
-\item trajdata\_i101\_trajectories-0805am-0515am.txt
-\item trajdata\_i101\_trajectories-0820am-0530am.txt
-\end{itemize}
+\begin{tabular}{l}
+trajdata\_i80\_trajectories-0400-0415.txt \\
+trajdata\_i80\_trajectories-0500-0515.txt \\
+trajdata\_i80\_trajectories-0515-0530.txt \\
+trajdata\_i101\_trajectories-0750am-0415am.txt \\
+trajdata\_i101\_trajectories-0805am-0515am.txt \\
+trajdata\_i101\_trajectories-0820am-0530am.txt \\
+\end{tabular}
+
+\vspace{5mm}
+
+The following source data needs to be placed in the appropriate folder.
+
+
+\begin{figure}[H]
+\begin{forest}
+  for tree={
+    font=\ttfamily,
+    grow'=0,
+    child anchor=west,
+    parent anchor=south,
+    anchor=west,
+    calign=first,
+    inner xsep=7pt,
+    edge path={
+      \noexpand\path [draw, \forestoption{edge}]
+      (!u.south west) +(7.5pt,0) |- (.child anchor) pic {folder} \forestoption{edge label};
+    },
+    file/.style={edge path={\noexpand\path [draw, \forestoption{edge}]
+          (!u.south west) +(7.5pt,0) |- (.child anchor) pic {file} \forestoption{edge label};}
+    },
+    before typesetting nodes={
+      if n=1
+        {insert before={[,phantom]}}
+        {}
+    },
+    fit=band,
+    before computing xy={l=15pt},
+  }
+[Package root
+[{\bf gail} : GAIL directory
+ [{\bf gail-driver} : GAIL driver directory
+  [{\bf data} :
+  ]
+  [{\bf julia} 
+   [{\bf validation} 
+    [{\bf models} 
+    ]
+   ]
+  ]
+ ]
+]
+[{\bf .julia} : Julia package directory
+ [{\bf v0.6} : version 0.6
+  [{\bf NGSIM} 
+   [{\bf data} :
+    [\textcolor{red}{i80\_trajectories-0400-0415.txt}]
+    [\textcolor{red}{i80\_trajectories-0500-0515.txt}]
+    [\textcolor{red}{i80\_trajectories-0515-0530.txt}]
+    [\textcolor{red}{i101\_trajectories-0750am-0415am.txt}]
+    [\textcolor{red}{i101\_trajectories-0805am-0515am.txt}]
+    [\textcolor{red}{i101\_trajectories-0820am-0530am.txt}]
+   ]
+  ]
+ ]
+]
+]
+\end{forest}
+  \caption{folder structure}
+  \label{fig:folder_struct}
+\end{figure}
+
+
+On Julia terminal, type like as follows.
+\begin{lstlisting}[style=DOS]
+julia> using NGSIM
+julia> NGSIM.convert_raw_ngsim_to_trajdatas()
+\end{lstlisting}
+
+
 
 
 \chapter{Introduction of external modules for experiments}
 
-Now writing ...
+
+Following modules are Julia important packages.
+
+\begin{tabular}{|p{2cm}p{12cm}|} \hline
+name & AutomotiveDrivingModels.jl \\
+url: & \url{https://github.com/akuefler/AutomotiveDrivingModels.jl.git} \\ 
+branch: & gail \\ 
+summary: & vehicle behavior model. \\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{2cm}p{12cm}|} \hline
+name & NGSIM.jl  \\
+url: & \url{https://github.com/sisl/NGSIM.jl} \\
+commit: & f16d684 \\
+summary: & vehicle observed data and intelligent driver model. \\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{2cm}p{12cm}|} \hline
+name & Records.jl \\
+url: & \url{https://github.com/sisl/Records.jl} \\
+commit: & 621a339 \\
+summary: & data recording module. \\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{2cm}p{12cm}|} \hline
+name & ForwardNets.jl \\
+url: & \url{https://github.com/tawheeler/ForwardNets.jl.git} \\
+branch: & nextgen \\
+summary: & julia neural network model. \\
+\hline
+\end{tabular}
+
+\begin{tabular}{|p{2cm}p{12cm}|} \hline
+name & Vec.jl \\
+url: & \url{https://github.com/sisl/Vec.jl} \\
+version & v0.1.1 \\
+summary: & 2d coordinate vector library. \\
+\hline
+\end{tabular}
 
 
-Julia and python important modules.
+\chapter{Performing experiment}
 
-\begin{itemize}
-\item AutomotiveDrivingModels.jl
-\item NGSIM.jl
-\item AutoViz.jl
-\item ForwardNets.jl
-\item rllab
-\item AutoDrivers.jl
-\end{itemize}
+\section{Training}
 
-writing about ...
+\subsection{Options}
 
-\begin{itemize}
-\item address on github
-\item commit id
-\item tag, branch, and other information.
-\item summary of each module.
-\end{itemize}
+The following arguments can be used to {\tt train\_gail\_mode.py}
 
+
+\begin{tabular}{|p{4cm}|p{10cm}|} \hline
+--seed & random number seed \\
+--policy\_type & policy type \{'mlp' or `gru' \} \\
+--n\_iter & Number of iterations to perform. (default 500) \\
+--start\_iter & Start iteration to perform. (default 0) \\
+\hline
+\end{tabular}
+
+\subsection{Performing}
+
+On ther terminal, type like as follows.
+First time 
+
+\begin{lstlisting}[style=DOS]
+xterm:\> cd gail/gail-driver
+xterm:\> python ./scripts/train_gail_model.py  --seed 456 --n_iter 500 
+\end{lstlisting}
+
+An interface that bridges julia and python, often causing segmentation faults. In that case, by using the file generated up to the middle,
+
+
+
+\begin{figure}[H]
+\begin{forest}
+  for tree={
+    font=\ttfamily,
+    grow'=0,
+    child anchor=west,
+    parent anchor=south,
+    anchor=west,
+    calign=first,
+    inner xsep=7pt,
+    edge path={
+      \noexpand\path [draw, \forestoption{edge}]
+      (!u.south west) +(7.5pt,0) |- (.child anchor) pic {folder} \forestoption{edge label};
+    },
+    file/.style={edge path={\noexpand\path [draw, \forestoption{edge}]
+          (!u.south west) +(7.5pt,0) |- (.child anchor) pic {file} \forestoption{edge label};}
+    },
+    before typesetting nodes={
+      if n=1
+        {insert before={[,phantom]}}
+        {}
+    },
+    fit=band,
+    before computing xy={l=15pt},
+  }
+[Package root
+[{\bf gail} : GAIL directory
+ [{\bf gail-driver} : GAIL driver directory
+  [{\bf data} :
+   [{\bf NGSIM\_train\_test\_split.h5}]
+   [{\bf core1\_temp0\_well1\_neig0\_carl1 .... \_clmr100\_rlmr50\_seed456.h5}]
+   [{\bf models}
+    [{\bf YY-MM-D1}
+      [{\bf gail-exp-0}]
+      [{\bf gail-exp-1}] ...
+    ]
+    [{\bf YY-MM-D2}
+      [{\bf gail-exp-0}]
+      [{\bf gail-exp-1}] ...
+    ]
+   ]
+  ]
+ ]
+]
+]
+\end{forest}
+  \caption{folder structure}
+  \label{fig:folder_struct}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+\section{Validation}
+
+\subsection{Perform}
+
+On the terminal, type like as follows.
+
+\begin{lstlisting}[style=DOS]
+xterm:\> cd gail/gail-driver
+xterm:\> julia ./julia/validation/validation.jl
+\end{lstlisting}
+
+\subsection{Optional}
+
+Performing validation using trained data.
+Edit the file {\tt ./julia/validation/validation.jl} last paragraph like as follows.
+Please remind {\tt force\_initial\_file} must be {\tt false}. 
+
+\begin{lstlisting}[style=DOS]
+models = load_models(;force_initial_file=false) 
+println("=========GAIL_GRU==============")
+simparams = create_simparams(VALDATA_SUBSET; iteration=413, 
+  gru_type=true, force_initial_file=true)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=499,
+#  gru_type=true)
+validate(models["gail_gru"]; simparams=simparams, 
+  gru_type=true, modelname="gail_gru", max_loop=1000,  
+  n_simulations_per_trace=20)
+println("=========GAIL_MLP==============")
+simparams = create_simparams(VALDATA_SUBSET; iteration=447, 
+  gru_type=false, force_initial_file=true)
+#simparams = create_simparams(VALDATA_SUBSET; iteration=499, 
+#  gru_type=false)
+validate(models["gail_mlp"]; simparams=simparams, 
+  gru_type=false, modelname="gail_mlp", max_loop=1000, 
+  n_simulations_per_trace=20)
+\end{lstlisting}
+
+Performing validation using authors driving data.
+Edit the file {\tt ./julia/validation/validation.jl} last paragraph like as follows.
+Please remind {\tt force\_initial\_file} must be {\tt true}. 
+
+\begin{lstlisting}[style=DOS]
+models = load_models(;force_initial_file=true)
+println("=========GAIL_GRU==============")
+#simparams = create_simparams(VALDATA_SUBSET; iteration=413, 
+#  gru_type=true, force_initial_file=true)
+simparams = create_simparams(VALDATA_SUBSET; iteration=499,
+  gru_type=true)
+validate(models["gail_gru"]; simparams=simparams, 
+  gru_type=true, modelname="gail_gru", max_loop=1000,  
+  n_simulations_per_trace=20)
+println("=========GAIL_MLP==============")
+#simparams = create_simparams(VALDATA_SUBSET; iteration=447, 
+#  gru_type=false, force_initial_file=true)
+simparams = create_simparams(VALDATA_SUBSET; iteration=499, 
+  gru_type=false)
+validate(models["gail_mlp"]; simparams=simparams, 
+  gru_type=false, modelname="gail_mlp", max_loop=1000, 
+  n_simulations_per_trace=20)
+\end{lstlisting}
 
 
 \end{document}
