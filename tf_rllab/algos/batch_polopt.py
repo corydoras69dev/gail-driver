@@ -155,8 +155,9 @@ class BatchPolopt(RLAlgorithm):
                         #self.policy.restore_params(config.LOAD_DIR + "/policy0_" + str(itr) +".ckpt")
                         #self.sampler.algo.policy.restore_params(config.LOAD_DIR + "/policy1_" + str(itr) +".ckpt")
                     else:
-                        with open('newest.txt', 'w') as f:
-                            print(str(itr), file=f)
+                        f = open('iteration.txt', 'w')
+                        f.write(str(itr))
+                        f.close()
 
                     logger.log("Obtaining samples...")
                     #ipdb.set_trace()
