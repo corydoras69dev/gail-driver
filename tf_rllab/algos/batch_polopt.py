@@ -157,6 +157,8 @@ class BatchPolopt(RLAlgorithm):
                     else:
                         f = open('iteration.txt', 'w')
                         f.write(str(itr))
+                        f.write("\n")
+                        f.write(logger.get_snapshot_dir())
                         f.close()
 
                     logger.log("Obtaining samples...")
