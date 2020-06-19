@@ -853,7 +853,8 @@ xterm:\> python ./scripts/train_gail_model.py  --seed 456 --n_iter 500
 
 An interface that bridges julia and python, often causing segmentation faults. In that case, by using the file generated up to the middle,
 
-
+If a segmentation fault occurs, overwrite all files in the newest folder of {\tt gail-exp-[number]} with models.
+For example, suppose {\tt YY-MM-D2/gail-exp-1} is the newest directory. In this case, copy all files included in {\tt YY-MM-D2/gail-exp-1} directly under {\tt models}.(see figure \ref{fig:segmentation_fault_copy})
 
 \begin{figure}[H]
 \begin{forest}
@@ -886,14 +887,14 @@ An interface that bridges julia and python, often causing segmentation faults. I
   [{\bf data} :
    [{\bf NGSIM\_train\_test\_split.h5}]
    [{\bf core1\_temp0\_well1\_neig0\_carl1 .... \_clmr100\_rlmr50\_seed456.h5}]
-   [{\bf models}
+   [{\bf models} .. \textcolor{red}{'files destination'}
     [{\bf YY-MM-D1}
       [{\bf gail-exp-0}]
       [{\bf gail-exp-1}] ...
     ]
     [{\bf YY-MM-D2}
       [{\bf gail-exp-0}]
-      [{\bf gail-exp-1}] ...
+      [{\bf gail-exp-1} .. \textcolor{red}{'files source'} ]
     ]
    ]
   ]
@@ -902,14 +903,20 @@ An interface that bridges julia and python, often causing segmentation faults. I
 ]
 \end{forest}
   \caption{folder structure}
-  \label{fig:folder_struct}
+  \label{fig:segmentation_fault_copy}
 \end{figure}
 
+At this time, pay attention to the highest iteration number of the {\tt policy\_gail\_[type]-[iteration].h5} file in the {\tt gail-exp-[number]} directory.
 
+For example, the newest file in this folder is {\tt policy\_gail\_gru-473.h5}, the iteration number is 473.
+In this case, consequently start must start from iteration 471 (471 is 473 - 2).
+In this case, type like as follows.
 
-
-
-
+\begin{lstlisting}[style=DOS]
+xterm:\> cd gail/gail-driver
+xterm:\> python ./scripts/train_gail_model.py  --seed 456 --n_iter 500 \
+    --start_iter 471
+\end{lstlisting}
 
 
 
