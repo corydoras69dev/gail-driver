@@ -121,7 +121,7 @@ VALDATA_SUBSET = create_evaldata(evaldata, foldset_match(assignment, FOLD_TEST),
 FOLDSET_TEST = foldset_match(fill(1, N_SEGMENTS), 1)
 #SIMPARAMS = create_simparams(VALDATA_SUBSET)
 
-function load_models(; context::IntegratedContinuous = CONTEXT, force_initial_file::Bool=false, iteration::Int=499)
+function load_models(; context::IntegratedContinuous = CONTEXT, force_initial_file::Bool=false, iteration::Int=499, gru_type=true)
     models = Dict{AbstractString, DriverModel}()
 
     models["SG"] = StaticGaussianDriver{AccelTurnrate}(context, MvNormal([0.07813232200000027,0.0025751835870002756], [[0.533053, 0.000284046] [0.000284046, 0.000348645]]))
@@ -150,23 +150,25 @@ function load_models(; context::IntegratedContinuous = CONTEXT, force_initial_fi
 #    models["GMR"] = open(io->read(io, GaussianMixtureRegressionDriver, extractor), "GMR.txt", "r")
 
     if force_initial_file
-        iteration = 413
-        filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_gru.h5")
-        println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
-        models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
-
-        iteration = 447
-        filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_mlp.h5")
-        println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
-        models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
+        if gru_type 
+            filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_gru.h5")
+            println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
+            models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
+        else
+            filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "gail_mlp.h5")
+            println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
+            models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
+        end
     else
-        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_gru-" * string(iteration) * ".h5")
-        println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
-        models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
-
-        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_mlp-" * string(iteration) * ".h5")
-        println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
-        models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
+        if gru_type
+            filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_gru-" * string(iteration) * ".h5")
+            println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
+            models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
+        else
+            filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_mlp-" * string(iteration) * ".h5")
+            println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
+            models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
+        end
     end
 
 #    filepath = joinpath(ROOT_FILEPATH, "julia", "validation",  "models", "bc_gru.h5")
@@ -228,7 +230,7 @@ policy_type = "gail_mlp"
 
 gru_type = (policy_type == "gail_gru")
 
-models = load_models(;force_initial_file=force_initial_file, iteration=load_iteration)
+models = load_models(;force_initial_file=force_initial_file, iteration=load_iteration, gru_type=gru_type)
 println("=========START==============")
 simparams = create_simparams(VALDATA_SUBSET; iteration=load_iteration, gru_type=gru_type, force_initial_file=force_initial_file)
 validate(models[policy_type]; simparams=simparams, gru_type=gru_type, modelname=policy_type, max_loop=1000, n_simulations_per_trace=20)
