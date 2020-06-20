@@ -15,6 +15,7 @@ import joblib
 from rllab import config
 import h5py
 import pickle
+import os
 
 class BatchPolopt(RLAlgorithm):
     """
