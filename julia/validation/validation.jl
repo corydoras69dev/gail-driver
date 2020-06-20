@@ -160,12 +160,11 @@ function load_models(; context::IntegratedContinuous = CONTEXT, force_initial_fi
         println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
         models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
     else
-        iteration = 499
-        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_gru-499.h5")
+        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_gru-" * string(iteration) * ".h5")
         println("models[gail_gru] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)")
         models["gail_gru"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=true)
 
-        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_mlp-499.h5")
+        filepath = joinpath(ROOT_FILEPATH, "data", "models", "policy_gail_mlp-" * string(iteration) * ".h5")
         println("models[gail_mlp] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)")
         models["gail_mlp"] = Auto2D.load_gru_driver(filepath, iteration, gru_layer=false)
     end
@@ -208,15 +207,31 @@ function validate(model::DriverModel;
     metrics_df
 end
 
-models = load_models(;force_initial_file=true)
-println("=========GAIL_GRU==============")
-simparams = create_simparams(VALDATA_SUBSET; iteration=413, gru_type=true, force_initial_file=true)
-#simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=true)
-validate(models["gail_gru"]; simparams=simparams, gru_type=true, modelname="gail_gru", max_loop=1000, n_simulations_per_trace=20)
-#println("=========GAIL_MLP==============")
-#simparams = create_simparams(VALDATA_SUBSET; iteration=447, gru_type=false, force_initial_file=true)
-#simparams = create_simparams(VALDATA_SUBSET; iteration=499, gru_type=false)
-#validate(models["gail_mlp"]; simparams=simparams, gru_type=false, modelname="gail_mlp", max_loop=1000, n_simulations_per_trace=20)
+
+#
+# 
+#
+
+###############################
+# true means using authors data
+# false means users data
+force_initial_file = false
+
+###############################
+# iteration number for loading
+load_iteration = 499
+
+####### POLICY TYPE ###########
+# please select "gail_mlp" or "gail_gru"
+policy_type = "gail_mlp"
+#policy_type = "gail_gru"
+
+gru_type = (policy_type == "gail_gru")
+
+models = load_models(;force_initial_file=force_initial_file, iteration=load_iteration)
+println("=========START==============")
+simparams = create_simparams(VALDATA_SUBSET; iteration=load_iteration, gru_type=gru_type, force_initial_file=force_initial_file)
+validate(models[policy_type]; simparams=simparams, gru_type=gru_type, modelname=policy_type, max_loop=1000, n_simulations_per_trace=20)
 
 println("DONE!")
 

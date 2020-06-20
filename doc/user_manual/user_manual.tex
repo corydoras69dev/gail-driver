@@ -860,7 +860,7 @@ The following arguments can be used to {\tt train\_gail\_mode.py}
 
 \begin{tabular}{|p{4cm}|p{10cm}|} \hline
 --seed & random number seed (default 456) \\
---policy\_type & policy type \{'mlp' or `gru' \} (default mlp) \\
+--policy\_type & policy type \{'mlp' or 'gru' \} (default mlp) \\
 --n\_iter & Number of iterations to perform. (default 500) \\
 --start\_iter & Start iteration to perform. (default 0) \\
 \hline
@@ -873,9 +873,10 @@ First time
 
 \begin{lstlisting}[style=DOS]
 xterm:\> cd gail/gail-driver
-xterm:\> python ./scripts/train_gail_model.py --seed 456 --n_iter 500 
+xterm:\> python ./scripts/train_launcher.py --seed 456 --n_iter 500 
 \end{lstlisting}
 
+\begin{comment}
 An interface that bridges julia and python, often causing segmentation faults. In that case, by using the file generated up to the middle,
 
 If a segmentation fault occurs, overwrite all files in the newest folder of {\tt gail-exp-[number]} with models.
@@ -939,10 +940,10 @@ In this case, type like as follows.
 
 \begin{lstlisting}[style=DOS]
 xterm:\> cd gail/gail-driver
-xterm:\> python ./scripts/train_gail_model.py --seed 456 --n_iter 500 \
+xterm:\> python ./scripts/train_launcher.py --seed 456 --n_iter 500 \
    --start_iter 471
 \end{lstlisting}
-
+\end{comment}
 
 
 \section{Validation}
