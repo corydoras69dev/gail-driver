@@ -7,6 +7,7 @@ import shutil
 files = glob.glob(r'./data/models/tf_*.ckpt')
 files.extend(glob.glob(r'./data/models/tf_*.ckpt.meta'))
 files.extend(glob.glob(r'./data/models/policy_gail*.h5'))
+files.extend(glob.glob(r'./data/models/smpls_*.pkl'))
 
 for file in files:
     print('removing .. ', file)
@@ -42,6 +43,7 @@ while True:
         files = glob.glob(line + '/tf_*.ckpt')
         files.extend(glob.glob(line + '/tf_*.ckpt.meta'))
         files.extend(glob.glob(line + '/policy_gail*.h5'))
+        files.extend(glob.glob(line + '/smpls_*.pkl'))
         for file in files:
             print('copying .. ', file)
             shutil.copy(file, "./data/models")
