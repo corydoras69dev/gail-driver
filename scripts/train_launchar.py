@@ -12,7 +12,8 @@ for file in files:
     print('removing .. ', file)
     os.remove(file)
 
-os.remove('iteration.txt')
+if os.path.exists('iteration.txt'):
+    os.remove('iteration.txt')
 
 argv = sys.argv
 cmd = "python ./scripts/train_gail_model.py "
