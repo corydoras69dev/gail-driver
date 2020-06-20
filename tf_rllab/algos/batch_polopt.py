@@ -201,6 +201,7 @@ class BatchPolopt(RLAlgorithm):
                             input("Plotting evaluation run: Press Enter to "
                                   "continue...")
         self.shutdown_worker()
+        os.remove("iteration.txt")
 
     def log_diagnostics(self, paths):
         self.env.log_diagnostics(paths)
