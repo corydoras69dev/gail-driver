@@ -77,8 +77,51 @@ The program is roughly divided into a training program consisting of Python and 
 
 \subsection{Training program summary}
 
-All vehicle behavior is described by the Julia program. The discriminator network is implemented in Python's {\tt tensorflow}.
-policy network is a {\tt ForwardNets} module by Julia, but uses python's tensorflow to configure the network.
+All vehicle behavior is described by the Julia program. The discriminator network is implemented in Python's {\tt Tensorflow}.
+policy network is a {\tt ForwardNets} module by Julia, but uses python's {\tt Tensorflow} to configure the network.
+
+
+{\tt train\_gail\_model.py} is the main program of the task.
+However, this program often stops at a segmentation fault. It is speculated that the cause lies in the interface between Python and Julia's code, but it is not known for certain.
+Meta launch program {\tt train\_launcher.py} continues the calculation by using snapshot when {\tt train\_gail\_model.py} terminates improperly.
+
+Main loop of this task is the function {\tt train()} at the end line of {\tt train\_gail\_model.py}.
+Implementation of this function is in the code {\tt batch\_polopt.py}.
+
+
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=16cm]{./figures/training_launch_program.png}
+\caption{launch program}
+\label{fig:training_launch}
+\end{center}
+\end{figure}
+
+
+
+
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=12cm]{./figures/training_main_program.png}
+\caption{main program}
+\label{fig:training_main}
+\end{center}
+\end{figure}
+
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=12cm]{./figures/training_batch_program.png}
+\caption{batch program}
+\label{fig:training_batch}
+\end{center}
+\end{figure}
+
 
 
 
