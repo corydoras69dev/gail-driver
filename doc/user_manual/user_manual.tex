@@ -230,7 +230,7 @@ In this document, the items included in the GAIL package for Generative Adversar
 
 \chapter{Julia Packages Structure}
 
-{\textcolor{red} {\bf It is assumed that julia packages are always on the git repository. Please commit the following julia packages on your github one by one.}}
+{\textcolor{red} {\bf It is assumed that Julia packages are always on the git repository. Please commit the following Julia packages on your github one by one.}}
 
 \definecolor{folderbg}{RGB}{124,166,198}
 \definecolor{folderborder}{RGB}{110,144,169}
@@ -295,7 +295,7 @@ In this document, the items included in the GAIL package for Generative Adversar
 ]
 ]
 \end{forest}
-  \caption{julia packages structure}
+  \caption{Julia packages structure}
   \label{fig:folder_struct}
 \end{figure}
 
@@ -303,7 +303,7 @@ In this document, the items included in the GAIL package for Generative Adversar
 
 
 \chapter{Installation}
-Requirements: Computer running Ubuntu 18.04 (x86\_64(Intel)). Compiler: g$++$ version 7.  JULIA 0.6.4, Python 2.7, Anaconda2 version 5.3.0.
+Requirements: Computer running Ubuntu 18.04 (x86\_64(Intel)). Compiler: g$++$ version 7.  Julia 0.6.4, Python 2.7, Anaconda2 version 5.3.0.
 
 \textbf{Note: Please check the compiler (g$++$) version before all work. gcc/g$++$ version must be 7.}
 
@@ -445,7 +445,7 @@ xterm:\> sudo ln -s /home/[username]/julia/julia-0.6.4/bin/julia \
 xterm:\> cd ..
 \end{lstlisting}
 
-%チェックのため、 JULIA とタイプすると、JULIA 環境になる。
+%チェックのため、 Julia とタイプすると、Julia 環境になる。
 
 \begin{lstlisting}[style=DOS]
 xterm:\> julia
@@ -461,7 +461,7 @@ xterm:\> julia
 
 \section{Install gail-driver and julia packages}
 
-JULIA packages are premised on github.
+Julia packages are premised on github.
 Here will show how to download registered packages from github.
 
 \begin{lstlisting}[style=DOS]
@@ -483,7 +483,7 @@ xterm:\> cd ../..
     %\label{fig: 2DMOT2015}
 \end{figure}
 
-To connect python and julia.
+To connect Python and Julia.
 
 \begin{lstlisting}[style=DOS]
 xterm:\> julia
@@ -495,7 +495,7 @@ julia> using PyCall
 julia> ENV["PYTHON"]="/home/[username]/anaconda2/bin/python"
 julia> rm(Pkg.dir("PyCall","deps","PYTHON"))
 julia> Pkg.build("PyCall")
-julia> exit() # escape from JULIA terminal 
+julia> exit() # escape from Julia terminal 
 \end{lstlisting}
 
 On ubuntu terminal.
@@ -504,7 +504,7 @@ xterm:\> export CONDA_JL_HOME="/home/[username]/anaconda2/bin"
 xterm:\> sudo julia -e 'Pkg.build("Conda")'
 \end{lstlisting}
 
-On julia terminal.
+On Julia terminal.
 \begin{lstlisting}[style=DOS]
 julia> Pkg.add("IJulia")
 julia> Pkg.add("PyPlot")
@@ -524,12 +524,14 @@ xterm:\> export PYTHONPATH="/home/[userinstall]/gail/gail-driver"
 \end{lstlisting}
 %(これは、.bashrc にも記載するとよい)
 
-It is recommended to write to the environment variable PYTHON also in {\tt .bashrc}.
+It is recommended to write to the environment variable {\tt PYTHONPATH} also in {\tt .bashrc}.
 
 
 \section{Install data}
 
-Make the following directory - "~/gail/gail-driver/data", "~/gail/gail-driver/julia/validation/models". Extract data.zip and put the data as follows. The file RootDir.jl must be made as follows.
+Make the following directory - {\tt "~/gail/gail-driver/data"}, 
+
+{\tt "~/gail/gail-driver/julia/validation/models"}. Extract {\tt data.zip} and put the data as follows. The file {\tt RootDir.jl} must be made as follows.
 
 \begin{lstlisting}[style=DOS]
 ROOT_FILEPATH="/home/[username]/gail/gail-driver/"
@@ -617,7 +619,7 @@ The empty directory {\tt models} must be made under the directory {\tt gail/gail
 %ROOT_FILEPATH="/home/[username]/gail/gail-driver/"
 %\end{lstlisting}
 %
-%JULIA modules are premised on github.
+%Julia modules are premised on github.
 %Here will show how to register to github and download from github.
 
 
@@ -859,10 +861,10 @@ The following arguments can be used to {\tt train\_gail\_mode.py}
 
 
 \begin{tabular}{|p{4cm}|p{10cm}|} \hline
---seed & random number seed (default 456) \\
---policy\_type & policy type \{'mlp' or 'gru' \} (default mlp) \\
---n\_iter & Number of iterations to perform. (default 500) \\
---start\_iter & Start iteration to perform. (default 0) \\
+{\tt -\hspace{0.1mm}-seed} & random number seed (default 456) \\
+{\tt -\hspace{0.1mm}-policy\_type} & policy type \{'mlp' or 'gru' \} (default mlp) \\
+{\tt -\hspace{0.1mm}-n\_iter} & Number of iterations to perform. (default 500) \\
+{\tt -\hspace{0.1mm}-start\_iter} & Start iteration to perform. (default 0) \\
 \hline
 \end{tabular}
 
@@ -1019,7 +1021,7 @@ xterm:\> cd gail/gail-driver
 xterm:\> julia ./julia/validation/validation.jl
 \end{lstlisting}
 
-After validation , result files named {\tt 'valid\_gail\_mlp[loop times].csv'} or {\tt 'valid\_gail\_gru[loop times].csv'} will be obtained.
+After validation , result files named {\tt 'valid\_gail\_mlp[iteration].csv'} or {\tt 'valid\_gail\_gru[iteration].csv'} will be obtained.
 In this file, the metrics of the same items as the paper are described.
 
 \begin{landscape}
@@ -1046,12 +1048,13 @@ policy_type = "gail_mlp"
 
 gru_type = (policy_type == "gail_gru")
 
-models = load_models(;force_initial_file=force_initial_file, iteration=load_iteration, gru_type=gru_type)
+models = load_models(;force_initial_file=force_initial_file, 
+    iteration=load_iteration, gru_type=gru_type)
 println("=========START==============")
 simparams = create_simparams(VALDATA_SUBSET; iteration=load_iteration, 
-gru_type=gru_type, force_initial_file=force_initial_file)
+    gru_type=gru_type, force_initial_file=force_initial_file)
 validate(models[policy_type]; simparams=simparams, gru_type=gru_type, 
-modelname=policy_type, max_loop=1000, n_simulations_per_trace=20)
+    modelname=policy_type, max_loop=1000, n_simulations_per_trace=20)
 \end{lstlisting}
 \end{landscape}
 
@@ -1069,6 +1072,6 @@ The trained file generated by train is {\tt policy\_gail\_mlp\_[iteration].h5} o
 \hspace{-6mm}{\tt policy\_gil\_gru\_[iteration].h5}.
 It contains only the iteration related to the filename. When using these, only the corresponding iteration number can be used.
 
-
+In the author's original code, the iteration is specified as 447 when MLP is selected and the iteration is 413 when GRU is selected. (There is no explanation for why chose the 413 and 447 magic numbers.)
 \end{document}
 

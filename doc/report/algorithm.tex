@@ -141,11 +141,11 @@ Continuous state problems are often solved as a finite problem by introducing fe
 To maximize future reward R, we define a action value function Q and state value function V that represents the forecast of future reward.
 
 \[
-V^{\pi}(s) = \mathbb{E}[R_{t} + \gamma R_{t+1} + \gamma^{2} R_{t+2}  + ....|s] = \mathbb{E} \Bigl[ \sum_{i=1}^{\infty} \gamma ^{i-1} R_{t+i} |s \Bigr]
+V_{\pi}(s) = \mathbb{E}[R_{t} + \gamma R_{t+1} + \gamma^{2} R_{t+2}  + ....|s] = \mathbb{E} \Bigl[ \sum_{i=1}^{\infty} \gamma ^{i-1} R_{t+i} |s \Bigr]
 \]
 
 \[
-Q^{\pi}(s,a) = \mathbb{E}[R_{t} + \gamma R_{t+1} + \gamma^{2} R_{t+2}  + ....|s,a] = \mathbb{E} \Bigl[ \sum_{i=1}^{\infty} \gamma ^{i-1} R_{t+i} |s,a \Bigr]
+Q_{\pi}(s,a) = \mathbb{E}[R_{t} + \gamma R_{t+1} + \gamma^{2} R_{t+2}  + ....|s,a] = \mathbb{E} \Bigl[ \sum_{i=1}^{\infty} \gamma ^{i-1} R_{t+i} |s,a \Bigr]
 \]
 
 \begin{comment}
@@ -155,7 +155,7 @@ Q^{\pi}(s,a) = \mathbb{E}[R_{t} + \gamma R_{t+1} + \gamma^{2} R_{t+2}  + ....|s,
 When updating the policy $\pi$ to $\pi′$, an advantage function that evaluates the advantage of updating the policy is defined.
 
 \[
-A^{\pi}(s,a) = Q^{\pi}(s,a) - V^{\pi}(s), \hspace{1cm} \forall (s,a) \in S \times A 
+A_{\pi}(s,a) = Q_{\pi}(s,a) - V_{\pi}(s), \hspace{1cm} \forall (s,a) \in S \times A 
 \]
 
 
@@ -170,7 +170,7 @@ A^{\pi}(s,a) = Q^{\pi}(s,a) - V^{\pi}(s), \hspace{1cm} \forall (s,a) \in S \time
 \end{comment}
 
 There are many approaches to maximizing expected future rewards. Many are categorized into value iterations or policy iterations.
-In the value iteration, the initial value function $Q_0$ and the optimum policy are prepared, and the value function $Q_t$ is updated by updating the time by one unit. In the policy iteration, an appropriate initial policy $\pi_0$ is prepared and the policy evaluation $Q^{\pi_t}$ is obtained. Update policy sequentially.
+In the value iteration, the initial value function $Q_0$ and the optimum policy are prepared, and the value function $Q_t$ is updated by updating the time by one unit. In the policy iteration, an appropriate initial policy $\pi_0$ is prepared and the policy evaluation $Q_{\pi_t}$ is obtained. Update policy sequentially.
 
 \begin{comment}
 状態が離散でなく連続の場合、行動の価値計算は容易でないため、方策反復の方が用いられる。本報告書は方策反復だけを述べる。
@@ -191,13 +191,13 @@ Consider learning this function by differentiating it with respect to the policy
 
 \[
 \theta' = \theta + \alpha \nabla_{\theta}\eta(\pi_\theta) , \hspace{5mm}
-\Bigl( \eta(\theta) = V^{\pi_\theta}(s_t) = \sum_a \pi_\theta (a|s) Q^{\pi_\theta}(s,a) \Bigr)
+\Bigl( \eta(\theta) = V_{\pi_\theta}(s_t) = \sum_a \pi_\theta (a|s) Q_{\pi_\theta}(s,a) \Bigr)
 \]
 
 $\eta(\theta)$ is the expected gain and try to climb the gradient to maximize the expected gain.
 
 \[
-\nabla_\theta \eta(\theta)=\mathbb{E}\Bigl[ \nabla_\theta \log \pi_\theta(a|s) Q^{\pi_\theta}(s,a)   \Bigr]
+\nabla_\theta \eta(\theta)=\mathbb{E}\Bigl[ \nabla_\theta \log \pi_\theta(a|s) Q_{\pi_\theta}(s,a)   \Bigr]
 \]
 
 \[
