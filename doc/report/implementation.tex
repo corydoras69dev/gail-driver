@@ -81,12 +81,9 @@ All vehicle behavior is described by the Julia program. The discriminator networ
 policy network is a {\tt ForwardNets} module by Julia, but uses python's {\tt Tensorflow} to configure the network.
 
 
-{\tt train\_gail\_model.py} is the main program of the task.
+{\tt train\_gail\_model.py} is the main program of the task. (see Figure.\ref{fig:training_launch})
 However, this program often stops at a segmentation fault. It is speculated that the cause lies in the interface between Python and Julia's code, but it is not known for certain.
 Meta launch program {\tt train\_launcher.py} continues the calculation by using snapshot when {\tt train\_gail\_model.py} terminates improperly.
-
-Main loop of this task is the function {\tt train()} at the end line of {\tt train\_gail\_model.py}.
-Implementation of this function is in the code {\tt batch\_polopt.py}.
 
 
 
@@ -99,24 +96,30 @@ Implementation of this function is in the code {\tt batch\_polopt.py}.
 \end{center}
 \end{figure}
 
+In the {\tt train\_gail\_model.py} code. (see Figure\ref{fig:training_main})
+Policy networks (MLP and GRU) are generated from the line 274 to the line 294, 
+by using {\tt GaussianMLPPolicy()} and {\tt GaussianGRUPolicy()}.
 
+Reward network(for GAIL discriminator) is generated from the line 337 to the line 331, by using {\tt RewardMLP()}.
 
 
 
 
 \begin{figure}[H]
 \begin{center}
-\includegraphics[width=12cm]{./figures/training_main_program.png}
+\includegraphics[width=14cm]{./figures/training_main_program.png}
 \caption{main program}
 \label{fig:training_main}
 \end{center}
 \end{figure}
 
+Main loop of this task is the function {\tt train()} at the end line of {\tt train\_gail\_model.py}.
+Implementation of this function is in the code {\tt batch\_polopt.py}.
 
 
 \begin{figure}[H]
 \begin{center}
-\includegraphics[width=12cm]{./figures/training_batch_program.png}
+\includegraphics[width=14cm]{./figures/training_batch_program.png}
 \caption{batch program}
 \label{fig:training_batch}
 \end{center}
@@ -135,7 +138,13 @@ All vehicle behavior is described by the Julia program.
 Policy is also written in Julia.
 The validation program does not update Policy. It also doesn't use the discriminator, so it doesn't use Python code.
 
-Now writing...
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=14cm]{./figures/validation_main.png}
+\caption{validation main}
+\label{fig:validationa_main}
+\end{center}
+\end{figure}
 
 
 \section{Features for observation}
