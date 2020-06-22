@@ -1039,6 +1039,42 @@ After validation , result files named {\tt 'valid\_gail\_mlp[iteration].csv'} or
 \hspace{-6mm}{\tt 'valid\_gail\_gru[iteration].csv'} will be obtained.
 In this file, the metrics of the same items as the paper are described.
 
+\begin{figure}[H]
+\begin{forest}
+  for tree={
+    font=\ttfamily,
+    grow'=0,
+    child anchor=west,
+    parent anchor=south,
+    anchor=west,
+    calign=first,
+    inner xsep=7pt,
+    edge path={
+      \noexpand\path [draw, \forestoption{edge}]
+      (!u.south west) +(7.5pt,0) |- (.child anchor) pic {folder} \forestoption{edge label};
+    },
+    file/.style={edge path={\noexpand\path [draw, \forestoption{edge}]
+          (!u.south west) +(7.5pt,0) |- (.child anchor) pic {file} \forestoption{edge label};}
+    },
+    before typesetting nodes={
+      if n=1
+        {insert before={[,phantom]}}
+        {}
+    },
+    fit=band,
+    before computing xy={l=15pt},
+  }
+[Home directory
+[{\bf julia} : Julia directory
+ [{\bf validation} : .. \textcolor{red}{'metrics csv file'}
+ ]
+]
+]
+\end{forest}
+  \caption{folder structure}
+  \label{fig:folder_struct}
+\end{figure}
+
 \begin{landscape}
 \subsection{Optional}
 
