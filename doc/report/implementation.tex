@@ -439,7 +439,7 @@ a = Array{ArrayElement}(size)              # definition of array
 
 Old style definition is as follows.
 
-\begin{lstlisting}[caption=Julia old style definition 
+\begin{lstlisting}[caption=Original code 
 ,label=list:julia_05_forwardnets, language=Pascal, frame=single]
 function Base.push!{T}(net::ForwardNet{T}, ::Type{Variable},
     name::Symbol,
@@ -492,7 +492,7 @@ Following function {\tt get\_sdge()} is a function for extracting an edge from a
 
 Old style definition is as follows.
 
-\begin{lstlisting}[caption=Julia old style definition 
+\begin{lstlisting}[caption=Original code 
 ,label=list:julia_05_automotive, escapechar=!, language=Pascal, frame=single]
 function get_edge(pts::Array{VecE2,1}, i::Int, npts::Int=length(pts))
     a = pts[i]
@@ -531,8 +531,9 @@ end
 
 \subsubsection{Vec.jl/src/Vec.jl}
 
+The specified version of Vec.jl does not define some of the functions used. Added the following definitions.
 
-\begin{lstlisting}[caption=Changed code 
+\begin{lstlisting}[caption=Added code 
 ,label=list:julia_06_vec, escapechar=!, language=Pascal, frame=single]
 Vec.abs2(a::VecE2) = a.x * a.x + a.y * a.y
 Vec.abs2(a::VecSE2) = a.x * a.x + a.y * a.y
@@ -540,3 +541,28 @@ Vec.abs(a::VecE2) = sqrt(a.x * a.x + a.y * a.y)
 Vec.abs(a::VecSE2) = sqrt(a.x * a.x + a.y * a.y)
 \end{lstlisting}
 
+
+\subsubsection{julia/validation/validation.jl}
+
+This if statement determines whether the net object of model is of GRU type or MLP type. The net object is a policy, and MLP or GRU neural networks are registered. If it is of GRU type, it is intended to initialize the recurrent layer.
+
+However, there is a misunderstanding of grammar. The {\tt fieldnames()} function is a function to check the member of the instance, and does not check the layers registered in {\tt net}.
+Therefore, this if statement never holds.
+
+
+\begin{lstlisting}[caption=Original code 
+,label=list:julia_06_vec, escapechar=!, language=Pascal, frame=single]
+    if Symbol("gru") in fieldnames(model.net)
+        model.net[:gru].h_prev = zeros(length(model.net[:gru].h_prev))
+    end
+\end{lstlisting}
+
+The unmodified code is designed not to initialize the GRU type recurrent layer.
+After introducing a new variable called {\tt gru\_type}, the GRU type recurrent layer is always initialized.
+
+\begin{lstlisting}[caption=Changed code 
+,label=list:julia_06_vec, escapechar=!, language=Pascal, frame=single]
+    if gru_type
+        model.net[:gru].h_prev = zeros(length(model.net[:gru].h_prev))
+    end
+\end{lstlisting}
