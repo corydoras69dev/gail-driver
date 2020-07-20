@@ -292,6 +292,7 @@ output bias & 2   \\
 \label{tab:reward_gru_gru_network}
 \end{table}
 
+
 \begin{table}[H]
 \centering
 \begin{tabular}{|c|r|r|}
@@ -301,9 +302,7 @@ input  & 51 $\times$ 256 & 256  \\
 hidden0 & 256 $\times$ 128 & 128 \\
 hidden1 & 128 $\times$ 64  & 64  \\
 hidden2 & 64 $\times$ 64   & 64  \\
-hidden3 & 64 $\times$ 32   & 32  \\
-hidden4 & 32 $\times$ 32   & 32  \\
-output & 32 $\times$ 2    & 2  \\
+output & 64 $\times$ 32   & 32  \\
 \hline
 \end{tabular} 
 \caption{GRU network mlp layer}
@@ -318,8 +317,6 @@ output & 32 $\times$ 2    & 2  \\
 
 \subsection{MLP structure}
 
-
-
 \begin{table}[H]
 \centering
 \begin{tabular}{|c|r|r|}
@@ -329,12 +326,17 @@ input  & 51 $\times$ 256 & 256  \\
 hidden0 & 256 $\times$ 128 & 128 \\
 hidden1 & 128 $\times$ 64  & 64  \\
 hidden2 & 64 $\times$ 64   & 64  \\
-output & 64 $\times$ 32   & 32  \\
+hidden3 & 64 $\times$ 32   & 32  \\
+hidden4 & 32 $\times$ 32   & 32  \\
+output & 32 $\times$ 2    & 2  \\
 \hline
 \end{tabular} 
 \caption{MLP network layer}
 \label{tab:reward_mlp_network}
 \end{table}
+
+
+
 
 
 
